@@ -30,5 +30,31 @@ async addPost (title, body, posterId){
    title = title.trim()
    body = body.trim()
     posterId = posterId.trim()
+},
+
+async getAllPosts() {
+    const postCollection = await posts();
+    const postList = await postCollection.find({}).toArray();
+    if(!postList){
+        throw "Could not get all posts."
+    }
+    return postList;
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

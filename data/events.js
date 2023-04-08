@@ -1,7 +1,7 @@
 import {events} from "../config/mongoCollections.js";
 import validation from "../helpers.js";
 import {ObjectId} from "mongodb";
-import {aws4} from "mongodb/src/deps.js";
+
 
 let exportedMethods = {
     async create(
