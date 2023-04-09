@@ -4,7 +4,7 @@ Events and Community Application 💻
 
 Stevens Institute of Technology, NJ 
 
-🧑‍ #Group Members: 
+# Group Members: 
 1. Atishay Jain
 2. Shashank Prabhakara
 3. Venkata Sai Karthik Guthikonda
