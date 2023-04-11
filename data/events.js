@@ -1,10 +1,9 @@
 import {events} from "../config/mongoCollections.js";
-import validation from "../helpers.js";
+import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
-import {aws4} from "mongodb/src/deps.js";
 
 let exportedMethods = {
-    async create(
+    async createEvent(
         eventName,
         description,
         date,
@@ -20,8 +19,8 @@ let exportedMethods = {
             time,
             location,
             organizer,
-            seatingCapacity,
-        );
+            seatingCapacity
+    );
         const eventCollection = await events();
         let event = {
             eventName: evenData.eventName,
@@ -30,7 +29,7 @@ let exportedMethods = {
             time: evenData.time,
             location: evenData.location,
             organizer: evenData.organizer,
-            attendees: [],
+            attendees: {},
             seatingCapacity: evenData.seatingCapacity,
             comments: {}
         }
@@ -119,3 +118,5 @@ let exportedMethods = {
         return await eventCollection.findOne({_id: new ObjectId(id)});
     }
 }
+
+export default exportedMethods;
