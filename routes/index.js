@@ -7,7 +7,7 @@ const constructorMethod = (app) => {
     // app.use('/users', usersRoute);
     // app.use('/posts', postsRoute);
     app.use('/events', eventsRoute);
-    // app.use('/comments', commentsRoute);
+    app.use('/comments', commentsRoute);
 
     app.use('*', (req, res) => {
         res.status(404).json({error: 'Route Not found'});

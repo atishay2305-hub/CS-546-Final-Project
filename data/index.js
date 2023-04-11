@@ -8,5 +8,5 @@ import eventsDataFunctions from './events.js'
 // export const postsData = postsDataFunctions;
 export const eventsData = eventsDataFunctions;
 // export const attendeesData = attendeesFunctions;
-// export const commentsData = commentsFunctions;
+export const commentsData = commentsFunctions;
 

@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb';
 import { exportedMethods } from './posts.js';
 
 
-const create = async (postId, userWhoCommented, content, date) => {
+export const create = async (postId, userWhoCommented, content, date) => {
     if(!postId || !userWhoCommented || !content || !date ){
         throw "You must provide all valid inputs to add a comment."
     }
@@ -11,7 +11,7 @@ const create = async (postId, userWhoCommented, content, date) => {
     if(typeof(postId) !== "string"){
         throw "PostId must be of type string."
     }
-
+    
     postId = postId.trim()
     if(postId.length === 0){
         throw "Post ID cannot be empty string."
@@ -77,7 +77,7 @@ if (isNaN(dateTimeStamp)) {
     
 }
 
-const getAll = async (postId) => {
+export const getAll = async (postId) => {
     if(!postId){
         throw "You must provide postID to get all comments."
     }
@@ -109,7 +109,7 @@ const getAll = async (postId) => {
 return comments;
 }
 
-const get = async (commentId) => {
+export const get = async (commentId) => {
     if(!commentId){
         throw "You must provide commentID to retrieve all comments."
     }
@@ -145,7 +145,7 @@ const get = async (commentId) => {
     }
 }
 
-const remove = async(commentId) => {
+export const remove = async(commentId) => {
     if(!commentId){
         throw "You must provide commentID to remove a comment."
     }
