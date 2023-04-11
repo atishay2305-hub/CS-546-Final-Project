@@ -1,24 +1,23 @@
 {
-  "name": "web-programming-final-project",
+  "name": "finalproject",
   "version": "1.0.0",
-  "description": "CS546-Final-Project: Stevens Student Community Portal Application",
+  "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "app.js"
+    "test": "node app.js",
+    "start": "node app.js"
   },
-  "author": "Atishay Jain, Shashank Prabhakara, Venkata Sai Karthik Guthikonda, Chao Zheng",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.20.2",
-    "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "mongodb": "^5.1.0",
+    "mongodb": "^5.2.0",
     "mongoose": "^7.0.3",
     "passport": "^0.6.0",
-    "passport-local": "^1.0.0",
-    "passport-local-mongoose": "^8.0.0"
-  }
+    "passport-local": "^1.0.0"
+}
 }
