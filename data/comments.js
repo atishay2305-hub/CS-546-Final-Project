@@ -77,7 +77,7 @@ if (isNaN(dateTimeStamp)) {
     
 }
 
-const getAll = async (postId){
+const getAll = async (postId) => {
     if(!postId){
         throw "You must provide postID to get all comments."
     }
