@@ -31,7 +31,16 @@ const exportedMethods = {
           throw `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`;
         return strVal;
       },
-      
+
+    emailValidation(email){
+        let emailregex=/^[a-z]([a-z]){2,}@stevens\.edu$/g;
+      let emailmatchfound = email.match(emailregex);
+      if(emailmatchfound === null) {
+        throw new Error('users should use stevens mail only');
+      }
+    },
+
+
     async checkEventConditions(
         eventName,
         description,
