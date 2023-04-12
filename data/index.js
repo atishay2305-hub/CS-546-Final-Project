@@ -1,6 +1,7 @@
 // import usersDataFunctions from './users.js'
 // import postsDataFunctions from './posts.js'
 import eventsDataFunctions from './events.js'
+import * as  userDataFunctions from './users.js';
 // import attendeesFunctions from './attendees.js'
 // import commentsFunctions from './comments.js'
 
@@ -9,4 +10,5 @@ import eventsDataFunctions from './events.js'
 export const eventsData = eventsDataFunctions;
 // export const attendeesData = attendeesFunctions;
 export const commentsData = commentsFunctions;
+export const userData = userDataFunctions;
 

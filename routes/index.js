@@ -1,6 +1,7 @@
 // import usersRoute from './users.js';
 // import postsRoute from './posts.js';
 import eventsRoute from './events.js'
+import userRoutes from './users.js';
 // import commentsRoute from './comments.js'
 
 const constructorMethod = (app) => {
@@ -8,6 +9,7 @@ const constructorMethod = (app) => {
     // app.use('/posts', postsRoute);
     app.use('/events', eventsRoute);
     app.use('/comments', commentsRoute);
+    app.use('/users', userRoutes);
 
     app.use('*', (req, res) => {
         res.status(404).json({error: 'Route Not found'});
