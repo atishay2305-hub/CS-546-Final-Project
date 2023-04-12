@@ -3,10 +3,14 @@
 import eventsDataFunctions from './events.js'
 // import attendeesFunctions from './attendees.js'
 // import commentsFunctions from './comments.js'
+import postDataFunction from './posts.js';
+import commentDataFunction from './comments.js';
 
-// export const usersData = usersDataFunctions;
-// export const postsData = postsDataFunctions;
+export const postData = postDataFunction;
+export const commentData = commentDataFunction;
+
+
 export const eventsData = eventsDataFunctions;
 // export const attendeesData = attendeesFunctions;
-export const commentsData = commentsFunctions;
+//export const commentsData = commentsFunctions;
 
