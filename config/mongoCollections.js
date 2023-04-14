@@ -16,7 +16,8 @@ const getCollectionFn = (collection) => {
 // Note: You will need to change the code below to have the collection required by the assignment!
 // export const users = getCollectionFn('users');
 // export const posts = getCollectionFn('posts');
+export const posts = getCollectionFn('Posts');
 export const events = getCollectionFn('events');
-
+export const users = getCollectionFn('users');
 
 

@@ -91,4 +91,17 @@ const exportedMethods = {
     }
 };
 
+export function inputvalidation(inputvalidationsarr) {
+    for(let input of inputvalidationsarr) {
+        switch(input.checktype) {
+            case 'undefined': if (!input.value) throw `You must provide a ${input.inputname}`;
+                              break;
+            case 'string': if (typeof input.value !== 'string') throw `${input.inputname} must be a string`;
+                              break;
+            case 'emptystring': if (input.value.trim().length === 0) throw `${input.inputname} cannot be an empty string or just spaces`;
+                             break;
+        }
+    }
+}
+
 export default exportedMethods;
