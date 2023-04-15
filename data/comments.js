@@ -1,183 +1,157 @@
-import {posts} from './mongoCollections.js';
-import { ObjectId } from 'mongodb';
-import { exportedMethods } from './posts.js';
+import { posts } from "../config/mongoCollections.js";
+import { ObjectId } from "mongodb";
 
 
-const create = async (postId, userWhoCommented, content, date) => {
-    if(!postId || !userWhoCommented || !content || !date ){
-        throw "You must provide all valid inputs to add a comment."
-    }
+let exportedMethods ={
 
-    if(typeof(postId) !== "string"){
-        throw "PostId must be of type string."
-    }
-
-    postId = postId.trim()
-    if(postId.length === 0){
-        throw "Post ID cannot be empty string."
-    }
-
-    if(!ObjectId.isValid(postId)){
-        throw "Invalid post ID format."
-    }
-
-    const postCollection = await posts()
-    const single_post = await postCollection.findOne({_id: new ObjectId(postId)});
-    if(!single_post){
-        throw "No band is found with that id."
-    }
-
-    if(typeof(userWhoCommented) !== "string"){
-        throw "User must be of type string."
-    }
-
-    if(userWhoCommented.trim().length === 0){
-        throw "Content cannot be an empty string."
-    }
-
+    async createComment(postid,comment){
+        const newComment ={
+            _id:new ObjectId(),
+            userid:"64321cb672bd393e9e0f9ef4",
+            comment:comment,
+            comment_created:new Date()
+          }
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id:new ObjectId(postid)});
+        
+      if (post === null){
+        throw new Error('No post record found with that Id');
+      }
     
-    if(typeof(content) !== "string"){
-        throw "Content should be of type string."
-    }
-
-    if(content.trim().length === 0){
-        throw "Content cannot be an empty string."
-    }
-
-  if (typeof(date) !== "string") {
-  throw "Date must be of type string."
-    }
-
-if (date.trim().length === 0) {
-  throw "Date cannot be an empty string."
-    }
-
-const dateRegex = /^([0-9]{2})\/([0-9]{2})\/([0-9]{4})$/;
-
-date = date.trim();
-if (!dateRegex.test(date)){
-  throw "Invalid date format. Date must be in the format mm/dd/yyyy.";
-    }
-const dateTimeStamp = Date.parse(date);
-if (isNaN(dateTimeStamp)) {
-  throw "Invalid date string."
-    }
-
-    const comment = {
-        _id: new ObjectId(),
-        userWhoCommented: userWhoCommented.trim(),
-        content: content.trim(),
-        date: date
-    }
-
-    const result = await postCollection.updateOne(
-        { _id: new ObjectId(postId) },
-        { $push: { comments: comment } }
-      );
+    //const bandOne =await bands();
+    const postComment = await postCollection.updateOne({_id:new ObjectId(postid)},{$push:{comments:newComment}});
     
-}
-
-const getAll = async (postId){
-    if(!postId){
-        throw "You must provide postID to get all comments."
+    console.log(postComment.modifiedCount);
+    if (postComment.modifiedCount === 0){
+      throw new Error("unable to add comments to the posts");
     }
+    
+    const postUpdate = await postCollection.findOne({_id:new ObjectId(postid)});
+    if(!postUpdate){
+        throw new Error('Not able to update after adding ratings');
+      }
+      
+      postUpdate._id = new ObjectId(postUpdate._id).toString();
+      postUpdate.comments.forEach(element => {
+        element._id = new ObjectId(element._id).toString();
+      });
+     return postUpdate;
+    },
 
-    if(typeof(postId) !== "string"){
-        throw "Post ID must be of type string."
-    }
+    async getAllComment(postid){
 
-    postId = postId.trim()
-    if(postId.length === 0){
-        throw "The postID is empty."
-    }
-
-    if(!ObjectId.isValid(postId)){
-        throw "Invalid post ID format."
-    }
-
-    const postCollection = await posts();
-    const single_post = await postCollection.findOne({_id: new ObjectId(postId)});
-    if(!single_post){
-        throw [404, `No post is found with that ID.`]
-    }
-
-    const post = await postCollection.findOne({ _id: new ObjectId(postId)});
-    const comments = post.comments.map((comment) => {
-    comment._id = comment._id.toString();
-    return comment;
-});
-return comments;
-}
-
-const get = async (commentId) => {
-    if(!commentId){
-        throw "You must provide commentID to retrieve all comments."
-    }
-
-    if(typeof(commentId) !== "string"){
-        throw "Comment ID must be string."
-    }
-
-    commentId = commentId.trim()
-    if(commentId.length == 0){
-        throw "CommentID must not be empty."
-    }
-
-    if(!ObjectId.isValid(commentId)){
-        throw "Invalid comment ID format."
-    }
-
-    let flagComment = false;
-    let bands = await exportedMethods.getAll();
-    for(let i in posts){
-        let tempComments = posts[i]["comments"]
-        for(j in tempComments){
-            let tempId = JSON.stringify(tempComments[j]["_id"]);
-            if(tempId.includes(commentId)){
-                flagComment = true;
-                return { ...tempComments[j], _id: tempComments[j]._id.toString()};
-            }
+        if(!postid){
+            throw new Error('postid is not provided');
+          }
+          if (typeof postid !=='string'||postid.trim().length===0){
+            throw new Error('postid must be a non empty string');
+          }
+          postid = postid.trim();
+          if(!ObjectId.isValid(postid)){
+            throw new Error('postid object Id');
+          }
+          
+          //await bandInfo.get()
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(postid)});
+        if(post === null){  
+          throw new Error('No band record found with that Id');
         }
-    }
+        post._id = new ObjectId(post._id).toString();
+        post.comments.forEach((element)=>{
+          element._id = new ObjectId(element._id).toString();
+        });
+      
+        return post.comments;
 
-    if(flagComment === false){
-        throw "Comment does not exist."
-    }
-}
+    },
 
-const remove = async(commentId) => {
-    if(!commentId){
-        throw "You must provide commentID to remove a comment."
-    }
+    async getByComment(id){
 
-    if(typeof(commentId) !== "string"){
-        throw "Comment ID must be of type string."
-    }
+        if(!id){
+            throw new Error('albumID is not provided');
+          }
+        
+          if (typeof id !=='string'||id.trim().length===0){
+            throw new Error('albumID must be a non empty string');
+          }
+        
+          id = id.trim();
+        
+          if(!ObjectId.isValid(id)){
+            throw new Error('Invalid object Id');
+          }
+    
+          const postCollection = await posts();
+          let postList = await postCollection.find({}).toArray();
+          //console.log(bandList);
+          postList = postList.map((post) => {
+            post._id = new ObjectId(post._id).toString();
+            post.comments.forEach((element)=>{
+              element._id = new ObjectId(element._id).toString();
+            });
+            return post;
+          });
+        
+          const res = postList.filter((p)=>{
+            return p.comments.find((element)=>element._id===id);
+          }).map((p)=>p.comments.find((ele)=>ele._id===id)).find((elem)=>elem._id===id);
+        
+          if(res === undefined){
+            throw new Error('Album not found');
+          }
+          else{
+            return res;
+          }
+    },
 
-    if(!ObjectId.isValid(commentId)){
-        throw "Invalid comment ID format."
-    }
+    async removeComment(id){
 
-    const postDb = await posts();
-    const postData = await exportedMethods.getAll();
-
-    let postID;
-    let post;
-    let flag = false;
-
-    for(let i in postData){
-        let tempComments = postData[i]["comments"]
-        for(let j in tempComments){
-            let tempId = JSON.stringify(tempComments[j]["_id"]);
-            if(tempId.includes(commentId)){
-                flag = true;
-                postID = postData[i]._id;
-                post = await postDb.findOne({_id: new ObjectId(postID)});
-                tempComments.splice(j, 1);
-                await postDb.updateOne({_id: post._id}, {$set: {comments: tempComments}});
-                break;
+        if(!id){
+            throw new Error('Comment is not provided');
+          }
+        
+          if (typeof id !=='string'||id.trim().length===0){
+            throw new Error('commentId must be a non empty string');
+          }
+        
+          id = id.trim();
+        
+          if(!ObjectId.isValid(id)){
+            throw new Error('Invalid object Id');
+          }
+        
+          const postCollection = await posts();
+          const post = await postCollection.findOne({'comments._id':new ObjectId(id)});
+          if(!post){
+            throw new Error('No post found!');
+          }
+          console.log(post);
+          const comment = await postCollection.updateOne({_id:new ObjectId(post._id)},{$pull:{comments:{_id:new ObjectId(id)}}});
+          if (comment.modifiedCount===0){
+            throw new Error('could not update record with that ID');
+          }
+        
+          const commentAfterRemove = await postCollection.findOne({_id:new ObjectId(post._id)});
+            if(!commentAfterRemove){
+              throw new Error('Not able to update after removing posts');
             }
-        }
+            console.log(commentAfterRemove);
+    
+            commentAfterRemove._id = new ObjectId(commentAfterRemove._id).toString();
+            commentAfterRemove.comments.forEach(element => {
+              element._id = new ObjectId(element._id).toString();
+            });
+        
+            /*let deletionResult = {
+              movieId: commentAfterRemove._id ,
+              deleted: true
+            }*/
+            
+            return commentAfterRemove;
     }
-}
+
+};
+
+export default exportedMethods;
 

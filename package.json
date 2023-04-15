@@ -1,7 +1,7 @@
 {
   "name": "finalproject",
   "version": "1.0.0",
-  "description": "",
+  "description": "Events and Community Application 💻",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -15,9 +15,15 @@
     "body-parser": "^1.20.2",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "mongodb": "^5.2.0",
-    "mongoose": "^7.0.3",
-    "passport": "^0.6.0",
-    "passport-local": "^1.0.0"
-}
+    "moment": "^2.29.4",
+    "mongodb": "^5.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atishay2305-hub/CS-546-Final-Project.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atishay2305-hub/CS-546-Final-Project/issues"
+  },
+  "homepage": "https://github.com/atishay2305-hub/CS-546-Final-Project#readme"
 }

@@ -20,6 +20,27 @@ const exportedMethods = {
         }
         return id;
     },
+
+    checkString(strVal, varName) {
+        if (!strVal) throw `Error: You must supply a ${varName}!`;
+        if (typeof strVal !== 'string') throw `Error: ${varName} must be a string!`;
+        strVal = strVal.trim();
+        if (strVal.length === 0)
+          throw `Error: ${varName} cannot be an empty string or string with just spaces`;
+        if (!isNaN(strVal))
+          throw `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`;
+        return strVal;
+      },
+
+    emailValidation(email){
+        let emailregex=/^[a-z]([a-z]){2,}@stevens\.edu$/g;
+      let emailmatchfound = email.match(emailregex);
+      if(emailmatchfound === null) {
+        throw new Error('users should use stevens mail only');
+      }
+    },
+
+
     async checkEventConditions(
         eventName,
         description,
