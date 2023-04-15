@@ -1,142 +1,74 @@
 import {ObjectId} from "mongodb";
-import {events} from "./config/mongoCollections.js";
 
 const exportedMethods = {
-    async checkEventId(id) {
+
+    checkId(id) {
         if (!id) {
             throw `No id is provided`;
         }
         if (typeof id !== "string" || id.trim().length === 0) {
             throw `The id provided is not a string or an  empty string`;
         }
+        id = id.trim()
         if (!ObjectId.isValid(id)) {
             throw `Invalid Object ID`;
-        }
-        id = id.trim();
-        const bandCollection = await events();
-        const getBand = await bandCollection.findOne({_id: new ObjectId(id)});
-        if (getBand === null) {
-            throw `No event with that id`;
         }
         return id;
     },
 
-    checkString(strVal, varName) {
-        if (!strVal) throw `Error: You must supply a ${varName}!`;
-        if (typeof strVal !== 'string') throw `Error: ${varName} must be a string!`;
-        strVal = strVal.trim();
-        if (strVal.length === 0)
-          throw `Error: ${varName} cannot be an empty string or string with just spaces`;
-        if (!isNaN(strVal))
-          throw `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`;
-        return strVal;
-      },
-
-    emailValidation(email){
-        let emailregex=/^[a-z]([a-z]){2,}@stevens\.edu$/g;
-      let emailmatchfound = email.match(emailregex);
-      if(emailmatchfound === null) {
-        throw new Error('users should use stevens mail only');
-      }
+    checkEmail(email) {
+        if (!email) throw "Please provide email";
+        if (typeof email !== "string" || email.trim().length <= 0) throw "Please provide a valid email";
+        email = email.trim().toLowerCase();
+        const emailPrefixRegex = /^[a-z0-9!#$%&'*+\-/=?^_`{|}~.]+@/i;
+        const emailPostfixRegex = /@stevens\.edu$/i;
+        if (!emailPrefixRegex.test(email)) {
+            throw "Email address should contain only letters, numbers, and common special symbols !#$%&'*+\\-/=?^_`{|} before the @ symbol"
+        }
+        if (!emailPostfixRegex.test(email)) {
+            throw "Error: Email address should end with stevens.edu";
+        }
+        return email;
     },
 
-
-    async checkEventConditions(
-        eventName,
-        description,
-        date,
-        time,
-        location,
-        organizer,
-        seatingCapacity) {
-        if (!eventName) {
-            throw `Eventname not provided`;
-        }
-        if (!description) {
-            throw "Description not provided";
-        }
-        if (!date) {
-            throw `Date not provided`;
-        }
-        if (!time) {
-            throw `Time not provided`;
-        }
-        if (!location) {
-            throw `Location not provided`;
-        }
-        if (!organizer) {
-            throw `Organizer not provided`;
-        }
-        if (!seatingCapacity) {
-            throw `SeatingCapacity not provided`
-        }
-        if (typeof eventName !== "string" || eventName.trim().length === 0) {
-            throw `EventName is not string or empty string`;
-        }
-        if (typeof description !== "string" || description.trim().length === 0) {
-            throw `Description is not string or empty string`;
-        }
-        if (typeof date !== "string" || date.trim().length === 0) {
-            throw `date is not string or empty string`;
-        }
-        if (typeof time !== "string" || time.trim().length === 0) {
-            throw `time is not string or empty string`;
-        }
-        if (typeof location !== "string" || location.trim().length === 0) {
-            throw `Location is not string or empty string`;
-        }
-        if (typeof organizer !== "string" || organizer.trim().length === 0) {
-            throw `Organizer is not string or empty string`;
-        }
-        if (typeof seatingCapacity !== "number") {
-            throw `YearBandWasFormed is not a number`;
-        }
-        if (seatingCapacity < 0 || seatingCapacity > 1000) {
-            throw `SeatingCapacity only available between 0 - 1000`;
-        }
-        eventName = eventName.trim();
-        description = description.trim();
-        date = date.trim();
-        time = time.trim();
-        location = location.trim();
-        organizer = organizer.trim();
-        return {
-            eventName: eventName,
-            description: description,
-            date: date,
-            time: time,
-            location: location,
-            organizer: organizer,
-            seatingCapacity: seatingCapacity,
-        }
+    checkPassword(password) {
+        if (!password) throw "Password not provided";
+        if (typeof password !== "string") throw "Password must be a string!";
+        password = password.trim();
+        if (password.length < 8 || password.length > 25) throw "Password must be at least 8 characters and less than 25 characters";
+        const spaceRegex = /\s/;
+        const passwordRegex = /(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*\W)/;
+        if (!spaceRegex.test(password)) throw "Password must not contain whitespace";
+        if (!passwordRegex.test(password)) throw "Password must contain at least 1 uppercase character, 1 lowercase character, 1 number, and 1 special symbol";
+        return password;
     },
-    async checkPostEventConditions(postData){
-        const requiredFields = ["eventName", "description", "date",
-            "time", "location", "organizer", "seatingCapacity"];
-        requiredFields.forEach(element => {
-            if (!postData[element] || postData[element] === null) {
-                throw `There are no fields in the request body`;
-            }
-        });
-        await this.checkEventConditions(postData.eventName, postData.description, postData.date,
-            postData.time, postData.location, postData.organizer, postData.seatingCapacity);
 
-        postData.eventName = postData.eventName.trim();
-        postData.description = postData.description.trim();
-        postData.date = postData.date.trim();
-        postData.time = postData.time.trim();
-        postData.location = postData.location.trim();
-        postData.organizer = postData.organizer.trim();
-        return {
-            eventName: postData.eventName,
-            description: postData.description,
-            date: postData.date,
-            time: postData.time,
-            location: postData.location,
-            organizer: postData.organizer,
-            seatingCapacity: postData.seatingCapacity
-        };
+    checkName(name, valName) {
+        if(!name) throw `${valName} not provided`;
+        if(typeof name !== "string" || name.trim().length === 0) throw `Please provide a valid input of ${valName}`
+        name = name.trim();
+        const nameRegex = /^[a-zA-Z]+$/;
+        if(!nameRegex.test(name)) throw `${valName} must be only contain character a-z and A-Z`
+        return name;
+    },
+
+    checkDOB(DOB){
+        if(!DOB) throw `DOB not provided`;
+        if(typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB"
+        const dateRegex = /^(\d{2})-(\d{2})-(\d{4})$/;
+        if(!dateRegex.test(DOB)) throw "Invalid date format, should be 'mm-dd-yyyy";
+        const[_, month, day, year] = DOB.match(dateRegex);
+
+        const  currentDate = new Date();
+        const inputDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+
+        if(inputDate > currentDate){
+            throw "Date of birth must be in the past";
+        }
+        return inputDate;
     }
+
+
 };
 
 export default exportedMethods;
