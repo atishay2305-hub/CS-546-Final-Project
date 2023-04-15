@@ -231,7 +231,6 @@ let exportedMethods = {
 
 export default exportedMethods;
 
-=======
 import {ObjectId} from 'mongodb';
 import validation from './validationchecker.js';
 
