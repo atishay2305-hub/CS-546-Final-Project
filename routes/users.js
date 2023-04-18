@@ -1,7 +1,7 @@
 import {Router} from 'express';
 const router = Router();
 import {userData} from '../data/index.js';
-import validation from '../data/validation.js';
+import validation from '../validationchecker.js';
 
 router
   .route('/')

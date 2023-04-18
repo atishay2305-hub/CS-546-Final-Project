@@ -7,7 +7,7 @@ const authenticationCode = "Get privilege";
 let exportedMethods = {
     /**
      *
-     * @param firstName
+     * @param firstName 
      * @param lastName
      * @param email
      * @param userName
@@ -27,6 +27,7 @@ let exportedMethods = {
         DOB,
         isAdmin = false,
         authentication = null
+        
     ) {
         firstName = validation.checkLegitName(firstName, 'First name');
         lastName = validation.checkLegitName(lastName, 'Last name');
