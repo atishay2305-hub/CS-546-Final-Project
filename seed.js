@@ -123,12 +123,12 @@ const main = async () => {
         console.log(e);
     }
 
-    try{
-        const user1 = await userData.putPost()
+    // try{
+    //     const user1 = await userData.putPost()
 
-    }catch (e){
-        console.log(e);
-    }
+    // }catch (e){
+    //   console.log(e);
+    // }
 
     console.log("Done");
     await closeConnection();

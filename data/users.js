@@ -7,7 +7,7 @@ const authenticationCode = "Get privilege";
 let exportedMethods = {
     /**
      *
-     * @param firstName
+     * @param firstName 
      * @param lastName
      * @param email
      * @param userName
