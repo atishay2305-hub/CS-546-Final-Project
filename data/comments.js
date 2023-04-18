@@ -1,79 +1,77 @@
-import { posts } from "../config/mongoCollections.js";
+import { posts, users } from "../config/mongoCollections.js";
 import { ObjectId } from "mongodb";
-
+import moment from 'moment';
 
 let exportedMethods ={
 
-    async createComment(postid,comment){
+    async createComment(id,comment){
         const newComment ={
             _id:new ObjectId(),
-            userid:"64321cb672bd393e9e0f9ef4",
             comment:comment,
-            comment_created:new Date()
+            comment_created:moment().format('MM-DD-YYYYTHH:mm:ss.SSSZ')
           }
-        const postCollection = await posts();
-        const post = await postCollection.findOne({_id:new ObjectId(postid)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id:new ObjectId(id)});
         
-      if (post === null){
+      if (user === null){
         throw new Error('No post record found with that Id');
       }
     
-    //const bandOne =await bands();
-    const postComment = await postCollection.updateOne({_id:new ObjectId(postid)},{$push:{comments:newComment}});
+    const userComment = await userCollection.updateOne({_id:new ObjectId(id)},{$push:{comments:newComment}});
     
-    console.log(postComment.modifiedCount);
-    if (postComment.modifiedCount === 0){
-      throw new Error("unable to add comments to the posts");
+    console.log(userComment.modifiedCount);
+    if (userComment.modifiedCount === 0){
+      throw new Error("unable to add comments to the user");
     }
     
-    const postUpdate = await postCollection.findOne({_id:new ObjectId(postid)});
-    if(!postUpdate){
+    const userUpdate = await userCollection.findOne({_id:new ObjectId(id)});
+    if(!userUpdate){
         throw new Error('Not able to update after adding ratings');
       }
       
-      postUpdate._id = new ObjectId(postUpdate._id).toString();
-      postUpdate.comments.forEach(element => {
+      userUpdate._id = new ObjectId(userUpdate._id).toString();
+      userUpdate.comments.forEach(element => {
         element._id = new ObjectId(element._id).toString();
       });
-     return postUpdate;
+     return userUpdate;
     },
 
-    async getAllComment(postid){
+    async getAllComment(id){
 
-        if(!postid){
-            throw new Error('postid is not provided');
+        if(!id){
+            throw new Error('UserId is not provided');
           }
-          if (typeof postid !=='string'||postid.trim().length===0){
-            throw new Error('postid must be a non empty string');
+          if (typeof id !=='string'||id.trim().length===0){
+            throw new Error('UserId must be a non empty string');
           }
-          postid = postid.trim();
-          if(!ObjectId.isValid(postid)){
-            throw new Error('postid object Id');
+          id = id.trim();
+          if(!ObjectId.isValid(id)){
+            throw new Error('Not a valid ID');
           }
           
           //await bandInfo.get()
-        const postCollection = await posts();
-        const post = await postCollection.findOne({_id: new ObjectId(postid)});
-        if(post === null){  
-          throw new Error('No band record found with that Id');
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(id)});
+        if(user === null){  
+          throw new Error('No user record found with that Id');
         }
-        post._id = new ObjectId(post._id).toString();
-        post.comments.forEach((element)=>{
+        user._id = new ObjectId(user._id).toString();
+        user.comments.forEach((element)=>{
           element._id = new ObjectId(element._id).toString();
         });
       
-        return post.comments;
+        return user.comments;
 
     },
 
     async getByComment(id){
 
         if(!id){
-            throw new Error('albumID is not provided');
+            throw new Error('userID is not provided');
           }
         
           if (typeof id !=='string'||id.trim().length===0){
-            throw new Error('albumID must be a non empty string');
+            throw new Error('userID must be a non empty string');
           }
         
           id = id.trim();
@@ -82,23 +80,23 @@ let exportedMethods ={
             throw new Error('Invalid object Id');
           }
     
-          const postCollection = await posts();
-          let postList = await postCollection.find({}).toArray();
+          const userCollection = await users();
+          let userList = await userCollection.find({}).toArray();
           //console.log(bandList);
-          postList = postList.map((post) => {
-            post._id = new ObjectId(post._id).toString();
-            post.comments.forEach((element)=>{
+          userList = userList.map((user) => {
+            user._id = new ObjectId(user._id).toString();
+            user.comments.forEach((element)=>{
               element._id = new ObjectId(element._id).toString();
             });
-            return post;
+            return user;
           });
         
-          const res = postList.filter((p)=>{
+          const res = userList.filter((p)=>{
             return p.comments.find((element)=>element._id===id);
           }).map((p)=>p.comments.find((ele)=>ele._id===id)).find((elem)=>elem._id===id);
         
           if(res === undefined){
-            throw new Error('Album not found');
+            throw new Error('comment not found');
           }
           else{
             return res;
@@ -121,20 +119,20 @@ let exportedMethods ={
             throw new Error('Invalid object Id');
           }
         
-          const postCollection = await posts();
-          const post = await postCollection.findOne({'comments._id':new ObjectId(id)});
-          if(!post){
-            throw new Error('No post found!');
+          const userCollection = await users();
+          const user = await userCollection.findOne({'comments._id':new ObjectId(id)});
+          if(!user){
+            throw new Error('No User found!');
           }
-          console.log(post);
-          const comment = await postCollection.updateOne({_id:new ObjectId(post._id)},{$pull:{comments:{_id:new ObjectId(id)}}});
+          console.log(user);
+          const comment = await userCollection.updateOne({_id:new ObjectId(user._id)},{$pull:{comments:{_id:new ObjectId(id)}}});
           if (comment.modifiedCount===0){
             throw new Error('could not update record with that ID');
           }
         
-          const commentAfterRemove = await postCollection.findOne({_id:new ObjectId(post._id)});
+          const commentAfterRemove = await userCollection.findOne({_id:new ObjectId(user._id)});
             if(!commentAfterRemove){
-              throw new Error('Not able to update after removing posts');
+              throw new Error('Not able to update after removing users');
             }
             console.log(commentAfterRemove);
     
