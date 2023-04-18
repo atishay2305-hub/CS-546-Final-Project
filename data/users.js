@@ -300,4 +300,3 @@ let exportedMethods = {
 }
 
 export default exportedMethods;
-
