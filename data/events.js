@@ -5,7 +5,6 @@ import path from 'path';
 import fs from 'fs';
 import {userData} from "./index.js";
 
-
 let exportedMethods = {
     async createEvent(
         eventName,
