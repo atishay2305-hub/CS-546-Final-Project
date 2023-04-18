@@ -14,17 +14,17 @@ let exportedMethods = {
         organizer,
         seatingCapacity,
         image,
-        adminId
+        userId
     ){
         eventName = validation.checkName(eventName, "EventName");
         description = validation.checkPhrases(description, "Description");
         buildingName = validation.checkLocation(buildingName, "BuildingName");
         organizer = validation.checkName(organizer, "Organizer");
         seatingCapacity = validation.checkCapacity(seatingCapacity);
-        adminId = validation.checkId(adminId);
+        userId = validation.checkId(userId);
 
         const userCollection = await users();
-        const checkAdmin = await userCollection.findOne({_id: new ObjectId(adminId)});
+        const checkAdmin = await userCollection.findOne({_id: new ObjectId(userId)});
         if(!checkAdmin.isAdmin){
             throw `Only administrator can edit events`
         }
@@ -32,7 +32,7 @@ let exportedMethods = {
         if(!image || image.trim().length === 0){
             path = "public/images/default.png";
         }else{
-            path = this.createImage(image);
+            path = validation.createImage(image);
         }
 
         let event = {
@@ -52,25 +52,12 @@ let exportedMethods = {
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
             throw `Could not add event`;
         }
-        if(adminId){
-            await userData.putEvent(insertInfo.insertedId.toString(), adminId);
+        if(userId){
+            await userData.putEvent(insertInfo.insertedId.toString(), userId);
         }
         event._id = insertInfo.insertedId.toString();
         event = Object.assign({_id: event._id}, event);
         return event;
-    },
-
-    async createImage(image){
-        const imageName = `${Date.now()}-${Math.floor(Math.random()*1000)}.jpg`;
-        const dir = path.join(__dirname, '../public/uploads');
-        if(!fs.existsSync(dir)){
-            fs.mkdirSync(dir);
-        }
-        const imagePath = path.join(dir, imageName);
-        const response = await fetch(image);
-        const buffer = await response.buffer();
-        await fs.promises.writeFile(imagePath, image, buffer);
-        return imagePath;
     },
 
     async removeImage(image){
@@ -124,7 +111,7 @@ let exportedMethods = {
 
     async updateEvent(
         id,
-        adminId,
+        userId,
         eventName,
         description,
         location,
@@ -140,9 +127,9 @@ let exportedMethods = {
         seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
         const userCollection = await users();
         const eventCollection = await events();
-        const checkExist = eventCollection.findOne({_id: new ObjectId(id)});
-        if (!checkExist) throw `Event is not exist with that ${id}`;
-        const checkAdmin = await userCollection.findOne({_id: new ObjectId(adminId)})
+        const checkEventExist = eventCollection.findOne({_id: new ObjectId(id)});
+        if (!checkEventExist) throw `Event is not exist with that ${id}`;
+        const checkAdmin = await userCollection.findOne({_id: new ObjectId(userId)})
         if (!checkAdmin.isAdmin) throw "You're ineligible to edit event"
         let evenData = {
             eventName: eventName,
