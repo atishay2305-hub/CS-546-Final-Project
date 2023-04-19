@@ -80,6 +80,11 @@ let exportedMethods = {
      * @param password
      * @returns {Promise<{authenticatedUser: boolean, userID: string}>}
      */
+    async getAllUsers() {
+        const userCollection = await users();
+        const userList = await userCollection.find({}).toArray();
+        return userList;
+      },
 
     async checkUser(email, password) {
         email = validation.checkEmail(email);
@@ -161,14 +166,14 @@ let exportedMethods = {
     //     return user.commentIDs;
     // },
 
-    // async getUser(email) {
-    //     email = validation.checkEmail(email);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({email: email});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     user._id = user._id.toString();
-    //     return user;
-    // },
+    async getUser(email) {
+        email = validation.checkEmail(email);
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        user._id = user._id.toString();
+        return user;
+    },
 
     async getUserByID(id) {
         id = validation.checkId(id);
