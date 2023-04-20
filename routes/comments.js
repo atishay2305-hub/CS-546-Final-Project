@@ -30,8 +30,8 @@ router
  
     try{
       const commentList = await commentData.getAllComment(req.params.postId);
-  
-      return res.status(200).json(commentList);
+      res.render('comments/comments', {comments: commentList});
+      
     }catch(e){
       return res.status(404).json({error:e.message});
     }
@@ -54,7 +54,8 @@ router
 
     try{
         const comments = await commentData.createComment(req.params.postId,comment);
-        return res.status(200).json(comments);
+        
+        res.redirect(`/comments/comment/${comment._id}`);
     }catch(e){
 
     //console.log(e);
@@ -86,7 +87,7 @@ router
   }
   try{
     const comment = await commentData.getByComment(req.params.commentId);
-    return res.status(200).json(comment);
+    res.render('comments/comment', {comment: comment});
   }catch(e){
     
     return res.status(404).json({error:e.message});
