@@ -5,10 +5,12 @@ import userRoutes from './users.js';
 import eventsRoute from './events.js';
 import postRoutes from './posts.js';
 import commentRoutes from './comments.js';
+import authRoutes from './auth.js';
 // import commentsRoute from './comments.js'
 
 const constructorMethod = (app) => {
 
+    app.use('/',authRoutes);
     app.use('/posts',postRoutes);
     app.use('/events', eventsRoute);
 
