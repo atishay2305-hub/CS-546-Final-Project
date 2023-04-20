@@ -25,6 +25,7 @@ let exportedMethods = {
         email,
         password,
         DOB,
+        dept,
         isAdmin = false,
         authentication = null
         
@@ -51,6 +52,7 @@ let exportedMethods = {
                 email: email,
                 password: await bcrypt.hash(password, 10),
                 DOB: DOB,
+                department:dept,
                 eventIDs: [],
                 comments: [],
                 isAdmin: true
@@ -63,14 +65,19 @@ let exportedMethods = {
                 email: email,
                 password: await bcrypt.hash(password, 10),
                 DOB: DOB,
+                department:dept,
                 postIDs: [],
                 comments: []
             };
         }
         const insertInfo = await userCollection.insertOne(user);
+        console.log(insertInfo);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event.";
-
-        return {createUser: true, userID: insertInfo.insertedId.toString()};
+        const userId = insertInfo.insertedId.toString();
+        const sessionUser = { userId: userId, userName: user.userName };
+        console.log(sessionUser);
+        return { createUser: true,sessionUser:sessionUser};
+        //return {createUser: true, userID: insertInfo.insertedId.toString()};
 
     },
 
@@ -92,7 +99,11 @@ let exportedMethods = {
             checkExist.password
         );
         if (!checkPassword) throw "You may have entered the wrong email address or password."
-        return {authenticatedUser: true, userID: checkExist._id.toString()};
+        const sessionUser = {
+            userId: checkExist._id.toString(),
+            userName: checkExist.userName
+        };
+        return {authenticatedUser: true,sessionUser:sessionUser};
     },
 
 
