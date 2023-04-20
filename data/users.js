@@ -166,12 +166,19 @@ let exportedMethods = {
     //     return user.commentIDs;
     // },
 
-    async getUser(email) {
+    async getUserByEmail(email) {
         email = validation.checkEmail(email);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
         if (!user) throw `Error: ${user} not found`; //check password as well
         user._id = user._id.toString();
+        return user;
+    }, 
+    async getUserByUserNameOrEmail(userName, email){
+        email = validation.checkEmail(email);
+        userName = validation.checkName(userName);
+        const userCollection = await users();
+        let user = userCollection.findOne({userName: userName});
         return user;
     },
 

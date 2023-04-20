@@ -12,19 +12,19 @@ const db= await dbConnection();
     //     DOB: "04-01-2002",
     // };
 
-try{
-const user = await userData.removeUserById('643f041e0639d003d498816b');
-console.log(user);
-}catch(e){
-    console.log(e);
-}
+// try{
+// const user = await userData.removeUserById('643f041e0639d003d498816b');
+// console.log(user);
+// }catch(e){
+//     console.log(e);
+// }
 
-/*try{
-const comment = await commentData.createComment('643f041e0639d003d498816b',"Hello how are you?");
+try{
+const comment = await commentData.createComment('643f3edec2137a9db93c1d5b',"Hello how are you?");
 console.log(comment);
 }catch(e){
     console.log(e);
-}*/
+}
 
 /*try{
     const comment = await commentData.removeComment('643f07dee2ef68b3316eed1e');
