@@ -1,7 +1,7 @@
 {
   "name": "finalproject",
   "version": "1.0.0",
-  "description": "Events and Community Application 💻",
+  "description": "Events and Community Application",
   "main": "index.js",
   "type": "module",
   "scripts": {

@@ -8,5 +8,41 @@
 </head>
 <body>
     {{{body}}}
+    <link rel="stylesheet" href="/public/css/main.css">
+    <title>Event and Community Application</title>
+</head>
+<body>
+    <nav id="get-posts-navbar">
+    <form action="/search" method="GET">
+    <input type="text" name="query" placeholder="Search...">
+    <button type="submit">Search</button>
+    </form>
+    </nav>
+    
+    <div id="menu" role="navigation">
+        <ul>
+            <li><a href="/">Home Page</a></li>
+            <li><a href="/createpost">Create Post</a></li>
+            {{#if loginuser}}
+            <li><a class="has-sub" href="#">My Account</a>
+            <ul class="dl-submenu">
+                <li><a href="/myposts">My Posts</a></li>
+                <li><a href="/editprofile">Edit Profile</a></li>
+                <li class="log"><a href="/logout">Log Out</a></li>
+            </ul>
+            {{else}}
+            </li>
+            <li><a href="/views/login/signup/login.handlebars"></a></li>
+            <li><a href="/views/login/signup/signup.handlebars"></a></li>
+            </ul>
+            </div>
+        {{/if}}
+
+            <footer role="contentinfo">
+        <div class="copyright">
+            <p>&copy; EventCommunityApplication</p>
+        </div>
+    </footer>
+    
 </body>
 </html>

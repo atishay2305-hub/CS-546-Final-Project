@@ -3,6 +3,7 @@ import exphbs from 'express-handlebars';
 import session from 'express-session';
 const app = express();
 import configRoutes from './routes/index.js';
+// import handlebars from 'express-handlebars';
 
 import {fileURLToPath} from 'url';
 import  {dirname} from 'path';
@@ -26,12 +27,10 @@ app.use(session({
   }));
 
 
-
 configRoutes(app);
-
-
 
 app.listen(3000, () => {
     console.log("We've now got a server!");
     console.log('Your routes will be running on http://localhost:3000');
 });
+

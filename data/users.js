@@ -7,17 +7,16 @@ const authenticationCode = "Get privilege";
 let exportedMethods = {
     /**
      *
-     * @param firstName 
-     * @param lastName
-     * @param email
-     * @param userName
-     * @param password
-     * @param DOB
-     * @param isAdmin
-     * @param authentication
+     * @param {string} firstName
+     * @param {string} lastName
+     * @param {string} email
+     * @param {string} userName
+     * @param {string} password
+     * @param {string} DOB
+     * @param {boolean} isAdmin
+     * @param {string} authentication
      * @returns {Promise<{createUser: boolean, userID: string}>}
      */
-
     async createUser(
         firstName,
         lastName,
@@ -87,6 +86,11 @@ let exportedMethods = {
      * @param password
      * @returns {Promise<{authenticatedUser: boolean, userID: string}>}
      */
+    async getAllUsers() {
+        const userCollection = await users();
+        const userList = await userCollection.find({}).toArray();
+        return userList;
+      },
 
     async checkUser(email, password) {
         email = validation.checkEmail(email);
@@ -105,7 +109,6 @@ let exportedMethods = {
         };
         return {authenticatedUser: true,sessionUser:sessionUser};
     },
-
 
     async updateUser(
         firstName,
@@ -148,6 +151,47 @@ let exportedMethods = {
         return {updatedUser: true, email: email};
     },
 
+    async getUserByEmail(email) {
+        email = validation.checkEmail(email);
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        user._id = user._id.toString();
+        return user;
+    }, 
+    async getUserByUserNameOrEmail(userName, email){
+        email = validation.checkEmail(email);
+        userName = validation.checkName(userName);
+        const userCollection = await users();
+        let user = await userCollection.findOne({userName: userName});
+        return user;
+    },
+
+    async getUserByID(id) {
+        id = validation.checkId(id);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(id)});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        user._id = user._id.toString();
+        return user;
+    },
+
+    
+    async removeUserById(id) {
+        id = validation.checkId(id);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(id)});
+        const deletionInfo = await userCollection.deleteOne({_id: new ObjectId(id)});
+        if (deletionInfo.deletedCount === 0) {
+            throw `Could not delete user with id of ${id}`;
+        }
+        return `The user ${user._id} has been successfully deleted!`;
+    },
+
+    async isPasswordValid(userName, password){
+        
+    }
+
     // async getPostList(email) {
     //     email = validation.checkEmail(email);
     //     const userCollection = await users();
@@ -172,23 +216,7 @@ let exportedMethods = {
     //     return user.commentIDs;
     // },
 
-    // async getUser(email) {
-    //     email = validation.checkEmail(email);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({email: email});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     user._id = user._id.toString();
-    //     return user;
-    // },
-
-    async getUserByID(id) {
-        id = validation.checkId(id);
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(id)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
-        user._id = user._id.toString();
-        return user;
-    },
+ 
 
     // async putPost(id, postId) {
     //     id = validation.checkId(id);
@@ -299,16 +327,6 @@ let exportedMethods = {
     //     }
     // },
 
-    async removeUserById(id) {
-        id = validation.checkId(id);
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(id)});
-        const deletionInfo = await userCollection.deleteOne({_id: new ObjectId(id)});
-        if (deletionInfo.deletedCount === 0) {
-            throw `Could not delete user with id of ${id}`;
-        }
-        return `The user ${user._id} has been successfully deleted!`;
-    }
 }
 
 export default exportedMethods;
