@@ -18,59 +18,66 @@ let exportedMethods = {
      * @returns {Promise<{createUser: boolean, userID: string}>}
      */
     async createUser(
-      firstName,
-      lastName,
-      email,
-      userName,
-      password,
-      DOB,
-      isAdmin = false,
-      authentication = null
+        firstName,
+        lastName,
+        userName,
+        email,
+        password,
+        DOB,
+        dept,
+        isAdmin = false,
+        authentication = null
+        
     ) {
-      firstName = validation.checkLegitName(firstName, 'First name');
-      lastName = validation.checkLegitName(lastName, 'Last name');
-      userName = validation.checkName(userName, 'User Name');
-      email = validation.checkEmail(email);
-      password = validation.checkPassword(password);
-      DOB = validation.checkDOB(DOB);
-  
-      const userCollection = await users();
-      const checkExist = await userCollection.findOne({ email: email });
-      if (checkExist) throw "The email address is already registered.";
-  
-      let user;
-      if (isAdmin) {
-        if (!authentication || typeof authentication !== "string" || authentication !== authenticationCode) {
-          throw "Invalid admin verification code.";
+        firstName = validation.checkLegitName(firstName, 'First name');
+        lastName = validation.checkLegitName(lastName, 'Last name');
+        userName = validation.checkName(userName, 'User Name');
+        email = validation.checkEmail(email);
+        password = validation.checkPassword(password);
+        DOB = validation.checkDOB(DOB);
+
+        const userCollection = await users();
+        const checkExist = await userCollection.findOne({email: email});
+        if (checkExist) throw "Sign in to this account or enter an email address that isn't already in user.";
+        let user;
+        if (isAdmin) {
+            if (!authentication || typeof authentication !== "string" || authentication !== authenticationCode) {
+                throw "Invalid admin verification code.";
+            }
+            user = {
+                firstName: firstName,
+                lastName: lastName,
+                userName: userName,
+                email: email,
+                password: await bcrypt.hash(password, 10),
+                DOB: DOB,
+                department:dept,
+                eventIDs: [],
+                comments: [],
+                isAdmin: true
+            };
+        } else {
+            user = {
+                firstName: firstName,
+                lastName: lastName,
+                userName: userName,
+                email: email,
+                password: await bcrypt.hash(password, 10),
+                DOB: DOB,
+                department:dept,
+                postIDs: [],
+                comments: []
+            };
         }
-        user = {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          userName: userName,
-          password: await bcrypt.hash(password, 10),
-          DOB: DOB,
-          eventIDs: [],
-          comments: [],
-          isAdmin: true
-        };
-      } else {
-        user = {
-          firstName: firstName,
-          lastName: lastName,
-          email: email,
-          userName: userName,
-          password: await bcrypt.hash(password, 10),
-          DOB: DOB,
-          postIDs: [],
-          comments: []
-        };
-      }
-  
-      const insertInfo = await userCollection.insertOne(user);
-      if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add user.";
-  
-      return { createUser: true, userID: insertInfo.insertedId.toString() };
+        const insertInfo = await userCollection.insertOne(user);
+        console.log(insertInfo);
+        if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event.";
+        const userId = insertInfo.insertedId.toString();
+        const sessionUser = { userId: userId, userName: user.userName };
+        console.log(sessionUser);
+        return { createUser: true,sessionUser:sessionUser};
+        //return {createUser: true, userID: insertInfo.insertedId.toString()};
+
     },
 
     /**
@@ -96,7 +103,11 @@ let exportedMethods = {
             checkExist.password
         );
         if (!checkPassword) throw "You may have entered the wrong email address or password."
-        return {authenticatedUser: true, userID: checkExist._id.toString()};
+        const sessionUser = {
+            userId: checkExist._id.toString(),
+            userName: checkExist.userName
+        };
+        return {authenticatedUser: true,sessionUser:sessionUser};
     },
 
     async updateUser(

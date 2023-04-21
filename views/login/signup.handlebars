@@ -1,23 +1,37 @@
-<form action="">
+
     <div class="container">
         <h1>Sign Up</h1>
+
+
         <p>Fill in the form for creating an account.</p>
 
+
+        <form action="/signup" method="post" id ="myForm">
+
+        <label for ="firstname">First Name: </label>
+        <input type="text" placeholder="First Name" name ="firstname"><br>
+
+        <label for ="lastname">Last Name: </label>
+        <input type="text" placeholder="First Name" name ="lastname"><br>
+
+        <label for ="username">UserName: </label>
+        <input type="text" placeholder="UserName" name ="username"><br>
+
         <label for="email">Email</label>
-        <input type="text" placeholder="Enter Email" name="email">
+        <input type="text" placeholder="Enter Email" name="email"><br>
 
         <label for="psw">Password</label>
-        <input type="password" placeholder="Enter Email" name="email">
+        <input type="password" placeholder="Enter password" name="psw"><br>
 
-        <label for="psw-repeat">Repeat Password></label>
-        <input type="password" placeholder="Repeat Password" name="psw-repeat">
+        <label for="dob">DOB</label>
+        <input type="date" name="dob"><br>
 
-        <label><input type="checkbox" checked ="checked" name="remember">Remember Me</label>
+        <label for="dept">Department</label>
+        <input type="text" placeholder=" Enter Department" name="dept"><br>
+
+        <button type="submit" class="signupbtn">Sign Up</button>
+
+        </form>
+        
     </div>
-
-    <div class="clearfix">
-      <button type="button" class="cancelbtn">Cancel</button>
-      <button type="submit" class="signupbtn">Sign Up</button>
-    </div>
-    
-</form>
+     <script src="/public/js/main.js"></script>
