@@ -204,7 +204,9 @@ let exportedMethods = {
       throw `Could not delete event with id of ${id}`;
     }
 
-    return `${removeEvent.value} has been deleted.`;
+    const removedEvent = await eventCollection.findOne({eventName: removeEvent.eventName});
+
+    return `${removedEvent} has been deleted.`;
   },
 
   async updateEvent(id, eventName, description, buildingName, organizer, seatingCapacity) {

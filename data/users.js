@@ -7,71 +7,70 @@ const authenticationCode = "Get privilege";
 let exportedMethods = {
     /**
      *
-     * @param firstName 
-     * @param lastName
-     * @param email
-     * @param userName
-     * @param password
-     * @param DOB
-     * @param isAdmin
-     * @param authentication
+     * @param {string} firstName
+     * @param {string} lastName
+     * @param {string} email
+     * @param {string} userName
+     * @param {string} password
+     * @param {string} DOB
+     * @param {boolean} isAdmin
+     * @param {string} authentication
      * @returns {Promise<{createUser: boolean, userID: string}>}
      */
-
     async createUser(
-        firstName,
-        lastName,
-        userName,
-        email,
-        password,
-        DOB,
-        isAdmin = false,
-        authentication = null
-        
+      firstName,
+      lastName,
+      email,
+      userName,
+      password,
+      DOB,
+      isAdmin = false,
+      authentication = null
     ) {
-        firstName = validation.checkLegitName(firstName, 'First name');
-        lastName = validation.checkLegitName(lastName, 'Last name');
-        userName = validation.checkName(userName, 'User Name');
-        email = validation.checkEmail(email);
-        password = validation.checkPassword(password);
-        DOB = validation.checkDOB(DOB);
-
-        const userCollection = await users();
-        const checkExist = await userCollection.findOne({email: email});
-        if (checkExist) throw "Sign in to this account or enter an email address that isn't already in user.";
-        let user;
-        if (isAdmin) {
-            if (!authentication || typeof authentication !== "string" || authentication !== authenticationCode) {
-                throw "Invalid admin verification code.";
-            }
-            user = {
-                firstName: firstName,
-                lastName: lastName,
-                userName: userName,
-                email: email,
-                password: await bcrypt.hash(password, 10),
-                DOB: DOB,
-                eventIDs: [],
-                comments: [],
-                isAdmin: true
-            };
-        } else {
-            user = {
-                firstName: firstName,
-                lastName: lastName,
-                userName: userName,
-                email: email,
-                password: await bcrypt.hash(password, 10),
-                DOB: DOB,
-                postIDs: [],
-                comments: []
-            };
+      firstName = validation.checkLegitName(firstName, 'First name');
+      lastName = validation.checkLegitName(lastName, 'Last name');
+      userName = validation.checkName(userName, 'User Name');
+      email = validation.checkEmail(email);
+      password = validation.checkPassword(password);
+      DOB = validation.checkDOB(DOB);
+  
+      const userCollection = await users();
+      const checkExist = await userCollection.findOne({ email: email });
+      if (checkExist) throw "The email address is already registered.";
+  
+      let user;
+      if (isAdmin) {
+        if (!authentication || typeof authentication !== "string" || authentication !== authenticationCode) {
+          throw "Invalid admin verification code.";
         }
-        const insertInfo = await userCollection.insertOne(user);
-        if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event.";
-
-        return {createUser: true, userID: insertInfo.insertedId.toString()};
-
+        user = {
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          userName: userName,
+          password: await bcrypt.hash(password, 10),
+          DOB: DOB,
+          eventIDs: [],
+          comments: [],
+          isAdmin: true
+        };
+      } else {
+        user = {
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          userName: userName,
+          password: await bcrypt.hash(password, 10),
+          DOB: DOB,
+          postIDs: [],
+          comments: []
+        };
+      }
+  
+      const insertInfo = await userCollection.insertOne(user);
+      if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add user.";
+  
+      return { createUser: true, userID: insertInfo.insertedId.toString() };
     },
 
     /**
@@ -99,7 +98,6 @@ let exportedMethods = {
         if (!checkPassword) throw "You may have entered the wrong email address or password."
         return {authenticatedUser: true, userID: checkExist._id.toString()};
     },
-
 
     async updateUser(
         firstName,
@@ -142,6 +140,47 @@ let exportedMethods = {
         return {updatedUser: true, email: email};
     },
 
+    async getUserByEmail(email) {
+        email = validation.checkEmail(email);
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        user._id = user._id.toString();
+        return user;
+    }, 
+    async getUserByUserNameOrEmail(userName, email){
+        email = validation.checkEmail(email);
+        userName = validation.checkName(userName);
+        const userCollection = await users();
+        let user = await userCollection.findOne({userName: userName});
+        return user;
+    },
+
+    async getUserByID(id) {
+        id = validation.checkId(id);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(id)});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        user._id = user._id.toString();
+        return user;
+    },
+
+    
+    async removeUserById(id) {
+        id = validation.checkId(id);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(id)});
+        const deletionInfo = await userCollection.deleteOne({_id: new ObjectId(id)});
+        if (deletionInfo.deletedCount === 0) {
+            throw `Could not delete user with id of ${id}`;
+        }
+        return `The user ${user._id} has been successfully deleted!`;
+    },
+
+    async isPasswordValid(userName, password){
+        
+    }
+
     // async getPostList(email) {
     //     email = validation.checkEmail(email);
     //     const userCollection = await users();
@@ -166,30 +205,7 @@ let exportedMethods = {
     //     return user.commentIDs;
     // },
 
-    async getUserByEmail(email) {
-        email = validation.checkEmail(email);
-        const userCollection = await users();
-        const user = await userCollection.findOne({email: email});
-        if (!user) throw `Error: ${user} not found`; //check password as well
-        user._id = user._id.toString();
-        return user;
-    }, 
-    async getUserByUserNameOrEmail(userName, email){
-        email = validation.checkEmail(email);
-        userName = validation.checkName(userName);
-        const userCollection = await users();
-        let user = userCollection.findOne({userName: userName});
-        return user;
-    },
-
-    async getUserByID(id) {
-        id = validation.checkId(id);
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(id)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
-        user._id = user._id.toString();
-        return user;
-    },
+ 
 
     // async putPost(id, postId) {
     //     id = validation.checkId(id);
@@ -300,16 +316,6 @@ let exportedMethods = {
     //     }
     // },
 
-    async removeUserById(id) {
-        id = validation.checkId(id);
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(id)});
-        const deletionInfo = await userCollection.deleteOne({_id: new ObjectId(id)});
-        if (deletionInfo.deletedCount === 0) {
-            throw `Could not delete user with id of ${id}`;
-        }
-        return `The user ${user._id} has been successfully deleted!`;
-    }
 }
 
 export default exportedMethods;
