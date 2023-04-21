@@ -90,13 +90,9 @@ app.get('/update-post', function(req, res) {
   
     // Redirect the user to a confirmation page
     res.redirect('/getAllPosts');
-  });
+  })
   
   
-
-
-  
-
   .get(async (req, res) => {
     //code here for GET
     try {

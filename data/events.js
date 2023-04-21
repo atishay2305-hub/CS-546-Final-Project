@@ -180,34 +180,36 @@ let exportedMethods = {
     if (!id) {
       throw "You must provide an id to search for.";
     }
-
+  
     if (typeof id !== "string") {
       throw "Id must be a string.";
     }
-
+  
     if (id.trim().length === 0) {
       throw "ID cannot be an empty string or just spaces.";
     }
-
+  
     id = id.trim();
-
+  
     if (!ObjectId.isValid(id)) {
       throw "Invalid object ID.";
     }
-
+  
     const eventCollection = await events();
+    const deletedEvent = await eventCollection.findOne({ _id: new ObjectId(id) });
+  
     const removeEvent = await eventCollection.deleteOne({
       _id: new ObjectId(id),
     });
-
+  
     if (removeEvent.deletedCount === 0) {
       throw `Could not delete event with id of ${id}`;
     }
-
-    const removedEvent = await eventCollection.findOne({eventName: removeEvent.eventName});
-
-    return `${removedEvent} has been deleted.`;
+  
+    return `${deletedEvent.eventName} has been deleted.`;
+  
   },
+  
 
   async updateEvent(id, eventName, description, buildingName, organizer, seatingCapacity) {
     if (!eventName) {

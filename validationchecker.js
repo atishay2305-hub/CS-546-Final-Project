@@ -127,7 +127,121 @@ const exportedMethods = {
         const minute = ('0' +date.getMinutes()).slice(-2);
         const second = ('0' +date.getSeconds()).slice(-2);
         return `${year}-${month}-${day} ${hour}:${minute}:${second}`
-    }
+    },
+
+    checkString(strVal, varName){
+      if(!strVal) {
+          throw `Error: You must supply a ${varName}`;
+      }
+      if(typeof strVal !== 'string') {
+          throw `Error: ${varName} must be a string!`;
+      }
+      strVal = strVal.trim();
+      if(strVal.length === 0){
+          throw `Error: ${varName} cannot be an empty string or string with just spaces`;
+      }
+      if(!isNaN(strVal)){
+          throw `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`;
+      }
+      return strVal;
+  },
+
+  checkSeating(seatingCapacityVal, varName){
+    if(typeof(seatingCapacityVal) !== "number"){
+        throw "The seating Capacity should be of type number."
+      }
+      if(seatingCapacityVal.toFixed(1) < 0){
+        throw "Seating capacity should not be less than 0."
+      }
+      return seatingCapacityVal;
+},
+
+
+    checkPostEventConditions(event){
+        if (!event) {
+          throw "No event data provided.";
+        }
+      
+        if (typeof event !== "object") {
+          throw "Event data should be an object.";
+        }
+      
+        if (!event.eventName) {
+          throw "You must provide a name for the event.";
+        }
+      
+        if (typeof event.eventName !== "string") {
+          throw "The event name should be a string.";
+        }
+      
+        if (event.eventName.trim().length === 0) {
+          throw "Event name cannot be an empty string or just spaces.";
+        }
+      
+        if (!event.description) {
+          throw "You must provide a description for the event.";
+        }
+      
+        if (typeof event.description !== "string") {
+          throw "The description should be a string.";
+        }
+      
+        if (event.description.trim().length === 0) {
+          throw "Description cannot be an empty string or just spaces.";
+        }
+      
+        if (!event.buildingName) {
+          throw "You must provide a building name for the event.";
+        }
+      
+        if (typeof event.buildingName !== "string") {
+          throw "The building name should be a string.";
+        }
+      
+        if (event.buildingName.trim().length === 0) {
+          throw "Building name cannot be an empty string or just spaces.";
+        }
+      
+        if (!event.organizer) {
+          throw "You must provide an organizer for the event.";
+        }
+      
+        if (typeof event.organizer !== "string") {
+          throw "The organizer should be a string.";
+        }
+      
+        if (event.organizer.trim().length === 0) {
+          throw "Organizer cannot be an empty string or just spaces.";
+        }
+      
+        if (!event.seatingCapacity) {
+          throw "You must provide seating capacity for the event.";
+        }
+      
+        if (typeof event.seatingCapacity !== "number") {
+          throw "The seating capacity should be a number.";
+        }
+      
+        if (event.seatingCapacity <= 0) {
+          throw "The seating capacity must be a positive number.";
+        }
+      
+        // Validate any other fields that you require here.
+      
+        const validatedEvent = {
+          eventName: event.eventName,
+          description: event.description,
+          buildingName: event.buildingName,
+          organizer: event.organizer,
+          seatingCapacity: event.seatingCapacity,
+          userId: event.userId,
+          // Include any other validated fields here.
+        };
+      
+        return validatedEvent;
+      }
+      
+      
 
 
 };
