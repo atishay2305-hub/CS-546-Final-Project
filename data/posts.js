@@ -1,19 +1,17 @@
-import {posts} from "../config/mongoCollections.js";
+import { posts } from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
-import {ObjectId} from "mongodb";
+import { ObjectId } from "mongodb";
 import moment from 'moment';
-// const moment = require('moment');
 
 let exportedMethods = {
-    async createPost(category,
-                     postedContent,
-    ) {
-        category = validation.checkString(category, "category");
-        postedContent = validation.checkString(postedContent, "PostedContent");
+    // Create a new post with the given category and content
+    async createPost(category, postedContent) {
+        // category = validation.checkString(category, "category");
+        //  postedContent = validation.checkString(postedContent, "PostedContent");
         let post = {
             category: category,
-            content: postedContent,
-            img: "https://ibb.co/r7L9Vm9",
+            postContent: postedContent,
+            // img: generateImageUrl(),
             user_id: '64321cb672bd393e9e0f9ef4',
             created_Date: moment().format('MM-DD-YYYYTHH:mm:ss.SSSZ'),
             likes: 0,
@@ -23,81 +21,84 @@ let exportedMethods = {
 
         const postCollection = await posts();
         const insertInfo = await postCollection.insertOne(post);
-        if (!post.acknowledged || !post.insertedId) {
-            throw `Could not add post`;
+        if (!insertInfo.acknowledged || !insertInfo.insertedId) {
+            throw new Error('Could not add post');
         }
         post._id = insertInfo.insertedId.toString();
         post = Object.assign({_id: post._id}, post);
-        //console.log(band);
         return post;
     },
 
-    async getAllPost(projection) {
+    // Get all posts with optional projection
+    async getAllPost() {
         const postCollection = await posts();
-        let postList = undefined;
-        if (!projection) {
-            postList = await postCollection.find({}).toArray();
-        } else {
-            postList = await postCollection.find({}).project(projection).toArray();
+        let postList = await postCollection.find({}).project().toArray();
+        if (postList.length === 0) {
+            throw new Error('No posts found');
         }
-        if (!postList) {
-            throw new Error('could not find posts');
-        }
-        //postList = postList.map((post)=>post._id = new ObjectId(post._id).toString());
         postList = postList.map(element => {
             element._id = new ObjectId(element._id).toString();
             return element;
         });
-
         return postList;
     },
+
+    // Get a post by ID
     async getPostById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(id)});
-        if (post === null) {
-            throw new Error('No post found with that Id');
+        if (!post) {
+            throw new Error(`No post found with ID ${id}`);
         }
         post._id = new ObjectId(post._id).toString();
         return post;
     },
 
+    async getPostByCategory(category) {
+        const postCollection = await posts();
+        const post = await postCollection.findOne({ category: category });
+        if (!post) {
+            throw new Error(`No post found with category: ${category}`);
+        }
+        post._id = new ObjectId(post._id).toString();
+        return post;
+    },
     
 
-    async removeById(id) {
+    async removePostById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
-        const postBand = await postCollection.findOneAndDelete({_id: new ObjectId(id)});
-        if (postBand.lastErrorObject.n === 0) {
-            throw {statusCode: 404, error: `Could not delete band with id of ${id}`};
+        const post = await postCollection.findOneAndDelete({_id: new ObjectId(id)});
+        if (!post.value) {
+          throw {statusCode: 404, error: `Could not delete post with id of ${id}`};
         }
         return {
-            postId: id,
-            deleted: true
+          postId: id,
+          deleted: true
         };
+      },
 
-    },
-    async update(id, category, postedContent, img) {
-        id = validation.checkId(id);
-        category = validation.checkString(category, "category");
-        postedContent = validation.checkString(postedContent, "PostedContent");
-        const updatedPost = {
-            category: category,
-            content: postedContent,
-            img: img,
-            created_Date: new Date()
-        }
-
+      
+      async updatePost(id, category, postedContent, img) {
+        // id = await validation.checkId(id);
+        // category = validation.checkString(category, "category");
+        // postedContent = validation.checkString(postedContent, "postedContent");
+      
         const postCollection = await posts();
-        const post = await postCollection.findOneAndUpdate({_id: new ObjectId(id)}, {$set: updatedPost}, {returnDocument: 'after'});
-        if (post.lastErrorObject.n === 0) {
-            throw new Error('could not update record with that ID');
+        const updateFields = {category, postContent: postedContent, img};
+        const options = {returnOriginal: false};
+        const updatedPost = await postCollection.findOneAndUpdate({_id: new ObjectId(id)}, {$set: updateFields}, options);
+      
+        if (!updatedPost.value) {
+          throw new Error('Could not update post');
         }
-        post.value._id = post.value._id.toString();
-        return post.value;
+      
+        const post = updatedPost.value;
+        post._id = post._id.toString();
+        return post;
+      },
     }
-
-};
 //express session,handlebars
 export default exportedMethods;
 

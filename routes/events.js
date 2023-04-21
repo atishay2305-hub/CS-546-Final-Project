@@ -1,35 +1,78 @@
-import Router from "express"
+import Router from "express";
+import { eventsData } from "../data/index.js";
+import validation from "../validationchecker.js";
 
 const router = Router();
-import validation from "../validationchecker.js";
-import {eventsData} from "../data/index.js"
 
-
-// // example
 router
-.route('/')
-    .get(async (req, res) => {
-        let event = req.body;
-        try {
-            
-            let eventList = await eventsData.getAllEvents();
-            res.json(eventList);
-        } catch (e) {
-            res.status(500).json({error: e});
-        }
-    })
-    .post(async (req, res) => {
-        let event = req.body;
-        // try {
-        //     event = await validation.checkPostEventConditions(event);
-        // } catch (e) {
-        //     res.status(400).json({error: e});
-        // }
-        try {
-                const newEvent = await eventsData.createEvent(event.eventName, event.description, event.buildingName, event.organizer, event.seatingCapacity, event.userId)
-                return res.json(newEvent)
-              }
-        catch (e) {
+  .get('/create-event', (req, res) => {
+    res.render('events');
+  })
+  .post('/create-event', (req, res) => {
+    res.render('events');
+  })
+  .get('/search-events', (req, res) => {
+    const searchBy = req.query.searchBy;
+    let events = [];
+
+    if (searchBy === "id") {
+      const id = req.query.id;
+    }
+
+    if (searchBy === "buildingName") {
+      const buildingName = req.query.buildingName;
+    }
+
+    if (searchBy === "eventName") {
+      const eventName = req.query.eventName;
+    }
+
+    if (searchBy === "organizer") {
+      const organizer = req.query.organizer;
+    }
+
+    res.render('search-events', {
+      events: events
+    });
+  })
+  .get('/remove-event', (req, res) => {
+    res.render('removeEvents');
+  })
+  .post('/remove-event', (req, res) => {
+    const id = req.body.id;
+    res.redirect('/remove-event');
+  })
+  .get('/update-event', (req, res) => {
+    res.render('update-event');
+  })
+  .post('/update-event', (req, res) => {
+    const id = req.body.id;
+    const eventName = req.body.eventName;
+    const description = req.body.description;
+    const buildingName = req.body.buildingName;
+    const organizer = req.body.organizer;
+    const seatingCapacity = req.body.seatingCapacity;
+    res.redirect('/update-event');
+  });
+
+router
+  .route('/')
+  .get(async (req, res) => {
+    try {
+      const eventList = await eventsData.getAllEvents();
+      res.json(eventList);
+    } catch (e) {
+      res.status(500).json({ error: e });
+    }
+  })
+  .post(async (req, res) => {
+    const event = req.body;
+    try {
+      // Validate the event object before creating it
+      const validatedEvent = await validation.checkPostEventConditions(event);
+      const newEvent = await eventsData.createEvent(validatedEvent.eventName, validatedEvent.description, validatedEvent.buildingName, validatedEvent.organizer, validatedEvent.seatingCapacity, validatedEvent.userId);
+}
+catch (e) {
             return res.status(404).json({error: e});
         }
     });
