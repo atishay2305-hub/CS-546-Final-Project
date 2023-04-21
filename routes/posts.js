@@ -10,6 +10,93 @@ const router = Router();
 
 router
   .route('/')
+
+    // GET route for displaying the form
+.get('/create-event', function(req, res) {
+    res.render('posts');
+  })
+  
+  // POST route for handling the form submission
+.post('/create-event', function(req, res) {
+    // Extract data from the form
+    const category = req.body.category;
+    const content = req.body.postedContent;
+    
+    // Process the data and do something with it
+    // ...
+  
+    // Redirect the user to the same page and refresh somehow to see the page loaded with the new post that is created.
+    res.redirect('/posts');
+  })
+
+// GET route for displaying the search form
+.get('/search-posts', function(req, res) {
+    const showIdField = req.query.searchBy === 'id';
+    const show = req.query.searchBy !== 'all' && !showIdField;
+  
+    res.render('searchPosts', {
+      showIdField,
+      show
+    });
+  })
+  
+  // POST route for handling the search query
+.post('/search-posts', function(req, res) {
+    const searchBy = req.body.searchBy;
+    const id = req.body.id;
+    const category = req.body.category;
+    const postContent = req.body.postContent;
+    
+    // Process the search query and retrieve the matching posts
+    // ...
+  
+    // Render the search results view
+    res.render('search-results', {
+      posts: matchedPosts
+    });
+  })
+
+// GET route for displaying the remove post form
+app.get('/remove-posts', function(req, res) {
+    res.render('removePosts');
+  });
+  
+  // POST route for removing the post
+  app.post('/remove-posts', function(req, res) {
+    const id = req.body.id;
+    
+    // Check if the post with the specified ID exists in the database
+    // If it does, remove it
+    // Otherwise, show an error message
+  
+    // Redirect the user to a confirmation page
+    res.redirect('/getAllPosts');
+  })
+  
+  // GET route for displaying the update post form
+app.get('/update-post', function(req, res) {
+    res.render('updatePosts');
+  });
+  
+  // POST route for updating the post
+  app.post('/update-post', function(req, res) {
+    const id = req.body.id;
+    const category = req.body.category;
+    const postedContent = req.body.postedContent;
+  
+    // Check if the post with the specified ID exists in the database
+    // If it does, update it with the new category and posted content
+    // Otherwise, show an error message
+  
+    // Redirect the user to a confirmation page
+    res.redirect('/getAllPosts');
+  });
+  
+  
+
+
+  
+
   .get(async (req, res) => {
     //code here for GET
     try {
