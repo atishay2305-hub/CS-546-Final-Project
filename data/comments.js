@@ -1,155 +1,147 @@
-import { posts, users } from "../config/mongoCollections.js";
+import {events, posts, users, comments} from "../config/mongoCollections.js";
+import {userData, eventsData, commentData} from "./index.js";
+import validation from '../validationchecker.js';
 import { ObjectId } from "mongodb";
-import moment from 'moment';
+import e from "express";
+
 
 let exportedMethods ={
 
-    async createComment(id,comment){
-        const newComment ={
-            _id:new ObjectId(),
-            comment:comment,
-            comment_created:moment().format('MM-DD-YYYYTHH:mm:ss.SSSZ')
-          }
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id:new ObjectId(id)});
-        
-      if (user === null){
-        throw new Error('No post record found with that Id');
-      }
-    
-    const userComment = await userCollection.updateOne({_id:new ObjectId(id)},{$push:{comments:newComment}});
-    
-    console.log(userComment.modifiedCount);
-    if (userComment.modifiedCount === 0){
-      throw new Error("unable to add comments to the user");
-    }
-    
-    const userUpdate = await userCollection.findOne({_id:new ObjectId(id)});
-    if(!userUpdate){
-        throw new Error('Not able to update after adding ratings');
-      }
-      
-      userUpdate._id = new ObjectId(userUpdate._id).toString();
-      userUpdate.comments.forEach(element => {
-        element._id = new ObjectId(element._id).toString();
-      });
-     return userUpdate;
-    },
+    async createComment(userId,
+                        eventId = null,
+                        postId = null,
+                        userName,
+                        contents){
+        userId = validation.checkId(userId);
+        contents = validation.checkPhrases(contents);
 
-    async getAllComment(id){
-
-        if(!id){
-            throw new Error('UserId is not provided');
-          }
-          if (typeof id !=='string'||id.trim().length===0){
-            throw new Error('UserId must be a non empty string');
-          }
-          id = id.trim();
-          if(!ObjectId.isValid(id)){
-            throw new Error('Not a valid ID');
-          }
-          
-          //await bandInfo.get()
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(id)});
-        if(user === null){  
-          throw new Error('No user record found with that Id');
+        const comment = {
+            _id: new ObjectId(),
+            userName,
+            contents,
+            created_Date: validation.getDate()
         }
-        user._id = new ObjectId(user._id).toString();
-        user.comments.forEach((element)=>{
-          element._id = new ObjectId(element._id).toString();
-        });
-      
-        return user.comments;
-
-    },
-
-    async getByComment(id){
-
-        if(!id){
-            throw new Error('userID is not provided');
-          }
-        
-          if (typeof id !=='string'||id.trim().length===0){
-            throw new Error('userID must be a non empty string');
-          }
-        
-          id = id.trim();
-        
-          if(!ObjectId.isValid(id)){
-            throw new Error('Invalid object Id');
-          }
-    
-          const userCollection = await users();
-          let userList = await userCollection.find({}).toArray();
-          //console.log(bandList);
-          userList = userList.map((user) => {
-            user._id = new ObjectId(user._id).toString();
-            user.comments.forEach((element)=>{
-              element._id = new ObjectId(element._id).toString();
-            });
-            return user;
-          });
-        
-          const res = userList.filter((p)=>{
-            return p.comments.find((element)=>element._id===id);
-          }).map((p)=>p.comments.find((ele)=>ele._id===id)).find((elem)=>elem._id===id);
-        
-          if(res === undefined){
-            throw new Error('comment not found');
-          }
-          else{
-            return res;
-          }
-    },
-
-    async removeComment(id){
-
-        if(!id){
-            throw new Error('Comment is not provided');
-          }
-        
-          if (typeof id !=='string'||id.trim().length===0){
-            throw new Error('commentId must be a non empty string');
-          }
-        
-          id = id.trim();
-        
-          if(!ObjectId.isValid(id)){
-            throw new Error('Invalid object Id');
-          }
-        
-          const userCollection = await users();
-          const user = await userCollection.findOne({'comments._id':new ObjectId(id)});
-          if(!user){
-            throw new Error('No User found!');
-          }
-          console.log(user);
-          const comment = await userCollection.updateOne({_id:new ObjectId(user._id)},{$pull:{comments:{_id:new ObjectId(id)}}});
-          if (comment.modifiedCount===0){
-            throw new Error('could not update record with that ID');
-          }
-        
-          const commentAfterRemove = await userCollection.findOne({_id:new ObjectId(user._id)});
-            if(!commentAfterRemove){
-              throw new Error('Not able to update after removing users');
+        if(eventId){
+            eventId = validation.checkId(eventId);
+            comment.evenId = eventId;
+            const updateEvent = await events().updateOne(
+                {_id: eventId},
+                {$push: {commentIds: comment._id.toString()}}
+            );
+            if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+                throw "Could not update event with commentId";
             }
-            console.log(commentAfterRemove);
-    
-            commentAfterRemove._id = new ObjectId(commentAfterRemove._id).toString();
-            commentAfterRemove.comments.forEach(element => {
-              element._id = new ObjectId(element._id).toString();
-            });
-        
-            /*let deletionResult = {
-              movieId: commentAfterRemove._id ,
-              deleted: true
-            }*/
-            
-            return commentAfterRemove;
+        }
+        if(postId){
+            postId = validation.checkId(postId);
+            comment.postId = postId;
+            const updateEvent = await posts().updateOne(
+                {_id: postId},
+                {$push: {commentIds: comment._id.toString()}}
+            );
+            if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+                throw "Could not update post with commentId";
+            }
+        }
+
+        const commentInfo = await comments().insertOne(comment);
+        if (!commentInfo.acknowledged || !commentInfo.insertedId) {
+            throw "Could not add this comment";
+        }
+
+        const insertToUser = await userData.putComment(userId, comment._id.toString());
+        if(!insertToUser){
+            throw "Cannot insert commentID to user";
+        }
+        return {commentId: commentInfo.insertedId.toString()};
+    },
+
+    async getAllComments(projection) {
+        return await comments().find({}).sort({created_Date: -1}).toArray();
+    },
+
+    async getCommentById(commentId){
+        commentId = validation.checkId(commentId);
+        const comment = await comments().findOne({_id: new ObjectId(commentId)});
+        if(!comment){
+            throw `No comment with that id ${commentId}`;
+        }
+        const user = userData.getUserByUserName(comment.userName);
+
+    },
+
+    async removeCommentById(commentId){
+        commentId = validation.checkId(commentId);
+        const comment = await comments().findOne({_id: new ObjectId(commentId)});
+        if(!comment){
+            throw `No comment with that id ${commentId}`;
+        }
+        let userId = comment.userId.toString();
+        if(comment.evenId){
+            const eventCollection = await events();
+            const updateEvent = await eventCollection.updateOne(
+                {_id: new ObjectId(commentId.evenId)},
+                {$pull: {commentIds: commentId}}
+            );
+            if(!updateEvent.matchedCount || !updateEvent.modifiedCount) {
+                throw `Could not remove comment with id ${commentId} from event with id ${comment.eventId}`;
+            }
+        }else if(comment.postId){
+            const postCollection = await posts();
+            const updatePost = await postCollection.updateOne(
+                {_id: new ObjectId(commentId.postId)},
+                {$pull: {commentIds: commentId}}
+            );
+            if(!updatePost.matchedCount || !updatePost.modifiedCount) {
+                throw `Could not remove comment with id ${commentId} from post with id ${comment.postId}`;
+            }
+        }
+        const deleteInfo = await comments().deleteOne({_id: new ObjectId(commentId)})
+        if(deleteInfo.deletedCount === 0){
+            throw `Could not delete comment with id with ${commentId}`;
+        }
+
+        const userComment = userData.removeComment(userId, commentId);
+        if(!userComment){
+            throw `Either userId or commentId were stored incorrectly`;
+        }
+        return `The comment ${commentId} delete successfully`;
+    },
+
+    async getUserCommentById(userId){
+        const user = await userData.getUserByID(await validation.checkId(userId));
+        if(!user) throw `No event with that id ${userId}`;
+        const commentList = userId.commentIds;
+        const comments = [];
+        for(let i = 0; i < commentList.length; i++){
+            const comment = await this.getCommentById(commentList[i]);
+        }
+        return comments;
+    },
+
+    async getEventCommentById(eventId){
+        const event = await eventsData.getEventByID(await validation.checkId(eventId));
+        if(!event) throw `No event with that id ${eventId}`;
+        const commentList = eventId.commentIds;
+        const comments = [];
+        for(let i = 0; i < commentList.length; i++){
+            const comment = await this.getCommentById(commentList[i]);
+        }
+        return comments;
+    },
+
+    async getPostCommentById(postId){
+        const post = await eventsData.getEventByID(await validation.checkId(postId));
+        if(!post) throw `No  post with that id ${postId}`;
+        const commentList = postId.commentIds;
+        const comments = [];
+        for(let i = 0; i < commentList.length; i++){
+            const comment = await this.getCommentById(commentList[i]);
+        }
+        return comments;
     }
+
 
 };
 
 export default exportedMethods;
-
