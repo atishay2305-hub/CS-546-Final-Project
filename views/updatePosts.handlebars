@@ -1,13 +1,13 @@
-{{!-- TODO: Change the action below --}}
+<form method="POST" action="/update-post">
+<label for="id">Post ID:</label>
+<input type="text" name="id">
 
-{{!-- creating post handlebar below --}}
-<form method="POST" action="/create-event">
 <label for="category">Post Category: </label>
 <input type="text" name="category" required>
 
 <label for="postedContent">Post Content: </label>
 <textarea name="postedContent" rows="6" maxlength="300" required></textarea>
 
-<button type="submit">Create Post</button>
-</form>
+<button type="submit">Update Post</button>
 
+</form>
