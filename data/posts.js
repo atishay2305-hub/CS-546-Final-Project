@@ -2,7 +2,7 @@ import {posts} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import moment from 'moment';
-const moment = require('moment');
+// const moment = require('moment');
 
 let exportedMethods = {
     async createPost(category,
@@ -61,6 +61,8 @@ let exportedMethods = {
         post._id = new ObjectId(post._id).toString();
         return post;
     },
+
+    
 
     async removeById(id) {
         id = await validation.checkId(id);
