@@ -5,7 +5,7 @@ import {userData} from "./index.js";
 
 let exportedMethods = {
     async createPost(category,
-                     image,
+                     //image,
                      postedContent,
                      userId
     ) {

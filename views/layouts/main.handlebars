@@ -22,7 +22,7 @@
     <div id="menu" role="navigation">
         <ul>
             <li><a href="/">Home Page</a></li>
-            <li><a href="/createpost">Create Post</a></li>
+            <li><a href="/post">Create Post</a></li>    
             {{#if loginuser}}
             <li><a class="has-sub" href="#">My Account</a>
             <ul class="dl-submenu">
@@ -32,8 +32,8 @@
             </ul>
             {{else}}
             </li>
-            <li><a href="/views/login/signup/login.handlebars"></a></li>
-            <li><a href="/views/login/signup/signup.handlebars"></a></li>
+            <li><a href="/views/login/login.handlebars"></a></li>
+            <li><a href="/views/login/signup.handlebars"></a></li>
             </ul>
             </div>
         {{/if}}

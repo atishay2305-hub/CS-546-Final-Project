@@ -1,6 +1,6 @@
 // Import the express router as shown in the lecture code
 // Note: please do not forget to export the router!
-import { postData } from "../data/index.js";
+/*import { postData } from "../data/index.js";
 import { Router } from "express";
 import {ObjectId} from "mongodb";  
 //import validateFunc from "../helpers.js"
@@ -196,4 +196,4 @@ router
 
   });
 
-export default router;
+export default router;*/
