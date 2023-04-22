@@ -109,7 +109,8 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         DOB = validation.checkDOB(DOB);
-        const user = await users().findOne({email: email});
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
         if (!user) throw "You may have entered the wrong email address or password.";
         const checkPassword = await bcrypt.compare(
             password,
@@ -117,7 +118,7 @@ let exportedMethods = {
         );
         if (checkPassword) throw "Cannot be the same password as the original";
         const hashPassword = await bcrypt.hash(password, 10);
-        const updatedInfo = await users().updateOne(
+        const updatedInfo = await userCollection.updateOne(
             {email: email},
             {
                 $set: {
@@ -137,13 +138,15 @@ let exportedMethods = {
 
     async getPostList(email) {
         email = validation.checkEmail(email);
-        const user = await users().findOne({email: email});
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
         if (!user) throw `Error: ${user} not found`; //check password as well
         return user.postIDs;
     },
     async getEventList(email) {
         email = validation.checkEmail(email);
-        const user = await users().findOne({email: email});
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
         if (!user) throw `Error: ${user} not found`; //check password as well
         if (!user.isAdmin) throw `Error: ${email} is not an administrator`
         return user.eventIDs;
@@ -151,14 +154,16 @@ let exportedMethods = {
 
     async getCommentList(email) {
         email = validation.checkEmail(email);
-        const user = await users().findOne({email: email});
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
         if (!user) throw `Error: ${user} not found`; //check password as well
         return user.commentIDs;
     },
 
     async getUserByEmail(email) {
         email = validation.checkEmail(email);
-        const user = await users().findOne({email: email});
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
         if (!user) throw `Error: ${user} not found`; //check password as well
         user._id = user._id.toString();
         return user;
@@ -166,7 +171,8 @@ let exportedMethods = {
 
     async getUserByID(userId) {
         userId = validation.checkId(userId);
-        const user = await users().findOne({_id: new ObjectId(userId)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         user._id = user._id.toString();
         return user;
@@ -174,7 +180,8 @@ let exportedMethods = {
 
     async getUserByUserName(userName) {
         userName = validation.checkName(userName);
-        const user = await users().findOne({userName: userName});
+        const userCollection = await users();
+        const user = await userCollection.findOne({userName: userName});
         if (!user) throw `Error: ${user} not found`; //check password as well
         user._id = user._id.toString();
         return user;
@@ -183,11 +190,12 @@ let exportedMethods = {
     async putPost(userId, postId) {
         userId = validation.checkId(userId);
         postId = validation.checkId(postId);
-        const user = await users().findOne({_id: new ObjectId(userId)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         let postIdList = user.postIDs;
         postIdList.push(postId);
-        const updatedInfo = await users().updateOne(
+        const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(userId)},
             {$set: {postIDs: postIdList}}
         );
@@ -199,12 +207,13 @@ let exportedMethods = {
     async removePost(userId, postId) {
         userId = validation.checkId(userId);
         postId = validation.checkId(postId);
-        const user = await users().findOne({_id: new ObjectId(userId)});;
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         let postIdList = user.postIDs;
         if (postIdList.includes(postId)) {
             postIdList = postId.filter(elem => elem !== postId);
-            const updatedInfo = await users().updateOne(
+            const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},
                 {$set: {postIDs: postIdList}}
             );
@@ -218,11 +227,12 @@ let exportedMethods = {
     async putEvent(userId, eventId) {
         userId = validation.checkId(userId);
         eventId = validation.checkId(eventId);
-        const user = await users().findOne({_id: new ObjectId(userId)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         let eventIdList = user.eventIDs;
         eventIdList.push(eventId);
-        const updatedInfo = await users().updateOne(
+        const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(userId)},
             {$set: {eventIDs: eventIdList}}
         );
@@ -233,12 +243,13 @@ let exportedMethods = {
     async removeEvent(userId, eventId) {
         userId = validation.checkId(userId);
         eventId = validation.checkId(eventId);
-        const user = await users().findOne({_id: new ObjectId(userId)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `User with that ID${userId} not found`; //check password as well
         let eventIdList = user.eventIDs;
         if (eventIdList.includes(eventId)) {
             eventIdList = eventId.filter(elem => elem !== eventId);
-            const updatedInfo = await users().updateOne(
+            const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},
                 {$set: {eventIDs: eventIdList}}
             );
@@ -252,9 +263,11 @@ let exportedMethods = {
     async putAttendee(userId, eventId) {
         userId = validation.checkId(userId);
         eventId = validation.checkId(eventId);
-        const user = await users().findOne({_id: new ObjectId(userId)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `User with that ID${userId} not found`; //check password as well
-        const event = await events().findOne({_id: new ObjectId(userId)});
+        const eventCollection = await events()
+        const event = eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Event with that ID${eventId} not found`;
         const {attendees, seatingCapacity} = event;
         if (attendees.length >= seatingCapacity) {
@@ -262,7 +275,7 @@ let exportedMethods = {
         }
         const attendeeName = `${user.firstName} ${user.lastName}`;
         attendees.push({id: userId, name: attendeeName});
-        const updateInfo = await event.updateOne(
+        const updateInfo = await eventCollection.updateOne(
             {_id: new ObjectId(eventId)},
             {$set: {attendees}}
         )
@@ -278,13 +291,15 @@ let exportedMethods = {
     async removeAttendee(userId, eventId){
         userId = validation.checkId(userId);
         eventId = validation.checkId(eventId);
-        const user = await users().findOne({_id: new ObjectId(userId)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `User with that ID${userId} not found`; //check password as well
-        const event = await events().findOne({_id: new ObjectId(userId)});
+        const eventCollection = await events()
+        const event = eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Event with that ID${eventId} not found`;
         const updatedList = event.attendees.filter(attendee=> attendee.id !== userId);
         if(updatedList.length === event.attendees.length) throw `User with ID ${userId} is not attending event with ID ${eventId}`;
-        const updateInfo = await events().updateOne(
+        const updateInfo = await eventCollection.updateOne(
             {_id: new ObjectId(eventId)},
             {$set: {attendees: updatedList}}
         )
@@ -296,11 +311,12 @@ let exportedMethods = {
     async putComment(userId, commentId) {
         userId = validation.checkId(userId);
         commentId = validation.checkId(commentId);
-        const user = await users().findOne({_id: new ObjectId(userId)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         let commentIdList = user.commentIDs;
         commentIdList.push(commentId);
-        const updatedInfo = await users().updateOne(
+        const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(userId)},
             {$set: {commentIDs: commentIdList}}
         );
@@ -311,12 +327,13 @@ let exportedMethods = {
     async removeComment(userId, commentId) {
         userId = validation.checkId(userId);
         commentId = validation.checkId(commentId);
-        const user = await users().findOne({_id: new ObjectId(userId)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         let commentIdList = user.commentIDs;
         if (commentIdList.includes(commentId)) {
             commentIdList = commentId.filter(elem => elem !== commentId);
-            const updatedInfo = await users().updateOne(
+            const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},
                 {$set: {commentIDs: commentIdList}}
             );
@@ -328,13 +345,14 @@ let exportedMethods = {
     },
 
 
-    async removeUserById(userid) {
-        userid = validation.checkId(userid);
-        const user = await users().findOne({_id: new ObjectId(userid)});
-        if (!user) throw `Error: ${userid} not found`; //check password as well
-        const deletionInfo = await users().deleteOne({_id: new ObjectId(userid)});
+    async removeUserById(userId) {
+        userId = validation.checkId(userId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${userId} not found`; //check password as well
+        const deletionInfo = await userCollection.deleteOne({_id: new ObjectId(userId)});
         if (deletionInfo.deletedCount === 0) {
-            throw `Could not delete user with id of ${userid}`;
+            throw `Could not delete user with id of ${userId}`;
         }
         return `The user ${user._id} has been successfully deleted!`;
     }
