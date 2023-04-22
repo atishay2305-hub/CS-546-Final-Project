@@ -5,7 +5,11 @@ import * as commentDataFunction from './comments.js';
 
 export const postData = postDataFunction;
 export const commentData = commentDataFunction;
-export const eventsData = eventsDataFunctions;
+
+
+//export const eventsData = eventsDataFunctions;
+// export const attendeesData = attendeesFunctions;
+// export const commentsData = commentsFunctions;
 export const userData = userDataFunctions;
 
 

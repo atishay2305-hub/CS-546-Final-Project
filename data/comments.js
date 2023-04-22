@@ -1,5 +1,6 @@
 import {events, posts, users, comments} from "../config/mongoCollections.js";
 import {userData, eventsData, commentData} from "./index.js";
+import {userData,commentData, postData} from "./index.js";
 import validation from '../validationchecker.js';
 import { ObjectId } from "mongodb";
 import e from "express";
