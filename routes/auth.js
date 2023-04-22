@@ -10,7 +10,7 @@ router.route('/').get(async(req,res)=>{
 });
 
 router.route('/login').get(async(req,res)=>{
-    return res.status(200).render('login/signup/login',{title:"login Page"});
+    return res.status(200).render('login/login',{title:"login Page"});
 });
 
 router.route('/login').post(async(req,res)=>{
@@ -30,7 +30,7 @@ router.route('/login').post(async(req,res)=>{
 });
 
 router.route('/signup').get(async(req,res)=>{
-    return res.status(200).render('login/signup/signup',{title:"Signup Page"});
+    return res.status(200).render('login/signup',{title:"Signup Page"});
 });
 
 router.route('/signup').post(async(req,res)=>{
@@ -63,7 +63,7 @@ router.route('/signup').post(async(req,res)=>{
     }
 });
 
-/*const requireAuth = (req, res, next) => {
+const requireAuth = (req, res, next) => {
     if (req.session && req.session.userId && req.session.userName) {
       // user is authenticated
       next();
@@ -71,7 +71,7 @@ router.route('/signup').post(async(req,res)=>{
       // user is not authenticated
       return res.redirect('/login');
     }
-};*/
+};
 
 router.route('/user').get(async(req,res)=>{
     const userId = req.session.userId;

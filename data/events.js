@@ -55,17 +55,20 @@ let exportedMethods = {
     },
 
     async getAllEvents(projection) {
-        const eventCollection = await posts();
+        const eventCollection = await events();
         return eventCollection.find({}).sort({created_Date: -1}).toArray();
     },
-
+    
     async getEventByID(id) {
-        id = await validation.checkId(id);
-        const event = await events().findOne({_id: new ObjectId(id)});
+        id = validation.checkId(id);
+        // console.log(events());
+        const eventCollection = await events();
+        const event = eventCollection.findOne({_id: new ObjectId(id)});
         if (event === null) throw "No event with that id";
         event._id = new ObjectId(event._id).toString();
         return event;
     },
+    
 
     async getEventByEmail(email) {
         email = validation.checkEmail(email);
@@ -79,16 +82,17 @@ let exportedMethods = {
 
     async removeEventById(id) {
         id = await validation.checkId(id);
-        const event = await events().findOne({_id: new ObjectId(id)});
+        const eventCollection = await events();
+        const event = eventCollection.findOne({_id: new ObjectId(id)});
         if (event === null) throw "No event with that id";
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(event.userId)});
-        if (user.isAdmin === undefined || !user.isAdmin) throw "Only administrators can delete events.";
-        const removeEvent = await events().deleteOne({_id: new ObjectId(id)});
+        // if (user.isAdmin === undefined || !user.isAdmin) throw "Only administrators can delete events.";
+        const removeEvent = eventCollection.deleteOne({_id: new ObjectId(id)});
         if (removeEvent.deletedCount === 0) {
             throw `Could not delete band with id of ${id}`;
         }
-        await userData.removeEvent(event.userId.toString(), id);
+        // await userData.removeEvent(event.userId.toString(), id);
         return {
             eventId: id,
             deleted: true
