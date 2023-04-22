@@ -17,7 +17,6 @@ let exportedMethods = {
      * @param authentication
      * @returns {Promise<{createUser: boolean, userID: string}>}
      */
-
     async createUser(
         firstName,
         lastName,
@@ -25,15 +24,17 @@ let exportedMethods = {
         email,
         password,
         DOB,
+        dept,
         isAdmin = false,
         authentication = null
+        
     ) {
         firstName = validation.checkLegitName(firstName, 'First name');
         lastName = validation.checkLegitName(lastName, 'Last name');
         userName = validation.checkName(userName, 'User Name');
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
-        DOB = validation.checkDOB(DOB);
+        //DOB = validation.checkDOB(DOB);
 
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
@@ -91,7 +92,11 @@ let exportedMethods = {
             checkExist.password
         );
         if (!checkPassword) throw "You may have entered the wrong email address or password."
-        return {authenticatedUser: true, userID: checkExist._id.toString()};
+        const sessionUser = {
+            userId: checkExist._id.toString(),
+            userName: checkExist.userName
+        };
+        return {authenticatedUser: true,sessionUser:sessionUser};
     },
 
 
