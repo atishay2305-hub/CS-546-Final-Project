@@ -72,7 +72,7 @@ router.route('/signup').post(async(req,res)=>{
     }
 });
 
-/*const requireAuth = (req, res, next) => {
+const requireAuth = (req, res, next) => {
     if (req.session && req.session.userId && req.session.userName) {
       // user is authenticated
       next();
@@ -80,7 +80,7 @@ router.route('/signup').post(async(req,res)=>{
       // user is not authenticated
       return res.redirect('/login');
     }
-};*/
+};
 
 router.route('/user').get(async(req,res)=>{
     const userId = req.session.userId;
