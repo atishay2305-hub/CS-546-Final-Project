@@ -1,4 +1,4 @@
-import {events, posts, users} from "../config/mongoCollections.js";
+import {events, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
@@ -12,7 +12,7 @@ let exportedMethods = {
         buildingName,
         organizer,
         seatingCapacity,
-        image
+        image =null
     ) {
         eventName = validation.checkName(eventName, "EventName");
         description = validation.checkPhrases(description, "Description");
@@ -20,16 +20,10 @@ let exportedMethods = {
         organizer = validation.checkName(organizer, "Organizer");
         seatingCapacity = validation.checkCapacity(seatingCapacity);
         userId = validation.checkId(userId);
-
-        const user = await users().findOne({_id: new ObjectId(userId)});
-        if (user.isAdmin === undefined || !user.isAdmin) {
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user.isAdmin) {
             throw `Only administrator can edit events`
-        }
-        let path = "";
-        if (!image || image.trim().length === 0) {
-            path = "public/images/default.png";
-        } else {
-            path = validation.createImage(image);
         }
 
         let event = {
@@ -41,13 +35,17 @@ let exportedMethods = {
             attendees: {},
             seatingCapacity: seatingCapacity,
             commentIds: [],
-            image: path,
+        }
+        if (image) {
+            image = validation.createImage(image);
+            event.image = image;
         }
 
-        const insertInfo = await events().insertOne(event);
+        const eventCollection = await events();
+        const insertInfo = await eventCollection.insertOne(event);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event";
         if (userId) {
-            await userData.putEvent(insertInfo.insertedId.toString(), userId);
+            await userData.putEvent(userId, insertInfo.insertedId.toString());
         }
         event._id = insertInfo.insertedId.toString();
         event = Object.assign({_id: event._id}, event);
@@ -122,9 +120,11 @@ let exportedMethods = {
         } else {
             path = validation.createImage(image);
         }
-        const checkEventExist = await events().findOne({_id: new ObjectId(id)});
+        const eventCollection = await events();
+        const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
-        const user = await users().findOne({_id: new ObjectId(userId)})
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)})
         if (user.isAdmin === undefined || !user.isAdmin) throw "Only administrators can update events."
         let evenData = {
             eventName: eventName,
@@ -135,12 +135,11 @@ let exportedMethods = {
             seatingCapacity: seatingCapacity,
             image: path
         }
-
-        let event = await events().updateOne({_id: new ObjectId(id)}, {$set: evenData});
+        let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
         if (!event.acknowledged || event.matchedCount !== 1) {
             throw "Could not update record with that ID.";
         }
-        return await events().findOne({_id: new ObjectId(id)});
+        return await eventCollection.findOne({_id: new ObjectId(id)});
     },
 
 

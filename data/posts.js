@@ -1,4 +1,4 @@
-import {events, posts, users} from "../config/mongoCollections.js";
+import {posts, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
@@ -12,7 +12,8 @@ let exportedMethods = {
         category = validation.checkLegitName(category, "category");
         postedContent = validation.checkPhrases(postedContent, "PostedContent");
         userId = validation.checkId(userId);
-        const user = await users().findOne({userId: userId});
+        const userCollection = await users();
+        const user = await userCollection.findOne({userId: userId});
         if(!user){
             throw `The user does not exist with that Id &{id}`;
         }
@@ -36,8 +37,8 @@ let exportedMethods = {
             dislikes: 0,
             commentIds: {}
         };
-
-        const insertInfo = await posts().insertOne(post);
+        const postCollection = await posts();
+        const insertInfo = await postCollection.insertOne(post);
         if (!post.acknowledged || !post.insertedId) {
             throw "Could not add post";
         }
@@ -47,17 +48,20 @@ let exportedMethods = {
     },
 
     async getAllPosts() {
-        return await posts().find({}).sort({created_Date: -1}).toArray();
+        const postCollection = await posts();
+        return await postCollection.find({}).sort({created_Date: -1}).toArray();
     },
 
     async getPostByCategory(category){
         category = validation.checkLegitName(category);
-        return await posts().find({category: category}).toArray();
+        const postCollection = await posts();
+        return await postCollection.find({category: category}).toArray();
     },
 
     async getPostById(id) {
         id = await validation.checkId(id);
-        const post = await posts().findOne({_id: new ObjectId(id)});
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(id)});
         if (post === null) {
             throw `No post found with that ID ${id}`;
         }
@@ -67,16 +71,18 @@ let exportedMethods = {
 
     async removeById(id) {
         id = await validation.checkId(id);
-        const post = await posts().findOne({_id: new ObjectId(id)});
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(id)});
         if (post === null) {
             throw `No post found with that Id ${id}`;
         }
-        const user = await users().findOne({_id: new ObjectId(post.userId)});
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
         if (user.isAdmin === undefined || !user.isAdmin || !user.postIDs.includes(id)) {
             throw "Only administrators or the poster can delete posts.";
         }
 
-        const removePost = await posts().deleteOne({_id: new ObjectId(id)});
+        const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
         if (removePost.deletedCount === 0) {
             throw `Could not delete band with id of ${id}`;
         }
@@ -103,10 +109,10 @@ let exportedMethods = {
         } else {
             path = validation.createImage(image);
         }
-
-        const checkPostExist = users().findOne({_id: new ObjectId(id)});
+        const userCollection = await users();
+        const checkPostExist = userCollection.findOne({_id: new ObjectId(id)});
         if (!checkPostExist) throw `Post is not exist with that ${id}`;
-        const user = await users().findOne({_id: new ObjectId(userId)})
+        const user = await userCollection.findOne({_id: new ObjectId(userId)})
         if (user.isAdmin === undefined || !user.isAdmin || !user.postIDs.includes(id)) {
             throw "Only administrators or the poster can delete posts.";
         }
@@ -116,12 +122,12 @@ let exportedMethods = {
             created_Date: validation.getDate(),
             image: path
         }
-
-        const post = await posts().updateOne({_id: new ObjectId(id)}, {$set: updatedPost});
+        const postCollection = await posts();
+        const post = await postCollection.updateOne({_id: new ObjectId(id)}, {$set: updatedPost});
         if (!post.acknowledged || post.matchedCount !== 1) {
             throw "Could not update post with that ID.";
         }
-        return await posts().findOne({_id: new ObjectId(id)});
+        return await postCollection.findOne({_id: new ObjectId(id)});
     },
 
     async getPostByEmail(email) {

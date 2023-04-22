@@ -1,5 +1,5 @@
-import {events, posts, users} from "../config/mongoCollections.js";
-import {userData, eventsData} from "./index.js";
+import {events, posts, users, comments} from "../config/mongoCollections.js";
+import {userData, eventsData, commentData} from "./index.js";
 import validation from '../validationchecker.js';
 import { ObjectId } from "mongodb";
 import e from "express";
@@ -24,7 +24,8 @@ let exportedMethods ={
         if(eventId){
             eventId = validation.checkId(eventId);
             comment.evenId = eventId;
-            const updateEvent = await events().updateOne(
+            const eventCollection = await events();
+            const updateEvent = await eventCollection.updateOne(
                 {_id: eventId},
                 {$push: {commentIds: comment._id.toString()}}
             );
@@ -35,7 +36,8 @@ let exportedMethods ={
         if(postId){
             postId = validation.checkId(postId);
             comment.postId = postId;
-            const updateEvent = await posts().updateOne(
+            const postCollection = posts();
+            const updateEvent = await postCollection.updateOne(
                 {_id: postId},
                 {$push: {commentIds: comment._id.toString()}}
             );
@@ -43,8 +45,8 @@ let exportedMethods ={
                 throw "Could not update post with commentId";
             }
         }
-
-        const commentInfo = await comments().insertOne(comment);
+        const commentCollection = await comments();
+        const commentInfo = await commentCollection.insertOne(comment);
         if (!commentInfo.acknowledged || !commentInfo.insertedId) {
             throw "Could not add this comment";
         }
@@ -57,12 +59,14 @@ let exportedMethods ={
     },
 
     async getAllComments(projection) {
-        return await comments().find({}).sort({created_Date: -1}).toArray();
+        const commentCollection = await comments();
+        return await commentCollection.find({}).sort({created_Date: -1}).toArray();
     },
 
     async getCommentById(commentId){
         commentId = validation.checkId(commentId);
-        const comment = await comments().findOne({_id: new ObjectId(commentId)});
+        const commentCollection = await comments();
+        const comment = await commentCollection.findOne({_id: new ObjectId(commentId)});
         if(!comment){
             throw `No comment with that id ${commentId}`;
         }
@@ -72,7 +76,8 @@ let exportedMethods ={
 
     async removeCommentById(commentId){
         commentId = validation.checkId(commentId);
-        const comment = await comments().findOne({_id: new ObjectId(commentId)});
+        const commentCollection = await comments();
+        const comment = await commentCollection.findOne({_id: new ObjectId(commentId)});
         if(!comment){
             throw `No comment with that id ${commentId}`;
         }
@@ -96,7 +101,7 @@ let exportedMethods ={
                 throw `Could not remove comment with id ${commentId} from post with id ${comment.postId}`;
             }
         }
-        const deleteInfo = await comments().deleteOne({_id: new ObjectId(commentId)})
+        const deleteInfo = await commentCollection.deleteOne({_id: new ObjectId(commentId)})
         if(deleteInfo.deletedCount === 0){
             throw `Could not delete comment with id with ${commentId}`;
         }
@@ -109,7 +114,8 @@ let exportedMethods ={
     },
 
     async getUserCommentById(userId){
-        const user = await userData.getUserByID(await validation.checkId(userId));
+        userId = await validation.checkId(userId)
+        const user = await userData.getUserByID(userId);
         if(!user) throw `No event with that id ${userId}`;
         const commentList = userId.commentIds;
         const comments = [];
@@ -120,7 +126,8 @@ let exportedMethods ={
     },
 
     async getEventCommentById(eventId){
-        const event = await eventsData.getEventByID(await validation.checkId(eventId));
+        eventId = await validation.checkId(eventId)
+        const event = await eventsData.getEventByID(eventId);
         if(!event) throw `No event with that id ${eventId}`;
         const commentList = eventId.commentIds;
         const comments = [];
@@ -131,7 +138,8 @@ let exportedMethods ={
     },
 
     async getPostCommentById(postId){
-        const post = await eventsData.getEventByID(await validation.checkId(postId));
+        postId = await validation.checkId(postId)
+        const post = await postData.getPostById(postId);
         if(!post) throw `No  post with that id ${postId}`;
         const commentList = postId.commentIds;
         const comments = [];
@@ -140,7 +148,6 @@ let exportedMethods ={
         }
         return comments;
     }
-
 
 };
 
