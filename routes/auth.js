@@ -5,12 +5,26 @@ import moment from 'moment';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
 import validation from '../validationchecker.js';
+import { events } from '../config/mongoCollections.js';
 //import { requireAuth } from '../app.js';
 const router = Router();
 
 router.route('/').get(async(req,res)=>{
     return res.status(200).render('login',{title:"Home Page"});
 });
+
+// router.route('/').get(async (req, res) => {
+//     //code here for GET THIS ROUTE SHOULD NEVER FIRE BECAUSE OF MIDDLEWARE #1 IN SPECS.
+//     if (req.session.user) {
+//         if (req.session.user.role === 'admin') {
+//             return res.redirect('/admin');
+//         } else if (req.session.user.role === 'user') {
+//             return res.redirect('/protected');
+//         }
+//     }else {
+//         res.redirect('/login');
+//     }
+// });
 
 router.route('/login').get(async(req,res)=>{
     return res.status(200).render('login',{title:"login Page"});
@@ -32,6 +46,38 @@ router.route('/login').post(async(req,res)=>{
         return res.redirect('/register');
     }
 });
+
+
+//     .post(async (req, res) => {
+//         //code here for POST
+//         let {emailAddressInput, passwordInput} = req.body;
+//         try {
+//             emailAddressInput = validator.checkEmail(emailAddressInput);
+//             passwordInput = validator.checkPassword(passwordInput);
+//             const user = await checkUser(emailAddressInput, passwordInput);
+//             req.session.user = {
+//                 firstName: user.firstName,
+//                 lastName: user.lastName,
+//                 emailAddress: user.emailAddress,
+//                 role: user.role
+//             };
+//             if (user.role === "admin") {
+//                 res.redirect('/admin');
+//             } else {
+//                 res.redirect('/protected');
+//             }
+//         } catch (e) {
+//                 return res.status(400).render('error', {
+//                     title: "Error",
+//                     message: e
+//                 });
+//         }
+//     });
+
+
+
+
+
 
 router.route('/register').get(async(req,res)=>{
     return res.status(200).render('register',{title:"Register Page"});
@@ -76,7 +122,55 @@ router.route('/register').post(async(req,res)=>{
     }
 });
 
+// router
+//     .route('/register')
+//     .get(async (req, res) => {
+//         //code here for GET
+//         if (req.session.user) {
+//             if (req.session.user.role === 'admin') {
+//                  res.redirect('/admin');
+//             } else if (req.session.user.role === 'user') {
+//                  res.redirect('/protected');
+//             }
+//         }else {
+//             res.render('register', {title: "Register"});
+//         }
+//     })
+//     .post(async (req, res) => {
+//         //code here for POST
+//         let {
+//             firstNameInput,
+//             lastNameInput,
+//             emailAddressInput,
+//             passwordInput,
+//             confirmPasswordInput,
+//             roleInput
+//         } = req.body;
+//         try {
+//             firstNameInput = validator.checkLegitName(firstNameInput);
+//             lastNameInput = validator.checkLegitName(lastNameInput);
+//             emailAddressInput = validator.checkEmail(emailAddressInput);
+//             passwordInput = validator.checkPassword(passwordInput);
+//             confirmPasswordInput = validator.checkPassword(confirmPasswordInput);
+//             roleInput = validator.checkRole(roleInput);
+//             if (passwordInput !== confirmPasswordInput) throw "Passwords do not match";
+//         } catch (e) {
+//             return res.status(400).render('error', {title: "Error", message: e});
+//         }
 
+//         try {
+//             const user = await createUser(firstNameInput,
+//                 lastNameInput,
+//                 emailAddressInput,
+//                 passwordInput,
+//                 roleInput);
+//             if (user.insertedUser) {
+//                 res.redirect('/login');
+//             }
+//         } catch (e) {
+//             return res.status(500).render('error', {title: "Error", message: "Internal Server Error"});
+//         }
+//     });
 
 router.route('/homepage').get(async(req,res)=>{
     const userId = req.session.userId;
@@ -157,6 +251,11 @@ router.route('/posts').post(async(req,res)=>{
     }
 
 });
+
+router.route('/error').get(async (req, res) => {
+    //code here for GET
+    res.render('error', {message: ""});
+
 router.route('/posts/:id').delete(async(req,res)=>{
     console.log(req.params.id);
     
@@ -168,7 +267,6 @@ router.route('/posts/:id').delete(async(req,res)=>{
 
     //res.send(response);
     return res.sendStatus(200);
-
 });
 
 

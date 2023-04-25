@@ -44,6 +44,8 @@ app.use(session({
     saveUninitialized: true
   }));
 
+  
+  // chao's code here
 // app.use('/', (req, res, next) => {
 //   if (req.session.user) {
 //       if (req.session.user.role === 'admin') {
@@ -51,17 +53,18 @@ app.use(session({
 //       } else if (req.session.user.role === 'user') {
 //           return res.redirect('/protected');
 //       }
+      
 //   }
 //   next();
 // });
 
-// app.use('/login', (req, res, next) => {
-//     if (!req.session.user) {
-//         return res.redirect('/');
-//     }
-//     req.method = 'post';
-//     next();
-// });
+app.use('/login', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect('/');
+    }
+    req.method = 'post';
+    next();
+});
 
 //   app.use('/register', (req, res, next) => {
 //     if (req.session.user) {
@@ -71,33 +74,33 @@ app.use(session({
 // });
 
 
-//   app.use('/admin', (req, res, next) => {
-//     if (!req.session.user) {
-//         return res.redirect('/login');
-//     } else if (req.session.user.role !== 'admin') {
-//         return res.status(403).render('error', {
-//             title: "Error",
-//             message: "You do not have permission to view this page."
-//         });
-//     }
-//     next();
-// });
-
-  // chao's code here
-//   app.use('/protected', (req, res, next) => {
-//     if (!req.session.user) {
-//         return res.redirect('/login');
-//     }
-//     next();
-// });
+  app.use('/admin', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    } else if (req.session.user.role !== 'admin') {
+        return res.status(403).render('error', {
+            title: "Error",
+            message: "You do not have permission to view this page."
+        });
+    }
+    next();
+});
 
 
-// app.use('/logout', (req, res, next) => {
-//   if (!req.session.user) {
-//       return res.redirect('/login');
-//   }
-//   next();
-// });
+  app.use('/protected', (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+    next();
+});
+
+
+app.use('/logout', (req, res, next) => {
+  if (!req.session.user) {
+      return res.redirect('/login');
+  }
+  next();
+});
 
 configRoutes(app);
 app.listen(3000, () => {

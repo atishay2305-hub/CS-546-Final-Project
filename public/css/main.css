@@ -1,7 +1,11 @@
 body {
   background: #fefefe;
-  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  font-family: monospace;
   font-size: 15pt;
+  
+  /* added for test */
+  position: relative;
+  min-height: 100vh;
 }
 
 main {
@@ -33,7 +37,6 @@ nav ul {
   margin: 0;
   padding: 0;
   display: flex;
-  
 }
 
 nav li {
@@ -74,22 +77,30 @@ footer {
 }
 
 #get-posts-navbar {
-  position: relative;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 999;
+  left: 0;
 }
 
 #get-posts-navbar form {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
 }
 
 #get-posts-navbar input[type="text"],
 #get-posts-navbar button[type="submit"] {
-  height: 100%;
-  font-weight: bold;
+  height: 30px;
+  width: 200px;
+  margin-right: 10px;
 }
-/* event cards below */
+
+#get-posts-navbar button[type="submit"] {
+  height: 30px;
+}
+
 #event-cards {
   display: flex;
   justify-content: center;
@@ -108,4 +119,16 @@ footer {
 .event-card p {
   font-size: 1rem;
   margin-bottom: 10px;
+}
+
+footer {
+  text-align: center;
+  padding: 3px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  padding: 3px;
+  background-color: DarkSalmon;
+  color: white;
 }
