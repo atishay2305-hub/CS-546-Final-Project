@@ -30,7 +30,7 @@ router.route('/events')
     try{
       const {eventName, description, buildingName, organizer, seatingCapacity, userId} = req.body;
       console.log({eventName, description, buildingName, organizer, seatingCapacity, userId})
-      const newEvent = await eventsData.createEvent("6441e06cf0917340bd02623c", eventName, description, buildingName, organizer, seatingCapacity);
+      const newEvent = await eventsData.createEvent(userId, eventName, description, buildingName, organizer, seatingCapacity);
       // console.log(newEvent);
       // console.log("here")
       const gettingAllEvents = await eventsData.getAllEvents();
