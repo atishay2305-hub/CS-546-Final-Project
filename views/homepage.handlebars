@@ -2,6 +2,13 @@
 
 <h2>Your user ID is: {{userId}}</h2>
 
+{{#each newEvent}}
+    <h2>Event Name: {{eventName}}</h2><br>
+    <p>Description: {{description}}</p><br>
+    <p>Building Name: {{buildingName}}</p><br>
+    <p>Seating Capacity{{seatingCapacity}}</p><br>
+{{/each}}
+
 <a href="/profile">My Profile</a>
 
 
