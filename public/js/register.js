@@ -51,7 +51,7 @@ $(function () {
                         email: email,
                         password: password,
                         DOB: DOB,
-                        role: role
+                        dept: dept
                     }),
                 })
                     .then((response) => {

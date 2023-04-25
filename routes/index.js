@@ -9,6 +9,9 @@ import authRoutes from './auth.js';
 // import commentRoutes from './comments.js';
 import commentsRoute from './comments.js'
 
+// import commentsRoute from './comments.js'
+// import authRoutes from './auth_routes.js';
+
 const constructorMethod = (app) => {
 
     app.use('/',authRoutes);

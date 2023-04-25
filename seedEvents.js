@@ -1,7 +1,7 @@
 import eventsData from "./data/events.js";
 
 try {
-    let something = await eventsData.createEvent("Something", "sdsjdisj", "edwin a. stevens hall", "Atishay Jain", 5, "jsdsdj43434fdsfdfisdj21212", "https://upload.wikimedia.org/")
+    let something = await eventsData.createEvent("6441e06cf0917340bd02623c", "something", "lieb building", "lieb building", "Atishay Jain", 5)
     console.log(something);
 
 } catch(error){

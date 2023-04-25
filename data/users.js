@@ -72,6 +72,8 @@ let exportedMethods = {
 
         return {createUser: true, userID: insertInfo.insertedId.toString()};
 
+        // if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add user.";
+        // return {insertedUser: true};
     },
 
     /**
@@ -228,7 +230,7 @@ let exportedMethods = {
             throw `Error: postId ${postId} not found in postIDs list for user ${userId}`;
         }
     },
-
+    
     async putEvent(userId, eventId) {
         userId = validation.checkId(userId);
         eventId = validation.checkId(eventId);
