@@ -8,8 +8,8 @@ import e from "express";
 let exportedMethods ={
 
     async createComment(userId,
-                        eventId = null,
-                        postId = null,
+                        eventId,
+                        postId,
                         userName,
                         contents){
         userId = validation.checkId(userId);
@@ -29,21 +29,23 @@ let exportedMethods ={
                 {_id: eventId},
                 {$push: {commentIds: comment._id.toString()}}
             );
-            if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-                throw "Could not update event with commentId";
-            }
+            console.log(updateEvent);
+            // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+            //     throw "Could not update event with commentId";
+            // }
         }
         if(postId){
             postId = validation.checkId(postId);
             comment.postId = postId;
-            const postCollection = posts();
+            const postCollection = await posts();
+           
             const updateEvent = await postCollection.updateOne(
                 {_id: postId},
                 {$push: {commentIds: comment._id.toString()}}
             );
-            if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-                throw "Could not update post with commentId";
-            }
+            // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+            //     throw "Could not update post with commentId";
+            // }
         }
         const commentCollection = await comments();
         const commentInfo = await commentCollection.insertOne(comment);

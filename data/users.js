@@ -219,7 +219,7 @@ let exportedMethods = {
         if (!user) throw `Error: ${user} not found`; //check password as well
         let postIdList = user.postIDs;
         if (postIdList.includes(postId)) {
-            postIdList = postId.filter(elem => elem !== postId);
+            postIdList = postIdList.filter(elem => elem !== postId);
             const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},
                 {$set: {postIDs: postIdList}}

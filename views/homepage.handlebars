@@ -2,6 +2,7 @@
 
 <h2>Your user ID is: {{userId}}</h2>
 
+
 {{#each newEvent}}
     <h2>Event Name: {{eventName}}</h2><br>
     <p>Description: {{description}}</p><br>
@@ -9,7 +10,48 @@
     <p>Seating Capacity{{seatingCapacity}}</p><br>
 {{/each}}
 
+
 <a href="/profile">My Profile</a>
 
+{{#each posts}}
+  <div class="post-container">
+    <h2>{{content}}</h2>
+    <p>Category: {{category}}</p>
+    <p>Created by: {{name}}</p>
+    <p>Created at: {{created_Date}}</p>
+    <p>Likes: {{likes}}, Dislikes: {{dislikes}}</p>
+    <p>Comments: {{commentIds}}</p>
+    {{#if deletable}}
+      <button class="delete-btn" onClick ="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
+    {{/if}}
+  </div>
+{{/each}}
+
+<script>
+function deletePost(id) {
+  fetch(`/posts/${id}`, {
+    method: "delete",
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      "Content-type": 'application/json'
+    },
+  })
+  .then(response => {
+  if (response.ok) {
+    alert('Post deleted successfully');
+    window.location.href = '/homepage';
+  } else {
+    throw new Error('Network response was not ok');
+  }
+})
+  .catch(error => {
+    alert(error.message || "Something went wrong.");
+  })
+  .then(() => {
+    console.log('This will run after either success or failure');
+  });
+}
+
+</script>
 
 
