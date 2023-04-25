@@ -1,22 +1,67 @@
-{{!-- TODO: Change the action below --}}
+{{!-- {{#each events}}
+  <h2>{{eventName}}</h2>
+  <p>{{description}}</p>
+{{/each}} --}}
+  <div class="event-card">
+<h1 id="event-header">Create Events</h1>
+<form method="POST" action="/events">
+  <label for="eventName">Event Name</label>
+  <input id="eventName" type="text" name="eventName">
 
-{{!-- creating event handlebar below --}}
-<form method="POST" action="/create-event">
-<label for="eventName">Event Name: </label>
-<input type="text" name="eventName" required>
+  <label for="description">Description</label>
+  <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
 
-<label for="description">Event Description: </label>
-<textarea name="description" rows="6" maxlength="300" required></textarea>
+      <label for="buildingName">Select Building Location:</label>
+    <select id="buildingName" name="buildingName"><br>
+      <option value=""></option>
+    </select>
+  
 
-<label for="buildingName">Building Name: </label>
-<input type="text" name="buildingName" required>
+    <script>
+      const allowedLocation = [
+        "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
+        "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
+        "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
+        "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
+        "alexander house", "colonial house"
+      ];
 
-<label for="organizer">Organizer: </label>
-<input type="text" name="organizer" required>
+      const selectElement = document.getElementById("buildingName");
 
-<label for="seatingCapacity">Seating Capacity: </label>
-<input type="number" name="seatingCapacity" required>
+      allowedLocation.forEach((location) => {
+        const option = document.createElement("option");
+        option.text = location;
+        option.value = location;
+        selectElement.appendChild(option);
+      });
+    </script>
 
-<button type="submit">Create Event</button>
+  <label for="organizer">Organizer</label>
+  <input id = "organizer" type="text" name="organizer">
+
+  <label for="seatingCapacity">Seating Capacity</label>
+  <input id = "seatingCapacity" type="number" name="seatingCapacity">
+
+  <button type="submit">Create Event</button>
+    </div>
 </form>
+<br>
+<div>  
+    <h2>{{newEvent.eventName}}</h2><br>
+    <p>{{newEvent.description}}</p><br>
+    <p>{{newEvent.buildingName}}</p><br>
+    <p>{{newEvent.seatingCapacity}}</p><br>
+</div>
+
+{{#each newEvent}}
+    <h2>Event Name: {{eventName}}</h2><br>
+    <p>Description: {{description}}</p><br>
+    <p>Building Name: {{buildingName}}</p><br>
+    <p>Seating Capacity{{seatingCapacity}}</p><br>
+{{/each}}
+
+{{!-- 
+{{#if newEvent}}
+{{newEvent.comments}}
+{{/if}} --}}
 

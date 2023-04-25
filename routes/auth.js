@@ -9,38 +9,38 @@ import validation from '../validationchecker.js';
 const router = Router();
 
 router.route('/').get(async(req,res)=>{
-    return res.status(200).render('home',{title:"Home Page"});
+    return res.status(200).render('login',{title:"Home Page"});
 });
 
 router.route('/login').get(async(req,res)=>{
-    return res.status(200).render('login/login',{title:"login Page"});
+    return res.status(200).render('login',{title:"login Page"});
 });
 
 router.route('/login').post(async(req,res)=>{
     try{
 
-        let {uname,psw} = req.body;
-        uname = validation.checkEmail(uname);
-        psw = validation.checkPassword(psw);
+        let {emailAddressInput,passwordInput} = req.body;
+        emailAddressInput = validation.checkEmail(emailAddressInput);
+        passwordInput = validation.checkPassword(passwordInput);
 
-        const {sessionUser} = await userData.checkUser(uname,psw);
+        const {sessionUser} = await userData.checkUser(emailAddressInput,passwordInput);
         req.session.userId = sessionUser.userId;
         req.session.userName = sessionUser.userName;
         return res.redirect('/user');
     }catch(e){
         console.log(e);
-        return res.redirect('/signup');
+        return res.redirect('/register');
     }
 });
 
-router.route('/signup').get(async(req,res)=>{
-    return res.status(200).render('login/signup',{title:"Signup Page"});
+router.route('/register').get(async(req,res)=>{
+    return res.status(200).render('register',{title:"Register Page"});
 });
 
-router.route('/signup').post(async(req,res)=>{
+router.route('/register').post(async(req,res)=>{
     try{
-        
-        const {firstname,lastname,username,email,psw,dob,dept} = req.body;
+        // removed dept
+        const {firstName,lastName,userName,email,password,DOB, dept} = req.body;
         /*try{
             firstname = validation.checkString(firstname, 'First name');
             lastname = validation.checkString(lastname, 'Last name');
@@ -53,57 +53,52 @@ router.route('/signup').post(async(req,res)=>{
             console.log(e);
             return res.status(400).send(e); 
         }*/
-        const date = moment(dob).format('MM-DD-YYYY');
+        const date = moment(DOB).format('MM-DD-YYYY');
         //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
         //console.log(user);
         //const {sessionUser} = await userData.;
-        const {sessionUser}  = await userData.createUser(firstname,lastname,username,email,psw,dob,dept);
-        console.log(sessionUser);
+        const user  = await userData.createUser(firstName,lastName,userName,email,password,DOB, dept);
+        console.log(user);
+        if(user.createUser)
+        {
+            return res.redirect('/login');
+        }
 
-        req.session.userId = sessionUser.userId;
-        req.session.userName = sessionUser.userName;
-        console.log(req.session.userId);
-        console.log(req.session.userName);
-        return res.redirect('/user');
+        // req.session.userId = sessionUser.userId;
+        // req.session.userName = sessionUser.userName;
+        // console.log(req.session.userId);
+        // console.log(req.session.userName);
+       
         //return res.json(newuser);
     }catch(e){
         console.log(e);
-        return res.redirect('/signup'); 
+        return res.redirect('/register'); 
     }
 });
 
-const requireAuth = (req, res, next) => {
-    if (req.session && req.session.userId && req.session.userName) {
-      // user is authenticated
-      next();
-    } else {
-      // user is not authenticated
-      return res.redirect('/login');
-    }
-};
+
 
 router.route('/user').get(async(req,res)=>{
     const userId = req.session.userId;
     const userName = req.session.userName;
-    console.log(userName);
-    console.log(userId);
+    // console.log(userName);
+    // console.log(userId);
     return res.render('homepage',{userId:userId,userName:userName});
-
 });
 
-router.route('/profile').get(async(req,res)=>{
 
+router.route('/profile').get(async(req,res)=> {
     const id = req.session.userId;
+    console.log(id);
     const user = await userData.getUserByID(id);
-    console.log(user);
-    return res.render('profile',{user:user});
+    res.render('profile',{user:user});
 });
 
-router.route('/post').get(async(req, res)=>{
-    res.render('posts');
+router.route('/posts').get(async(req, res)=>{
+    res.render('posts', {user : user});
   });
 
-router.route('/post').post(async(req,res)=>{
+router.route('/posts').post(async(req,res)=>{
 
     const{category,postedContent} = req.body;
     console.log(postedContent);
