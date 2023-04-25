@@ -53,8 +53,9 @@ router
     }
 
     try{
-        const comments = await commentData.createComment(req.params.postId,comment);
-        
+      const {userId,eventId,postId,userName,contents}=req.body; 
+      const comments = await commentData.createComment(userId,eventId,postId,userName,contents);
+     
         res.redirect(`/comments/comment/${comment._id}`);
     }catch(e){
 
