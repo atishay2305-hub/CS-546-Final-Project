@@ -14,17 +14,17 @@ let exportedMethods = {
         seatingCapacity,
         image =null
     ) {
-        eventName = validation.checkName(eventName, "EventName");
-        description = validation.checkPhrases(description, "Description");
-        buildingName = validation.checkLocation(buildingName, "BuildingName");
-        organizer = validation.checkName(organizer, "Organizer");
-        seatingCapacity = validation.checkCapacity(seatingCapacity);
-        userId = validation.checkId(userId);
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user.isAdmin) {
-            throw `Only administrator can edit events`
-        }
+        // eventName = validation.checkName(eventName, "EventName");
+        // description = validation.checkPhrases(description, "Description");
+        // buildingName = validation.checkLocation(buildingName, "BuildingName");
+        // organizer = validation.checkName(organizer, "Organizer");
+        // seatingCapacity = validation.checkCapacity(seatingCapacity);
+        // userId = validation.checkId(userId);
+        // const userCollection = await users();
+        // const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        // if (!user.isAdmin) {
+        //     throw `Only administrator can edit events`
+        // }
 
         let event = {
             eventName: eventName,
@@ -36,18 +36,19 @@ let exportedMethods = {
             seatingCapacity: seatingCapacity,
             commentIds: [],
         }
-        if (image) {
-            image = validation.createImage(image);
-            event.image = image;
-        }
+        // if (image) {
+        //     image = validation.createImage(image);
+        //     event.image = image;
+        // }
 
         const eventCollection = await events();
         const insertInfo = await eventCollection.insertOne(event);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event";
-        if (userId) {
-            await userData.putEvent(userId, insertInfo.insertedId.toString());
-        }
-        event._id = insertInfo.insertedId.toString();
+        console.log(insertInfo);
+        // if (userId) {
+        //     await userData.putEvent(userId, insertInfo.insertedId.toString());
+        // }
+        insertInfo._id = insertInfo.insertedId.toString();
         event = Object.assign({_id: event._id}, event);
         return event;
     },
@@ -56,6 +57,8 @@ let exportedMethods = {
         const eventCollection = await events();
         return eventCollection.find({}).sort({created_Date: -1}).toArray();
     },
+
+
     
     async getEventByID(id) {
         id = validation.checkId(id);
