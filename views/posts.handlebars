@@ -1,13 +1,22 @@
-{{!-- TODO: Change the action below --}}
-
 {{!-- creating post handlebar below --}}
-<form method="POST" action="/post" id="myForm">
-<label for="category">Post Category: </label>
-<input type="text" name="category" required>
+<form method="POST" action="/posts" id="post-form">
 
-<label for="postedContent">Post Content: </label>
-<textarea name="postedContent" rows="6" maxlength="300" required></textarea>
+<label for="postCategory">Post Category:</label>
 
-<button type="submit">Create Post</button>
-</form>
+<select name="postCategory" id ="postCategory">
+    <option value="education">Education</option>
+    <option value="sports">sports</option>
+    <option value="entertainment">Entertainment</option>  
+</select><br>
+
+
+<label for="postContent">Post Content: </label>
+<textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea><br>
+
+<button type="submit">Add Post</button>
+</form><br>
+
+<p>{{Error}}</p>
+
+
 

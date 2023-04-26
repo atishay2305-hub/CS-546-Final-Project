@@ -2,49 +2,54 @@ import {posts, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
+import multer from "multer";
 
 let exportedMethods = {
     async createPost(category,
                      //image,
                      postedContent,
-                     userId
+                     userName
     ) {
         category = validation.checkLegitName(category, "category");
         postedContent = validation.checkPhrases(postedContent, "PostedContent");
-        userId = validation.checkId(userId);
+        //userName = validation.checkName(userName)
+        const userId = validation.checkId(userName);
+        console.log(userId);
         const userCollection = await users();
-        const user = await userCollection.findOne({userId: userId});
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        console.log(user);
         if(!user){
             throw `The user does not exist with that Id &{id}`;
         }
         if(user.isAdmin){
             throw "Post can only create by users."
         }
-        let path = "";
+        /*let path = "";
         if(!image || image.trim().length === 0){
             path = "public/images/default.png";
         }else{
             path = validation.createImage(image);
-        }
+        }*/
 
         let post = {
             category: category,
             content: postedContent,
-            image: path,
-            userName: user._id,
+            //image: path,
+            userId:userId,
             created_Date: validation.getDate(),
             likes: 0,
             dislikes: 0,
             commentIds: {}
         };
         const postCollection = await posts();
-        const insertInfo = await postCollection.insertOne(post);
-        if (!post.acknowledged || !post.insertedId) {
+        let insertInfo = await postCollection.insertOne(post);
+        if (!insertInfo.acknowledged || !insertInfo.insertedId) {
             throw "Could not add post";
         }
-        post._id = insertInfo.insertedId.toString();
-        post = Object.assign({_id: post._id}, post);
-        return post;
+        
+        insertInfo._id = insertInfo.insertedId.toString();
+        insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
+        return insertInfo;
     },
 
     async getAllPosts() {
@@ -69,6 +74,17 @@ let exportedMethods = {
         return post;
     },
 
+    async getPostByUserId(userId) {
+        id = await validation.checkId(userId);
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(userId)});
+        if (post === null) {
+            throw `No post found with that ID ${userId}`;
+        }
+        post._id = new ObjectId(post._id).toString();
+        return post;
+    },
+
     async removeById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
@@ -78,8 +94,11 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
-        if (user.isAdmin === undefined || !user.isAdmin || !user.postIDs.includes(id)) {
-            throw "Only administrators or the poster can delete posts.";
+        //console.log(user.postID);
+        if (user.isAdmin === undefined || !user.isAdmin) {
+            if(!user.postIDs.includes(id)){
+                throw "Only administrators or the poster can delete posts.";
+            } 
         }
 
         const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});

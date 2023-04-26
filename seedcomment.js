@@ -19,11 +19,25 @@ const db= await dbConnection();
 //     console.log(e);
 // }
 
-try{
-const comment = await commentData.createComment('643f3edec2137a9db93c1d5b',"Hello how are you?");
-console.log(comment);
-}catch(e){
-    console.log(e);
+// try{
+// const comment = await commentData.createComment('643f3edec2137a9db93c1d5b',"6446f36afda8b12b0452adf7", "6442269732b1e3c891419771", "PixelPenguin22", "Hello how are you?");
+// console.log(comment);
+// }catch(e){
+//     console.log(e);
+// }
+
+// try {
+//     const getAllComments = await commentData.getAllComments();
+//     console.log(getAllComments)
+// } catch (error){
+//     console.log(error)
+// }
+
+try {
+    const getAllComments = await commentData.getEventCommentById("6446f48cef0f7537b23018d9");
+    console.log(getAllComments)
+} catch (error){
+    console.log(error)
 }
 
 /*try{
@@ -39,6 +53,11 @@ console.log(comment);
             console.log(e);
         }*/
     
-
+// try{
+//     const comment = await commentData.removeCommentById('6448a76c745f1f47ad126786');
+//     console.log(comment);
+// }catch(e){
+//         console.log(e);
+// }
 await closeConnection();
 
