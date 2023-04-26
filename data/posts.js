@@ -2,6 +2,7 @@ import {posts, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
+import multer from "multer";
 
 let exportedMethods = {
     async createPost(category,
@@ -68,6 +69,17 @@ let exportedMethods = {
         const post = await postCollection.findOne({_id: new ObjectId(id)});
         if (post === null) {
             throw `No post found with that ID ${id}`;
+        }
+        post._id = new ObjectId(post._id).toString();
+        return post;
+    },
+
+    async getPostByUserId(userId) {
+        id = await validation.checkId(userId);
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(userId)});
+        if (post === null) {
+            throw `No post found with that ID ${userId}`;
         }
         post._id = new ObjectId(post._id).toString();
         return post;
