@@ -1,20 +1,26 @@
 <body>
-<link rel="stylesheet" href="/public/css/lab10.css">
+<link rel="stylesheet" href="/public/css/main.css">
 </body>
 
+
 <div id="error" class="error" hidden>I'm an error. I will change through Client-Side JS</div>
-<div class="container">
+<div class="container center">
     <h1 class="login">Login Page</h1>
     <form id="login-form" action="/login" method="post">
         <label for="emailAddressInput">Email Address:</label>
         <input type="email" name="emailAddressInput" id="emailAddressInput"><br>
         <label for="passwordInput">Password:</label>
         <input type="password" name="passwordInput" id="passwordInput"><br>
-        <input type="submit" value="Login">
+        
+        <button type="submit" class="registerbtn">Login</button>
     </form>
-
+   <div class="hlink">
+    
+    
+         
 
     <a href="/register">Click here to register!</a>
+    </div>
     <script src="../public/js/main.js"></script>
 </div>
 
