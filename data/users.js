@@ -2,8 +2,8 @@ import {users, events} from '../config/mongoCollections.js';
 import bcrypt from 'bcrypt'
 import validation from '../validationchecker.js';
 import {ObjectId} from "mongodb";
-import { comments } from '../config/mongoCollections.js';
-const authenticationCode = "Get privilege";
+
+
 let exportedMethods = {
     /**
      *
@@ -38,7 +38,7 @@ let exportedMethods = {
         role = validation.checkRole(role);
         department = validation.checkDepartment(department);
         if(role === 'admin' && authentication.trim().toLowerCase() === 'getprivilige'){
-            authentication = true;
+            authentication = authentication.trim().toLowerCase();
         }
 
 
@@ -57,7 +57,7 @@ let exportedMethods = {
                 eventIDs: [],
                 commentIDs: [],
                 role: role,
-                authentication,
+                authentication: authentication
             };
         } else {
             user = {
@@ -70,7 +70,7 @@ let exportedMethods = {
                 postIDs: [],
                 commentIDs: [],
                 role: role,
-                authentication
+                authentication: authentication
             };
         }
         const insertInfo = await userCollection.insertOne(user);
@@ -100,17 +100,13 @@ let exportedMethods = {
             checkExist.password
         );
         if (!checkPassword) throw "You may have entered the wrong email address or password."
-        
+
         return {
             firstName: checkExist.firstName,
             lastName: checkExist.lastName,
             userName: checkExist.userName,
             emailAddress: checkExist.emailAddress,
             role: checkExist.role
-        const sessionUser = {
-            userId: checkExist._id.toString(),
-            userName: checkExist.userName,
-            // role: checkExist.role
         };
     },
 
@@ -199,7 +195,7 @@ let exportedMethods = {
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
         if (!user) throw `Error: ${user} not found`; //check password as well
-        if (!user.isAdmin) throw `Error: ${email} is not an administrator`
+        if (!user.role !== 'admin') throw `Error: ${email} is not an administrator`
         return user.eventIDs;
     },
 
@@ -263,7 +259,7 @@ let exportedMethods = {
         if (!user) throw `Error: ${user} not found`; //check password as well
         let postIdList = user.postIDs;
         if (postIdList.includes(postId)) {
-            postIdList = postIdList.filter(elem => elem !== postId);
+            postIdList = postId.filter(elem => elem !== postId);
             const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},
                 {$set: {postIDs: postIdList}}
@@ -362,37 +358,18 @@ let exportedMethods = {
     async putComment(userId, commentId) {
         userId = validation.checkId(userId);
         commentId = validation.checkId(commentId);
-    
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: User with ID ${userId} not found`;
-    
-        const commentCollection = await comments();
-        const comment = await commentCollection.findOne({_id: new ObjectId(commentId)});
-        if (!comment) throw `Error: Comment with ID ${commentId} not found`;
-    
-        // update the userId in the comment object
-        const updatedComment = await commentCollection.updateOne(
-            {_id: new ObjectId(commentId)},
-            {$set: {userId: userId}}
-        );
-        if (!updatedComment.acknowledged || updatedComment.matchedCount !== 1) throw `Could not update comment with ID ${commentId}`;
-    
-        // add the commentId to the user object
-        // let commentIdList = user.commentIDs;
-        let commentIdList = user.commentIDs || [];
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        let commentIdList = user.commentIDs;
         commentIdList.push(commentId);
-        console.log(commentIdList)
-    
-        const updatedUser = await userCollection.updateOne(
+        const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(userId)},
             {$set: {commentIDs: commentIdList}}
         );
-        if (!updatedUser.acknowledged || updatedUser.matchedCount !== 1) throw `Could not put comment with ID ${commentId}`;
-    
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${userId}`;
         return true;
     },
-    
 
     async removeComment(userId, commentId) {
         userId = validation.checkId(userId);
