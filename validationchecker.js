@@ -81,36 +81,59 @@ const exportedMethods = {
 
     checkDOB(DOB) {
         if (!DOB) throw `DOB not provided`;
-        if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB"
-        const dateRegex = /^(\d{2})-(\d{2})-(\d{4})$/;
-        if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'mm-dd-yyyy";
-        const [_, month, day, year] = DOB.match(dateRegex);
+        if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB";
+        const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+        if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
+        const [_, year, month, day] = DOB.match(dateRegex);
 
         const currentDate = new Date();
-        const inputDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
 
-        if (inputDate > currentDate) {
+        if (DOB > currentDate) {
             throw "Date of birth must be in the past";
         }
-        return inputDate;
+        return DOB;
     },
 
-    checkLocation(buildingName, valName) {
-        if (!buildingName) throw `${valName} not provided`;
-        if (typeof buildingName !== "string" || buildingName.trim().length === 0) throw `Please provide a valid input of ${valName}`
-        const allowedLocation = ["edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
+    checkRole(role) {
+        if (!role) throw  "Role is not provided";
+        if (typeof role !== "string" || role.trim().length === 0) throw "Role is not a valid type";
+        role = role.trim().toLowerCase();
+        if (role !== "admin" && role !== "user") throw "Please select a role";
+        return role
+    },
+
+    checkDepartment(department) {
+        if (!department) throw "Department is not provided";
+        if (typeof department !== 'string') throw "Department is not a valid type";
+        const allowedDepartment = [
+             "biomedical Engineering", "chemistry and chemical biology", "chemical engineering and materials science",
+            "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering",
+            "mathematical sciences", "mechanical engineering", "physics"];
+        department = department.trim().toLowerCase();
+        if (allowedDepartment.includes(department)) {
+            return department;
+        } else {
+            throw "Department select from the existed department from Stevens Institute of Technology.";
+        }
+    },
+
+    checkLocation(buildingIndex) {
+        if (!buildingIndex) throw `${buildingIndex} not provided`;
+        if (typeof buildingIndex !== "number") throw `Please provide a valid input of buildingIndex`
+        const allowedLocation = [" ",
+            "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
             "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
             "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
             "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
             "alexander house", "colonial house"];
-        buildingName = buildingName.trim().toLowerCase();
-        if(!allowedLocation.find(loc => buildingName.startsWith(loc))){
+        if (buildingIndex !== 0 && allowedLocation[buildingIndex]) {
+            return allowedLocation[buildingIndex];
+        } else {
             throw "Location must be on Stevens Institute of Technology main campus.";
         }
-        return buildingName;
     },
 
-    checkCapacity(seatCapacity){
+    checkCapacity(seatCapacity) {
         if (!seatCapacity) throw "seatCapacity not provided.";
         if (typeof seatCapacity !== "number") throw "Please provide a number."
         if (seatCapacity < 5)
@@ -125,10 +148,10 @@ const exportedMethods = {
         const year = date.getFullYear();
         const month = ('0' + (date.getMonth() + 1)).slice(-2);
         const day = ('0' + date.getDay()).slice(-2);
-        const hour = ('0' +date.getHours()).slice(-2);
-        const minute = ('0' +date.getMinutes()).slice(-2);
-        const second = ('0' +date.getSeconds()).slice(-2);
-        return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+        const hour = ('0' + date.getHours()).slice(-2);
+        const minute = ('0' + date.getMinutes()).slice(-2);
+        const second = ('0' + date.getSeconds()).slice(-2);
+        return `${year}/${month}/${day} ${hour}:${minute}:${second}`
     },
 
     async createImage(image) {
@@ -144,11 +167,11 @@ const exportedMethods = {
         return imagePath;
     },
 
-    async removeImage(image){
-        try{
+    async removeImage(image) {
+        try {
             await fs.promises.unlink(image);
             console.log(`Image ${image} successfully removed from file system.`);
-        }catch (e){
+        } catch (e) {
             console.error(`Error removing image ${image} from file system: ${e}`);
         }
     },
