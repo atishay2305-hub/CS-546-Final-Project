@@ -1,15 +1,16 @@
 <div class="container">
     <section class="body-wrapper con">
-        <form id="registrationForm" action="/register" method="post">
+        <form id="register-Form" action="/register" method="post">
             <div class="container">
                 <h1>Registration</h1>
 
+                <div id="errorHandle" class="error" hidden></div>
                 <div class="inf">
                     <label for="FN">First Name: </label>
                     <div class="sec-2">
                         <ion-icon name="person-outline"></ion-icon>
-                        <input type="text" name="firstName" id="FN" placeholder="Michael" value="{{firstName}}"
-                               required>
+                        <input type="text" name="firstName" id="FN" placeholder="Michael" value="{{firstName}}" required>
+
                     </div>
                 </div>
 
@@ -18,6 +19,7 @@
                     <div class="sec-2">
                         <ion-icon name="person-outline"></ion-icon>
                         <input type="text" name="lastName" id="LN" placeholder="Jordan" value="{{lastName}}" required>
+
                     </div>
                 </div>
 
@@ -26,6 +28,7 @@
                     <div class="sec-2">
                         <ion-icon name="person-outline"></ion-icon>
                         <input type="text" name="userName" id="UN" placeholder="K1ingOfBBALL" value="{{userName}}" required>
+
                     </div>
                 </div>
 
@@ -35,6 +38,7 @@
                         <ion-icon name="mail-outline"></ion-icon>
                         <input type="email" name="email" id="email" placeholder="firstname.lastname@stevens.edu"
                                value="{{email}}" required>
+
                     </div>
                 </div>
 
@@ -43,7 +47,18 @@
                     <div class="sec-2">
                         <ion-icon name="lock-closed-outline"></ion-icon>
                         <input type="password" name="password" id="password" placeholder="******" value="{{password}}"
-                               required>
+                        required>
+
+                    </div>
+                </div>
+
+                <div class="password">
+                    <label for="CP">Confirm password: </label>
+                    <div class="sec-2">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" name="confirmPassword" id="CP" placeholder="******"
+                               value="{{password}}" required>
+
                     </div>
                 </div>
 
@@ -52,28 +67,53 @@
                     <div class="sec-2">
                         <ion-icon name="calendar-outline"></ion-icon>
                         <input type="date" name="DOB" id="DOB" placeholder="mm-dd-yyyy" value="{{DOB}}" required>
+
                     </div>
                 </div>
 
-                {{!-- <div class="inf">
+                <div class="inf">
                     <label for="role">Role: </label>
                     <select name="role" id="role">
-                        <option value=""> " "</option>
+                        <option value=""></option>
                         <option value="admin">Admin</option>
                         <option value="user">User</option>
                     </select>
-                </div> --}}
 
-                <div class="inf">
-                    <label for="dept">Department</label>
+                </div>
+
+                <div class="auth" id="auth" hidden>
+                    <label for="authentication">Authentication: </label>
                     <div class="sec-2">
                         <ion-icon name="person-outline"></ion-icon>
-                        <input type="text" name="dept" id="dept" placeholder="Department" value="{{dept}}" required>
+                        <input type="text" name="authentication" id="authentication" value="{{auth}}">
+
                     </div>
                 </div>
 
+                <div class="inf">
+                    <label for="department">Department: </label>
+                    <select id="department" name="department">
+                        <option value=""></option>
+                    </select>
 
-                <p class="error" id="registerError" hidden></p>
+
+                    <script>
+                        const allowedDepartment = [
+                            "Biomedical Engineering", "Chemistry and Chemical Biology", "Chemical Engineering and Materials Science",
+                            "Civil, Environmental and Ocean Engineering", "Computer Science", "Electrical and Computer Engineering",
+                            "Mathematical Sciences", "Mechanical Engineering", "Physics"];
+
+                        const selectElement = document.getElementById("department");
+
+                        allowedDepartment.forEach((department) => {
+                            const option = document.createElement("option");
+                            option.text = department;
+                            option.value = department;
+                            selectElement.appendChild(option);
+                        });
+                    </script>
+                </div>
+
 
                 <button type="submit" value="Submit" class="login">Register</button>
                 <div class="footer">
@@ -82,7 +122,8 @@
             </div>
         </form>
     </section>
+    <script src="/public/js/register.js"> </script>
+    <link rel="stylesheet" href="/public/css/main.css">
 </div>
 
-<script src="/public/js/register.js" type="module"></script>
-<link rel="stylesheet" href="/public/css/main.css">
+

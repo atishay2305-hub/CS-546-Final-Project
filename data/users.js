@@ -1,9 +1,9 @@
 import {users, events} from '../config/mongoCollections.js';
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcrypt'
 import validation from '../validationchecker.js';
 import {ObjectId} from "mongodb";
 
-const authenticationCode = "Get privilege";
+
 let exportedMethods = {
     /**
      *
@@ -13,9 +13,10 @@ let exportedMethods = {
      * @param userName
      * @param password
      * @param DOB
-     * @param isAdmin
+     * @param department
+     * @param role
      * @param authentication
-     * @returns {Promise<{createUser: boolean, userID: string}>}
+     * @returns {Promise<{insertedUser: boolean, userID: string}>}
      */
     async createUser(
         firstName,
@@ -24,26 +25,28 @@ let exportedMethods = {
         email,
         password,
         DOB,
-        dept,
-        isAdmin = false,
+        role,
+        department,
         authentication = null
-        
     ) {
         firstName = validation.checkLegitName(firstName, 'First name');
         lastName = validation.checkLegitName(lastName, 'Last name');
         userName = validation.checkName(userName, 'User Name');
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
-        //DOB = validation.checkDOB(DOB);
+        DOB = validation.checkDOB(DOB);
+        role = validation.checkRole(role);
+        department = validation.checkDepartment(department);
+        if(role === 'admin' && authentication.trim().toLowerCase() === 'getprivilige'){
+            authentication = true;
+        }
+
 
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (checkExist) throw "Sign in to this account or enter an email address that isn't already in user.";
         let user;
-        if (isAdmin) {
-            if (!authentication || typeof authentication !== "string" || authentication !== authenticationCode) {
-                throw "Invalid admin verification code.";
-            }
+        if (role === 'admin') {
             user = {
                 firstName: firstName,
                 lastName: lastName,
@@ -53,7 +56,8 @@ let exportedMethods = {
                 DOB: DOB,
                 eventIDs: [],
                 commentIDs: [],
-                isAdmin: true
+                role: role,
+                authentication,
             };
         } else {
             user = {
@@ -64,13 +68,15 @@ let exportedMethods = {
                 password: await bcrypt.hash(password, 10),
                 DOB: DOB,
                 postIDs: [],
-                commentIDs: []
+                commentIDs: [],
+                role: role,
+                authentication
             };
         }
         const insertInfo = await userCollection.insertOne(user);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add user.";
 
-        return {createUser: true, userID: insertInfo.insertedId.toString()};
+        return {insertedUser: true, userID: insertInfo.insertedId.toString()};
 
         // if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add user.";
         // return {insertedUser: true};
@@ -80,7 +86,7 @@ let exportedMethods = {
      *
      * @param email
      * @param password
-     * @returns {Promise<{authenticatedUser: boolean, userID: string}>}
+     * @return {Promise<{firstName: (string|*), lastName: (string|*), emailAddress: *, role: *, userName: (string|*)}>}
      */
 
     async checkUser(email, password) {
@@ -94,11 +100,14 @@ let exportedMethods = {
             checkExist.password
         );
         if (!checkPassword) throw "You may have entered the wrong email address or password."
-        const sessionUser = {
-            userId: checkExist._id.toString(),
-            userName: checkExist.userName
+
+        return {
+            firstName: checkExist.firstName,
+            lastName: checkExist.lastName,
+            userName: checkExist.userName,
+            emailAddress: checkExist.emailAddress,
+            role: checkExist.role
         };
-        return {authenticatedUser: true,sessionUser:sessionUser};
     },
 
 
@@ -150,6 +159,37 @@ let exportedMethods = {
         if (!user) throw `Error: ${user} not found`; //check password as well
         return user.postIDs;
     },
+
+    async checkPostEditable(userId, postId) {
+        userId = validation.checkId(userId);
+        postId = validation.checkId(postId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`;
+        const postList = user.postIDs;
+        return postList.includes(postId);
+    },
+
+    async checkEventEditable(userId, eventId) {
+        userId = validation.checkId(userId);
+        eventId = validation.checkId(eventId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`;
+        const eventList = user.eventIDs;
+        return eventList.includes(eventId);
+    },
+
+    async checkComment(userId, commentId) {
+        userId = validation.checkId(userId);
+        commentId = validation.checkId(commentId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`;
+        const commentList = user.commentIDs;
+        return commentList.includes(commentId);
+    },
+
     async getEventList(email) {
         email = validation.checkEmail(email);
         const userCollection = await users();
@@ -230,7 +270,7 @@ let exportedMethods = {
             throw `Error: postId ${postId} not found in postIDs list for user ${userId}`;
         }
     },
-    
+
     async putEvent(userId, eventId) {
         userId = validation.checkId(userId);
         eventId = validation.checkId(eventId);
@@ -295,7 +335,7 @@ let exportedMethods = {
 
     },
 
-    async removeAttendee(userId, eventId){
+    async removeAttendee(userId, eventId) {
         userId = validation.checkId(userId);
         eventId = validation.checkId(eventId);
         const userCollection = await users();
@@ -304,8 +344,8 @@ let exportedMethods = {
         const eventCollection = await events()
         const event = eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Event with that ID${eventId} not found`;
-        const updatedList = event.attendees.filter(attendee=> attendee.id !== userId);
-        if(updatedList.length === event.attendees.length) throw `User with ID ${userId} is not attending event with ID ${eventId}`;
+        const updatedList = event.attendees.filter(attendee => attendee.id !== userId);
+        if (updatedList.length === event.attendees.length) throw `User with ID ${userId} is not attending event with ID ${eventId}`;
         const updateInfo = await eventCollection.updateOne(
             {_id: new ObjectId(eventId)},
             {$set: {attendees: updatedList}}
@@ -366,4 +406,3 @@ let exportedMethods = {
 }
 
 export default exportedMethods;
-
