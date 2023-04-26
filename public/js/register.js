@@ -1,4 +1,6 @@
-const checkLegitName =(name, valName)=> {
+import auth from "../../routes/auth.js";
+
+const checkLegitName = (name, valName) => {
     if (!name) throw `${valName} not provided`;
     if (typeof name !== "string" || name.trim().length === 0) throw `Please provide a valid input of ${valName}`
     name = name.trim();
@@ -7,20 +9,18 @@ const checkLegitName =(name, valName)=> {
     return name;
 };
 
-const checkName = (name, valName)=> {
+const checkName = (name, valName) => {
     if (!name) throw `${valName} not provided`;
     if (typeof name !== "string" || name.trim().length === 0) throw `Please provide a valid input of ${valName}`
     name = name.trim();
     const nameRegex = /^[a-zA-Z]+$/;
     if (!nameRegex.test(name)) throw `${valName} must be only contain character a-z and A-Z`;
-    if (name.length < 2)
-        throw `${valName} length must greater than 2 words`;
-    if (name.length > 20)
-        throw `${valName} length must less than 20 words`;
+    if (name.length < 2) throw `${valName} length must greater than 2 words`;
+    if (name.length > 20) throw `${valName} length must less than 20 words`;
     return name;
 };
 
-const checkPassword = (password)=> {
+const checkPassword = (password) => {
     if (!password) throw "Password not provided";
     if (typeof password !== "string") throw "Password must be a string!";
     password = password.trim();
@@ -32,7 +32,7 @@ const checkPassword = (password)=> {
     return password;
 };
 
-const checkEmail = (email)=> {
+const checkEmail = (email) => {
     if (!email) throw "Please provide email";
     if (typeof email !== "string" || email.trim().length <= 0) throw "Please provide a valid email";
     email = email.trim().toLowerCase();
@@ -47,7 +47,7 @@ const checkEmail = (email)=> {
     return email;
 };
 
-const checkDOB = (DOB)=> {
+const checkDOB = (DOB) => {
     if (!DOB) throw `DOB not provided`;
     if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB";
     const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -62,7 +62,7 @@ const checkDOB = (DOB)=> {
     return DOB;
 };
 
-const checkRole = (role)=> {
+const checkRole = (role) => {
     if (!role) throw  "Role is not provided";
     if (typeof role !== "string" || role.trim().length === 0) throw "Role is not a valid type";
     role = role.trim().toLowerCase();
@@ -71,23 +71,20 @@ const checkRole = (role)=> {
 };
 
 const checkAuth = (authMsg) => {
-    if(authMsg) throw "Authentication code is not provided";
-    if(typeof authMsg !== "string" || authMsg.trim().length === 0) throw "Authentication code is not a valid type";
+    if (authMsg) throw "Authentication code is not provided";
+    if (typeof authMsg !== "string" || authMsg.trim().length === 0) throw "Authentication code is not a valid type";
     authMsg = authMsg.trim().toLowerCase();
     const code = "getprivilege";
-    if(authMsg !== code){
+    if (authMsg !== code) {
         throw "Authentication code is not correct";
     }
     return authMsg;
 }
 
-const checkDepartment = (department)=> {
+const checkDepartment = (department) => {
     if (!department) throw "Department is not provided";
     if (typeof department !== 'string') throw "Department is not a valid type";
-    const allowedDepartment = [
-        "biomedical Engineering", "chemistry and chemical biology", "chemical engineering and materials science",
-        "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering",
-        "mathematical sciences", "mechanical engineering", "physics"];
+    const allowedDepartment = ["biomedical Engineering", "chemistry and chemical biology", "chemical engineering and materials science", "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering", "mathematical sciences", "mechanical engineering", "physics"];
     department = department.trim().toLowerCase();
     if (allowedDepartment.includes(department)) {
         return department;
@@ -103,15 +100,13 @@ const handleError = (errorMsg) => {
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById("registrationForm");
-        const auth = document.getElementById("auth").value;
         const errorHandle = document.getElementById("errorHandle");
 
         if (registerForm) {
+
             registerForm.addEventListener("submit", (event) => {
                 event.preventDefault();
-
                 errorHandle.hidden = true;
-                auth.hidden = true;
 
                 let firstName = document.getElementById("FN").value;
                 let lastName = document.getElementById("LN").value;
@@ -134,10 +129,9 @@ const handleError = (errorMsg) => {
                     DOB = checkDOB(DOB);
                     role = checkRole(role);
                     department = checkDepartment(department);
-                    if(role === 'admin'){
-                        auth.hidden = false;
-                        authentication = document.getElementById('authentication').value;
-                        authentication = checkAuth(authentication);
+                    if (role === 'admin') {
+                        authentication = document.getElementById("authentication");
+                        authentication = checkAuth(authentication.value);
                     }
                 } catch (e) {
                     document.getElementById("FN").value = firstName;
@@ -187,9 +181,7 @@ const handleError = (errorMsg) => {
                                 document.getElementById("role").value;
                                 document.getElementById("department").value;
                                 document.getElementById("authentication").value;
-                                return handleError(
-                                    data.message || "Something went wrong"
-                                );
+                                return handleError(data.message || "Something went wrong");
                             }
                         }
                         location.href = "/login";
