@@ -5,16 +5,14 @@ import moment from 'moment';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
 import validation from '../validationchecker.js';
-import { events } from '../config/mongoCollections.js';
 //import { requireAuth } from '../app.js';
 const router = Router();
 
 router.route('/').get(async(req,res)=>{
-    return res.status(200).render('login',{title:"Home Page"});
+    return res.status(200).render('login');
 });
 
 // router.route('/').get(async (req, res) => {
-//     //code here for GET THIS ROUTE SHOULD NEVER FIRE BECAUSE OF MIDDLEWARE #1 IN SPECS.
 //     if (req.session.user) {
 //         if (req.session.user.role === 'admin') {
 //             return res.redirect('/admin');
@@ -28,9 +26,9 @@ router.route('/').get(async(req,res)=>{
 
 router.route('/login').get(async(req,res)=>{
     return res.status(200).render('login',{title:"login Page"});
-});
+})
 
-router.route('/login').post(async(req,res)=>{
+.post(async(req,res)=>{
     try{
 
         let {emailAddressInput,passwordInput} = req.body;
@@ -40,43 +38,13 @@ router.route('/login').post(async(req,res)=>{
         const {sessionUser} = await userData.checkUser(emailAddressInput,passwordInput);
         req.session.userId = sessionUser.userId;
         req.session.userName = sessionUser.userName;
+        console.log("Here")
         return res.redirect('/homepage');
     }catch(e){
         console.log(e);
         return res.redirect('/register');
     }
 });
-
-
-//     .post(async (req, res) => {
-//         //code here for POST
-//         let {emailAddressInput, passwordInput} = req.body;
-//         try {
-//             emailAddressInput = validator.checkEmail(emailAddressInput);
-//             passwordInput = validator.checkPassword(passwordInput);
-//             const user = await checkUser(emailAddressInput, passwordInput);
-//             req.session.user = {
-//                 firstName: user.firstName,
-//                 lastName: user.lastName,
-//                 emailAddress: user.emailAddress,
-//                 role: user.role
-//             };
-//             if (user.role === "admin") {
-//                 res.redirect('/admin');
-//             } else {
-//                 res.redirect('/protected');
-//             }
-//         } catch (e) {
-//                 return res.status(400).render('error', {
-//                     title: "Error",
-//                     message: e
-//                 });
-//         }
-//     });
-
-
-
-
 
 
 router.route('/register').get(async(req,res)=>{
@@ -122,56 +90,6 @@ router.route('/register').post(async(req,res)=>{
     }
 });
 
-// router
-//     .route('/register')
-//     .get(async (req, res) => {
-//         //code here for GET
-//         if (req.session.user) {
-//             if (req.session.user.role === 'admin') {
-//                  res.redirect('/admin');
-//             } else if (req.session.user.role === 'user') {
-//                  res.redirect('/protected');
-//             }
-//         }else {
-//             res.render('register', {title: "Register"});
-//         }
-//     })
-//     .post(async (req, res) => {
-//         //code here for POST
-//         let {
-//             firstNameInput,
-//             lastNameInput,
-//             emailAddressInput,
-//             passwordInput,
-//             confirmPasswordInput,
-//             roleInput
-//         } = req.body;
-//         try {
-//             firstNameInput = validator.checkLegitName(firstNameInput);
-//             lastNameInput = validator.checkLegitName(lastNameInput);
-//             emailAddressInput = validator.checkEmail(emailAddressInput);
-//             passwordInput = validator.checkPassword(passwordInput);
-//             confirmPasswordInput = validator.checkPassword(confirmPasswordInput);
-//             roleInput = validator.checkRole(roleInput);
-//             if (passwordInput !== confirmPasswordInput) throw "Passwords do not match";
-//         } catch (e) {
-//             return res.status(400).render('error', {title: "Error", message: e});
-//         }
-
-//         try {
-//             const user = await createUser(firstNameInput,
-//                 lastNameInput,
-//                 emailAddressInput,
-//                 passwordInput,
-//                 roleInput);
-//             if (user.insertedUser) {
-//                 res.redirect('/login');
-//             }
-//         } catch (e) {
-//             return res.status(500).render('error', {title: "Error", message: "Internal Server Error"});
-//         }
-//     });
-
 router.route('/homepage').get(async(req,res)=>{
     const userId = req.session.userId;
     //const email = req.session.email;    
@@ -183,36 +101,31 @@ router.route('/homepage').get(async(req,res)=>{
     //user info from ID
     //getpost list if true 
     const userName = req.session.userName;
-    console.log(userName);
+    // console.log(userName);
     //console.log(postList);
     const postList = await postData.getAllPosts();
 
     //console.log(postList);
-    for (let x of postList){
-        let resId = x?.userId;
+    // for (let x of postList){
+    //     let resId = x?.userId;
        
-        console.log(resId);
+        // console.log(resId);
         
-        let resString= resId.toString();
+        // let resString= resId.toString();
 
-        const user = await userData.getUserByID(resString);
-        x.name =user.userName;
+        // const user = await userData.getUserByID(resString);
+        // x.name =user.userName;
         //console.log(user.userName);
         //console.log(resString);
         //console.log(x.userName);
-        if(resString === userId){
-            x.editable =true;
-            x.deletable = true;
-        }else{
-            x.editable = false;
-            x.deletable = false;
-        }
-    }
-    //console.log(postList);
-    
-    //loop through the post and implement following logic[array]
-    //List of posts and indiviudal post.UsedId = sesstion ID[add property editable or deletable false/true]
-    //handlebars array of posts if button 
+        // if(resString === userId){
+        //     x.editable =true;
+        //     x.deletable = true;
+        // }else{
+        //     x.editable = false;
+        //     x.deletable = false;
+        // }
+    // }
     return res.render('homepage',{userId:userId,userName:userName,posts:postList});
 
 });
@@ -252,10 +165,10 @@ router.route('/posts').post(async(req,res)=>{
 
 });
 
-router.route('/error').get(async (req, res) => {
-    //code here for GET
-    res.render('error', {message: ""});
-
+// router.route('/error').get(async (req, res) => {
+//     //code here for GET
+//     res.render('error', {message: "Something"});
+// },
 router.route('/posts/:id').delete(async(req,res)=>{
     console.log(req.params.id);
     
@@ -269,5 +182,18 @@ router.route('/posts/:id').delete(async(req,res)=>{
     return res.sendStatus(200);
 });
 
+// router.route('/logout')
+//   .get(async (req, res) => {
+//     if (req.cookies.AuthCookie) {
+//       res.clearCookie('AuthCookie');
+//     }
+//     res.redirect('/');
+//   });
+
+  router.route('/logout').get(async (req, res) => {
+    //code here for GET
+    req.session.destroy();
+    return res.render('logout',{title:'Logout'})
+  });
 
 export default router;

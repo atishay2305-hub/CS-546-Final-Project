@@ -1,5 +1,6 @@
 import express from "express";
 import session from 'express-session';
+import multer from "multer";
 const app = express();
 import configRoutes from './routes/index.js';
 import { fileURLToPath } from 'url';
@@ -44,7 +45,7 @@ app.use(session({
     saveUninitialized: true
   }));
 
-  
+
   // chao's code here
 // app.use('/', (req, res, next) => {
 //   if (req.session.user) {
@@ -58,11 +59,32 @@ app.use(session({
 //   next();
 // });
 
+
+
 app.use('/login', (req, res, next) => {
-    if (!req.session.user) {
-        return res.redirect('/');
+  // if (!req.session.userId) {
+  //     return res.redirect('login');
+  // }
+  // // req.method = 'post';
+  // next();
+  if (req.method === 'GET') {
+    if (req.session.userId) {
+      // if (req.session.user.role === 'admin') {
+      //   return res.redirect('/admin');
+      // } else {
+      //   return res.redirect('/protected');
+      // }
+      return res.redirect('/homepage')
     }
-    req.method = 'post';
+  }
+  next();
+});
+
+app.use('/homepage', (req, res, next) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+    // req.method = 'post';
     next();
 });
 
@@ -95,11 +117,40 @@ app.use('/login', (req, res, next) => {
 });
 
 
-app.use('/logout', (req, res, next) => {
-  if (!req.session.user) {
-      return res.redirect('/login');
+// app.use('/logout', (req, res, next) => {
+//   if (!req.session.user) {
+//       return res.redirect('/login');
+//   }
+//   req.session.destroy();
+//   return res.render('logout');
+//   // next();
+// });
+app.use('/logout',(req,res,next)=>{
+  if(!req.session.userId){
+      return res.render('logout')
   }
   next();
+});
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // null for error argument
+    cb(null, 'images')
+  },
+
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname))
+  }
+});
+
+const upload = multer({storage: storage})
+
+app.get("/upload", (req, res) => {
+  res.render('upload')
+});
+
+app.post("/upload",upload.single('image'),(req, res) => {
+  res.send("Image Uploaded")
 });
 
 configRoutes(app);

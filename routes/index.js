@@ -1,7 +1,7 @@
 
 
 // import userRoutes from './users.js';
-import eventsRoute from './events.js';
+// import eventsRoute from './events.js';
 //import postRoutes from './posts.js';
 //import commentRoutes from './comments.js';
 import authRoutes from './auth.js';
@@ -16,7 +16,7 @@ const constructorMethod = (app) => {
 
     app.use('/',authRoutes);
 //    app.use('/posts',postRoutes);
-    app.use('/events', eventsRoute);
+    // app.use('/events', eventsRoute);
     // app.use('/comments',commentRoutes);
     app.use('/comments', commentsRoute);
     // app.use('/users', userRoutes);
