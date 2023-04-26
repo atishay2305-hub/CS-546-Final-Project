@@ -1,20 +1,22 @@
-// import usersData from "./data/users.js";
+import usersData from "./data/users.js";
 
-// // try {
-// //     let creatingUser = await usersData.createUser("Atishay", "Jain", "ajain50@stevens.edu", "atishay23", "jdssidj23A#", "23-05-1999", false, "Yes")
-// //     console.log(creatingUser)
+// try {
+//     let creatingUser = await usersData.updateUser("Atishay", "Jain", "atishay23", "ajainz20@stevens.edu", "Test@1234#", "1999-05-23", "user", "computer science")
+//     console.log(creatingUser)
     
-// // } catch(error){
-// //     console.log(error)
-// // }
+// } catch(error){
+//     console.log(error)
+// }
 
-// // try {
-// //     let creatingUser = await usersData.getAllUsers()
-// //     console.log(creatingUser)
+// try {
+//     let creatingUser = await usersData.createUser("Atishay", "Jain", "atishay234", "ajain706@stevens.edu", "Test@1234#", "1999-05-23", "user", "computer science")
+//     console.log(creatingUser)
     
-// // } catch(error){
-// //     console.log(error)
-// // }
+// } catch(error){
+//     console.log(error)
+// }
+
+
 
 // // try {
 // //     let creatingUser = await usersData.getUserByEmail("ajain70@stevens.edu")
@@ -25,7 +27,7 @@
 // // }
 
 // try {
-//     let creatingUser = await usersData.getUserByUserNameOrEmail("atishay23", "ajain70@stevens.edu")
+//     let creatingUser = await usersData.checkUser("atishay23", "ajain70@stevens.edu")
 //     console.log(creatingUser)
     
 // } catch(error){

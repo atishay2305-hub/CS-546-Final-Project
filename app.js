@@ -69,6 +69,7 @@ app.use('/login', (req, res, next) => {
   // next();
   if (req.method === 'GET') {
     if (req.session.userId) {
+      // console.log(req.session.userId)
       // if (req.session.user.role === 'admin') {
       //   return res.redirect('/admin');
       // } else {
@@ -81,19 +82,20 @@ app.use('/login', (req, res, next) => {
 });
 
 app.use('/homepage', (req, res, next) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
+    // if (!req.session.userId) {
+    //     return res.redirect('/login');
+    // }
+    res.render('homepage')
     // req.method = 'post';
     next();
 });
 
-//   app.use('/register', (req, res, next) => {
-//     if (req.session.user) {
-//         return res.redirect('/');
-//     }
-//     next();
-// });
+  app.use('/register', (req, res, next) => {
+    if (req.session.user) {
+        return res.redirect('/login');
+    }
+    next();
+});
 
 
   app.use('/admin', (req, res, next) => {

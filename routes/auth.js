@@ -6,92 +6,129 @@ import userData from '../data/users.js';
 import postData from '../data/posts.js';
 import validation from '../validationchecker.js';
 //import { requireAuth } from '../app.js';
+import xss from 'xss';
 const router = Router();
 
 router.route('/').get(async(req,res)=>{
     return res.status(200).render('login');
 });
 
-// router.route('/').get(async (req, res) => {
-//     if (req.session.user) {
-//         if (req.session.user.role === 'admin') {
-//             return res.redirect('/admin');
-//         } else if (req.session.user.role === 'user') {
-//             return res.redirect('/protected');
+const authenticationMiddleware = (req, res, next) => {
+    if (!req.session.userId) {
+      return res.redirect('/login');
+    }
+    next();
+  };
+  
+  router.get('/login', authenticationMiddleware, async (req, res) => {
+    res.status(200).render('login', { title: 'Login Page' });
+  });
+  
+  router.post('/login', async (req, res) => {
+    try {
+      let { emailAddressInput, passwordInput } = req.body;
+      emailAddressInput = validation.checkEmail(emailAddressInput);
+      passwordInput = validation.checkPassword(passwordInput);
+      const sessionUser = await userData.checkUser(emailAddressInput, passwordInput);
+      req.session.userId = sessionUser.userId;
+      console.log("here")
+      req.session.userName = sessionUser.userName;
+      res.redirect('/homepage');
+    } catch (e) {
+      res.redirect('/homepage');
+    }
+  });
+
+router.route('/register').get(async(req,res)=>{
+    return res.status(200).render('register',{title:"Register Page"});
+});
+
+// router.route('/register').post(async(req,res)=>{
+//     try{
+//         // removed dept
+//         const {firstName,lastName,userName,email,password,DOB, role, department} = req.body;
+//         /*try{
+//             firstname = validation.checkString(firstname, 'First name');
+//             lastname = validation.checkString(lastname, 'Last name');
+//             email = validation.checkString(email, 'email');
+//             password = validation.checkString(psw, 'Password');
+//             dob = validation.checkString(dob, 'date of birth');
+//             department = validation.checkString(dept, 'department');
+//             validation.emailValidation(email);
+//         }catch(e){
+//             console.log(e);
+//             return res.status(400).send(e); 
+//         }*/
+//         const date = moment(DOB).format('MM-DD-YYYY');
+//         //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
+//         //console.log(user);
+//         //const {sessionUser} = await userData.;
+//         // const user  = await userData.createUser(firstName,lastName,userName,email,password,DOB, role, dept);
+//         if(role === 'admin'){
+//             let authentication = xss(req.body.authentication);
+//             user = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department, authentication);
+//         }else{
+//             user  = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department);
 //         }
-//     }else {
-//         res.redirect('/login');
+//         console.log(user);
+//         if(user.createUser)
+//         {
+//             return res.redirect('/login');
+//         }
+
+//         req.session.userId = sessionUser.userId;
+//         req.session.userName = sessionUser.userName;
+//         console.log(req.session.userId);
+//         console.log(req.session.userName);
+//         return res.redirect('/homepage');
+//         //return res.json(newuser);
+//     }catch(e){
+//         console.log(e);
+//         return res.redirect('/register'); 
 //     }
 // });
-
-router.route('/login').get(async(req,res)=>{
-    return res.status(200).render('login',{title:"login Page"});
-})
-
-.post(async(req,res)=>{
+router.route('/register').post(async(req,res)=>{
     try{
-
-        let {emailAddressInput,passwordInput} = req.body;
-        emailAddressInput = validation.checkEmail(emailAddressInput);
-        passwordInput = validation.checkPassword(passwordInput);
-
-        const {sessionUser} = await userData.checkUser(emailAddressInput,passwordInput);
-        req.session.userId = sessionUser.userId;
-        req.session.userName = sessionUser.userName;
-        console.log("Here")
-        return res.redirect('/homepage');
+        // removed dept
+        let firstName = xss(req.body.firstName);
+        let lastName = xss(req.body.lastName);
+        let userName = xss(req.body.userName);
+        let email = xss(req.body.email);
+        let password = xss(req.body.password);
+        let DOB = xss(req.body.DOB);
+        let role = xss(req.body.role);
+        let department = xss(req.body.department);
+        let user;
+        if(role === 'admin'){
+            let authentication = xss(req.body.authentication);
+            user = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department, authentication);
+        }else{
+            user  = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department);
+        }
+        const date = validation.getDate();
+        //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
+        //console.log(user);
+        //const {sessionUser} = await userData.;
+        console.log(user);
+        if(user.insertedUser)
+        {
+            return res.redirect('/login');
+        }
+        // req.session.userId = sessionUser.userId;
+        // req.session.userName = sessionUser.userName;
+        // console.log(req.session.userId);
+        // console.log(req.session.userName);
+      
+        //return res.json(newuser);
     }catch(e){
         console.log(e);
         return res.redirect('/register');
     }
 });
 
-
-router.route('/register').get(async(req,res)=>{
-    return res.status(200).render('register',{title:"Register Page"});
-});
-
-router.route('/register').post(async(req,res)=>{
-    try{
-        // removed dept
-        const {firstName,lastName,userName,email,password,DOB, dept} = req.body;
-        /*try{
-            firstname = validation.checkString(firstname, 'First name');
-            lastname = validation.checkString(lastname, 'Last name');
-            email = validation.checkString(email, 'email');
-            password = validation.checkString(psw, 'Password');
-            dob = validation.checkString(dob, 'date of birth');
-            department = validation.checkString(dept, 'department');
-            validation.emailValidation(email);
-        }catch(e){
-            console.log(e);
-            return res.status(400).send(e); 
-        }*/
-        const date = moment(DOB).format('MM-DD-YYYY');
-        //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
-        //console.log(user);
-        //const {sessionUser} = await userData.;
-        const user  = await userData.createUser(firstName,lastName,userName,email,password,DOB, dept);
-        console.log(user);
-        if(user.createUser)
-        {
-            return res.redirect('/login');
-        }
-
-        req.session.userId = sessionUser.userId;
-        req.session.userName = sessionUser.userName;
-        console.log(req.session.userId);
-        console.log(req.session.userName);
-        return res.redirect('/homepage');
-        //return res.json(newuser);
-    }catch(e){
-        console.log(e);
-        return res.redirect('/register'); 
-    }
-});
-
 router.route('/homepage').get(async(req,res)=>{
     const userId = req.session.userId;
+    // console.log(userId)
     //const email = req.session.email;    
     //useremail from session and will just keep it
     //const user = await userData.getUserByID(userId);
@@ -134,7 +171,7 @@ router.route('/homepage').get(async(req,res)=>{
 router.route('/profile').get(async(req,res)=> {
     const id = req.session.userId;
     console.log(id);
-    const user = await userData.getUserByID(id);
+    const user = await userData.getUserByID("644992cff795e921cfb31fcb");
     res.render('profile',{user:user});
 });
 
