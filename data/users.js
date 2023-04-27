@@ -45,6 +45,10 @@ let exportedMethods = {
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (checkExist) throw "Sign in to this account or enter an email address that isn't already in user.";
+
+        const checkUserNameExist = await userCollection.findOne({userName: userName});
+        if (checkUserNameExist) throw "User name already exists.";
+        
         let user;
         if (role === 'admin') {
             user = {
@@ -57,6 +61,7 @@ let exportedMethods = {
                 eventIDs: [],
                 commentIDs: [],
                 role: role,
+                department: department,
                 authentication: authentication
             };
         } else {
@@ -70,6 +75,7 @@ let exportedMethods = {
                 postIDs: [],
                 commentIDs: [],
                 role: role,
+                department: department,
                 authentication: authentication
             };
         }
@@ -92,6 +98,8 @@ let exportedMethods = {
     async checkUser(email, password) {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
+        // const userId = checkExist._id.toString();
+        // req.session.userId = userId;
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (!checkExist) throw "You may have entered the wrong email address or password.";
@@ -99,14 +107,18 @@ let exportedMethods = {
             password,
             checkExist.password
         );
-        if (!checkPassword) throw "You may have entered the wrong email address or password."
-
+        if (!checkPassword) throw "You may have entered the wrong email address or password.";
+        const userId = checkExist._id.toString();
+        // console.log(userId);
+        // console.log(checkExist.firstName,checkExist.lastName,checkExist.userName, checkExist._id, checkExist.email, checkExist.role, checkExist.department);
         return {
             firstName: checkExist.firstName,
             lastName: checkExist.lastName,
             userName: checkExist.userName,
-            emailAddress: checkExist.emailAddress,
-            role: checkExist.role
+            userId: userId,
+            emailAddress: checkExist.email,
+            role: checkExist.role,
+            department: checkExist.department
         };
     },
 
@@ -118,6 +130,7 @@ let exportedMethods = {
         email,
         password,
         DOB,
+        department,
     ) {
         firstName = validation.checkLegitName(firstName, 'First name');
         lastName = validation.checkLegitName(lastName, 'Last name');
@@ -125,6 +138,7 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         DOB = validation.checkDOB(DOB);
+        // department = validation.checkDepartment(department);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
         if (!user) throw "You may have entered the wrong email address or password.";
@@ -142,7 +156,8 @@ let exportedMethods = {
                     firstName: firstName,
                     lastName: lastName,
                     userName: userName,
-                    DOB: DOB
+                    DOB: DOB,
+                    department: department,
                 },
             }
         );
@@ -259,7 +274,7 @@ let exportedMethods = {
         if (!user) throw `Error: ${user} not found`; //check password as well
         let postIdList = user.postIDs;
         if (postIdList.includes(postId)) {
-            postIdList = postId.filter(elem => elem !== postId);
+            postIdList = postIdList.filter(elem => elem !== postId);
             const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},
                 {$set: {postIDs: postIdList}}
@@ -354,6 +369,32 @@ let exportedMethods = {
 
         return `Successfully removed ${user.firstName} ${user.lastName} from the event with ID ${eventId}`;
     },
+
+    async updatePassword(email, password) {
+        password = validation.checkPassword(password);
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
+        if (!user) throw "You may have entered the wrong email address or password.";
+        const checkPassword = await bcrypt.compare(
+          password,
+          user.password
+        );
+        if (checkPassword) throw "Cannot be the same password as the original";
+        const hashPassword = await bcrypt.hash(password, 10);
+        const updatedInfo = await userCollection.updateOne(
+          {email: email},
+          {
+            $set: {
+              password: hashPassword,
+            },
+          }
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) {
+          throw `Error: could not update email ${email}`;
+        }
+        return {updatedUser: true, email: email};
+      },
+      
 
     async putComment(userId, commentId) {
         userId = validation.checkId(userId);
