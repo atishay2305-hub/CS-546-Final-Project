@@ -81,14 +81,14 @@ app.use('/login', (req, res, next) => {
   next();
 });
 
-app.use('/homepage', (req, res, next) => {
-    // if (!req.session.userId) {
-    //     return res.redirect('/login');
-    // }
-    res.render('homepage')
-    // req.method = 'post';
-    next();
-});
+// app.use('/homepage', (req, res, next) => {
+//     // if (!req.session.userId) {
+//     //     return res.redirect('/login');
+//     // }
+//     // res.render('homepage')
+//     // req.method = 'post';
+//     next();
+// });
 
   app.use('/register', (req, res, next) => {
     if (req.session.user) {
