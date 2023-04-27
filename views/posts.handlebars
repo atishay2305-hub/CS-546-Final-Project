@@ -1,11 +1,10 @@
-{{!-- creating post handlebar below --}}
 <form method="POST" action="/posts" id="post-form">
 
 <label for="postCategory">Post Category:</label>
 
 <select name="postCategory" id ="postCategory">
     <option value="education">Education</option>
-    <option value="sports">sports</option>
+    <option value="sports">Sports</option>
     <option value="entertainment">Entertainment</option>  
 </select><br>
 
@@ -13,10 +12,13 @@
 <label for="postContent">Post Content: </label>
 <textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea><br>
 
+<h1>Upload Image</h1>
+<form method="POST" action="/posts/upload" enctype="multipart/form-data">
+<input type="file" name="postImage">
+<input type="submit">
+</form>
+
 <button type="submit">Add Post</button>
 </form><br>
 
 <p>{{Error}}</p>
-
-
-

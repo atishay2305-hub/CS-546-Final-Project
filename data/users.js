@@ -62,7 +62,7 @@ let exportedMethods = {
                 commentIDs: [],
                 role: role,
                 department: department,
-                authentication: authentication
+                // authentication: authentication
             };
         } else {
             user = {

@@ -3,50 +3,46 @@ import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
 import multer from "multer";
+import path from "path";
+
 
 let exportedMethods = {
-    async createPost(category,
-                     //image,
-                     postedContent,
-                     userName
-    ) {
+    async createPost(category, image, postedContent, userName, req) {
         category = validation.checkLegitName(category, "category");
-        postedContent = validation.checkPhrases(postedContent, "PostedContent");
-        //userName = validation.checkName(userName)
+        // postedContent = validation.checkPhrases(postedContent, "PostedContent");
         const userId = validation.checkId(userName);
-        console.log(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        console.log(user);
-        if(!user){
-            throw `The user does not exist with that Id &{id}`;
+        if (!user) {
+          throw `The user does not exist with that Id &{id}`;
         }
-        if(user.isAdmin){
-            throw "Post can only create by users."
+        if (user.isAdmin) {
+          throw "Post can only be created by users."
         }
-        /*let path = "";
-        if(!image || image.trim().length === 0){
-            path = "public/images/default.png";
-        }else{
-            path = validation.createImage(image);
-        }*/
-
+      
+        let imagePath = '';
+        if (req.file) {
+          imagePath = req.file.path.replace('public', '');
+        } else {
+          imagePath = 'images/default.jpg';
+        }
+      
         let post = {
-            category: category,
-            content: postedContent,
-            //image: path,
-            userId:userId,
-            created_Date: validation.getDate(),
-            likes: 0,
-            dislikes: 0,
-            commentIds: {}
+          category: category,
+          content: postedContent,
+          image: imagePath,
+          userId: userId,
+          created_Date: validation.getDate(),
+          likes: 0,
+          dislikes: 0,
+          commentIds: {}
         };
         const postCollection = await posts();
         let insertInfo = await postCollection.insertOne(post);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-            throw "Could not add post";
+          throw "Could not add post";
         }
-        
+      
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
         return insertInfo;
