@@ -73,7 +73,7 @@
 
                 <div class="inf">
                     <label for="role">Role: </label>
-                    <select name="role" id="role">
+                    <select name="role" id="role" required>
                         <option value=""></option>
                         <option value="admin">Admin</option>
                         <option value="user">User</option>
@@ -91,7 +91,7 @@
 
                 <div class="inf">
                     <label for="department">Department: </label>
-                    <select id="department" name="department">
+                    <select id="department" name="department" required>
                         <option value=""></option>
                     </select>
 
@@ -121,8 +121,9 @@
             </div>
         </form>
     </section>
-    <script src="/public/js/register.js"> </script>
-    <link rel="stylesheet" href="/public/css/main.css">
+
 </div>
+<script src="/public/js/register.js" type="module"></script>
+<link rel="stylesheet" href="/public/css/main.css">
 
 

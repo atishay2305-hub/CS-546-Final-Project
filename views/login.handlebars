@@ -1,20 +1,41 @@
-<body>
-<link rel="stylesheet" href="/public/css/lab10.css">
-</body>
-
-<div id="error" class="error" hidden>I'm an error. I will change through Client-Side JS</div>
 <div class="container">
-    <h1 class="login">Login Page</h1>
-    <form id="login-form" action="/login" method="post">
-        <label for="emailAddressInput">Email Address:</label>
-        <input type="email" name="emailAddressInput" id="emailAddressInput"><br>
-        <label for="passwordInput">Password:</label>
-        <input type="password" name="passwordInput" id="passwordInput"><br>
-        <input type="submit" value="Login">
-    </form>
+    <section class="body-wrapper con">
+        <form id="login-form" action="/login" method="post">
+
+            <div class="container">
+                <h1>Login</h1>
+                <p id="errorHandle" class="error" hidden></p>
+                <div class="inf">
+                    <label for="email">Email: </label>
+                    <div class="sec-2">
+                        <ion-icon name="person-outline"></ion-icon>
+                        <input type="text" placeholder="Enter Email" name="email" id="email" value="{{email}}" required><br>
+                    </div>
+                </div>
+
+                <div class="inf">
+                    <label for="psw">Password: </label>
+                    <div class="sec-2">
+                        <ion-icon name="person-outline"></ion-icon>
+                        <input type="password" placeholder="Enter Password" name="psw" id="password" value="{{password}}"
+                               required><br>
+                    </div>
+                </div>
 
 
-    <a href="/register">Click here to register!</a>
-    <script src="../public/js/main.js"></script>
+                <button type="submit" class="login">Login</button>
+                <label>
+                    <input type="checkbox" checked="checked" name="remember">Remember Me</label>
+            </div>
+
+            <div class="footer">
+                <a href="/register">Click here to register!</a><br>
+
+                <a href="/forgot-password">Forgot Password?</a>
+
+            </div>
+        </form>
+    </section>
 </div>
-
+<script src="/public/js/login.js" type="module"></script>
+<link rel="stylesheet" href="/public/css/main.css">

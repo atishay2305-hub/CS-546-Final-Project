@@ -37,49 +37,37 @@ let exportedMethods = {
         DOB = validation.checkDOB(DOB);
         role = validation.checkRole(role);
         department = validation.checkDepartment(department);
-        if(role === 'admin' && authentication.trim().toLowerCase() === 'getprivilige'){
-            authentication = authentication.trim().toLowerCase();
-        }
-
-
+        authentication = validation.checkAuth(authentication);
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (checkExist) throw "Sign in to this account or enter an email address that isn't already in user.";
-        let user;
-        if (role === 'admin') {
-            user = {
-                firstName: firstName,
-                lastName: lastName,
-                userName: userName,
-                email: email,
-                password: await bcrypt.hash(password, 10),
-                DOB: DOB,
-                eventIDs: [],
-                commentIDs: [],
-                role: role,
-                authentication: authentication
-            };
-        } else {
-            user = {
-                firstName: firstName,
-                lastName: lastName,
-                userName: userName,
-                email: email,
-                password: await bcrypt.hash(password, 10),
-                DOB: DOB,
-                postIDs: [],
-                commentIDs: [],
-                role: role,
-                authentication: authentication
-            };
+        let user = {
+            firstName: firstName,
+            lastName: lastName,
+            userName: userName,
+            email: email,
+            password: await bcrypt.hash(password, 10),
+            DOB: DOB,
+            commentIDs: [],
+            role: role,
+            department: department,
+            authentication: false
+        };
+
+        if (role === 'admin' && authentication) {
+            user.eventIDs = [];
+            user.role = 'admin';
+            user.authentication = true;
+        }else{
+            user.postIDs = [];
+            user.role = 'user';
+            user.authentication = authentication;
         }
         const insertInfo = await userCollection.insertOne(user);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add user.";
 
         return {insertedUser: true, userID: insertInfo.insertedId.toString()};
 
-        // if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add user.";
-        // return {insertedUser: true};
     },
 
     /**
