@@ -1,3 +1,4 @@
+import authCheck from "./validationChecker.js"
 const checkPassword = (password) => {
     if (!password) throw "Password not provided";
     if (typeof password !== "string") throw "Password must be a string!";
@@ -24,6 +25,7 @@ const checkEmail = (email) => {
     }
     return email;
 };
+
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const loginForm = document.getElementById("login-form");
@@ -31,26 +33,24 @@ const checkEmail = (email) => {
         let emailIn = document.getElementById("email");
         let passwordIn = document.getElementById("password");
         if (loginForm) {
-
             loginForm.addEventListener("submit", (event) => {
                 event.stopPropagation();
                 event.stopImmediatePropagation();
                 event.preventDefault();
                 const elements = event.target.elements;
                 errorHandle.hidden = true;
-
                 let email = emailIn.value;
                 let password = passwordIn.value;
-
                 try {
-                    email = checkEmail(email);
-                    password = checkPassword(password);
+                    email = authCheck.checkEmail(email);
+                    password = authCheck.checkPassword(password);
+
                 } catch (e) {
                     document.getElementById("email").setAttribute("value", email);
                     document.getElementById("password").setAttribute("value", password);
                     return handleError(e.message || "Something went wrong");
                 }
-
+                
                 fetch("/login", {
                     method: "post", headers: {
                         Accept: "application/json, text/plain, */*", "Content-Type": "application/json",

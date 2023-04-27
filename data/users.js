@@ -66,8 +66,8 @@ let exportedMethods = {
 
         const checkUserNameExist = await userCollection.findOne({userName: userName});
         if (checkUserNameExist) throw "User name already exists.";
-        
         }
+        
         const insertInfo = await userCollection.insertOne(user);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add user.";
 

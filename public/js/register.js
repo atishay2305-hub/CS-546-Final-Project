@@ -1,4 +1,4 @@
-import authCheck from "./validtionChecker.js";
+import authCheck from "./validationChecker.js";
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById("register-Form");
@@ -19,7 +19,6 @@ import authCheck from "./validtionChecker.js";
                 event.preventDefault();
                 const elements = event.target.elements;
                 errorHandle.hidden = true;
-
                 let firstName = firstNameIn.value;
                 let lastName = lastNameIn.value;
                 let userName = userNameIn.value;
@@ -30,7 +29,6 @@ import authCheck from "./validtionChecker.js";
                 let role = roleIn.value;
                 let department = departmentIn.value;
                 let authentication = "";
-
                 try {
                     firstName = authCheck.checkLegitName(firstName, "First Name");
                     lastName = authCheck.checkLegitName(lastName, "Last Name");
@@ -58,7 +56,6 @@ import authCheck from "./validtionChecker.js";
                     document.getElementById("authentication").setAttribute("value", authentication);
                     return handleError(e.message || "Something went wrong");
                 }
-
                 fetch("/register", {
                     method: "post",
                     headers: {
@@ -99,7 +96,6 @@ import authCheck from "./validtionChecker.js";
                                 return handleError(data.message || "Something went wrong");
                             }
                         }
-
                     })
                     .catch((e) => {
                         alert(e.message || "Something went wrong.");
@@ -113,4 +109,3 @@ import authCheck from "./validtionChecker.js";
     });
 
 })();
-
