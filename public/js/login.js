@@ -1,4 +1,31 @@
 import authCheck from "./validationChecker.js"
+const checkPassword = (password) => {
+    if (!password) throw "Password not provided";
+    if (typeof password !== "string") throw "Password must be a string!";
+    password = password.trim();
+    if (password.length < 8 || password.length > 25) throw "Password must be at least 8 characters and less than 25 characters";
+    const spaceRegex = /\s/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[a-zA-Z\d\W]{8,25}$/;
+    if (spaceRegex.test(password)) throw "Password must not contain whitespace";
+    if (!passwordRegex.test(password)) throw "Password must contain at least 1 uppercase character, 1 lowercase character, 1 number, and 1 special character";
+    return password;
+};
+
+const checkEmail = (email) => {
+    if (!email) throw "Please provide email";
+    if (typeof email !== "string" || email.trim().length <= 0) throw "Please provide a valid email";
+    email = email.trim().toLowerCase();
+    const emailPrefixRegex = /^[a-z0-9!#$%&'*+\-/=?^_`{|}~.]+@/i;
+    const emailPostfixRegex = /@stevens\.edu$/i;
+    if (!emailPrefixRegex.test(email)) {
+        throw "Email address should contain only letters, numbers, and common special symbols !#$%&'*+\\-/=?^_`{|} before the @ character"
+    }
+    if (!emailPostfixRegex.test(email)) {
+        throw "Error: Email address should end with stevens.edu";
+    }
+    return email;
+};
+
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const loginForm = document.getElementById("login-form");
@@ -17,11 +44,13 @@ import authCheck from "./validationChecker.js"
                 try {
                     email = authCheck.checkEmail(email);
                     password = authCheck.checkPassword(password);
+
                 } catch (e) {
                     document.getElementById("email").setAttribute("value", email);
                     document.getElementById("password").setAttribute("value", password);
                     return handleError(e.message || "Something went wrong");
                 }
+                
                 fetch("/login", {
                     method: "post", headers: {
                         Accept: "application/json, text/plain, */*", "Content-Type": "application/json",

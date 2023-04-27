@@ -107,4 +107,5 @@ import authCheck from "./validationChecker.js";
             errorHandle.innerHTML = errorMsg;
         };
     });
+
 })();
