@@ -89,10 +89,8 @@
                 <div class="inf">
                     <div class="sec-1">
                     <label for="role">Role: </label>
-                    </div>
-                    <div class="sec-2">
-                    <select name="role" id="role">
-                        
+                    <select name="role" id="role" required>
+
                         <option value=""></option>
                         <option value="admin">Admin</option>
                         <option value="user">User</option>
@@ -114,9 +112,8 @@
                 <div class="inf">
                     <div class="sec-1">
                     <label for="department">Department: </label>
-                    </div>
-                    <div class="sec-2">
-                    <select id="department" name="department">
+                    <select id="department" name="department" required>
+
                         <option value=""></option>
                     </select>
                     </div>
@@ -152,11 +149,11 @@
             </div>
            
         </form>
-    {{!-- </section> --}}
-    <script src="/public/js/register.js"> </script>
-
     </section>
-    <script src="/public/js/register.js"></script>
+
+</div>
+<script src="/public/js/register.js" type="module"></script>
+<link rel="stylesheet" href="/public/css/main.css">
 
 
 
