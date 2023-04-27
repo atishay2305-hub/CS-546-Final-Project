@@ -213,10 +213,13 @@ router.route('/posts').post(async(req,res)=>{
 
 });
 
+
 // router.route('/error').get(async (req, res) => {
 //     //code here for GET
 //     res.render('error', {message: "Something"});
 // },
+
+
 router.route('/posts/:id').delete(async(req,res)=>{
     console.log(req.params.id);
     
