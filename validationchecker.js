@@ -91,6 +91,10 @@ const exportedMethods = {
         if (DOB > currentDate) {
             throw "Date of birth must be in the past";
         }
+
+        const age = moment().diff(dobMoment, 'years');
+        if (age < 12) throw "You are too small to register.";
+        
         return DOB;
     },
 
