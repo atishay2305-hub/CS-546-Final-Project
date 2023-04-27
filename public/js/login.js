@@ -24,63 +24,122 @@
 
 // In this file, you must perform all client-side validation for every single form input (and the role dropdown) on your pages. The constraints for those fields are the same as they are for the data functions and routes. Using client-side JS, you will intercept the form's submit event when the form is submitted and If there is an error in the user's input or they are missing fields, you will not allow the form to submit to the server and will display an error on the page to the user informing them of what was incorrect or missing.  You must do this for ALL fields for the register form as well as the login form. If the form being submitted has all valid data, then you will allow it to submit to the server for processing. Don't forget to check that password and confirm password match on the registration form!
 // let registerForm = document.getElementById('registration-form');
-let firstNameInput = document.getElementById('firstNameInput');
-let lastNameInput = document.getElementById('lastNameInput');
-let emailAddressInput = document.getElementById('emailAddressInput');
-let passwordInput = document.getElementById('passwordInput');
-let confirmPasswordInput = document.getElementById('confirmPasswordInput');
-let roleInput = document.getElementById('roleInput');
-let errorDiv = document.getElementById('error')
-const nameRegex = /^[a-zA-Z]+$/;
-const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-const spaceRegex = /\s/;
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+// let firstNameInput = document.getElementById('firstNameInput');
+// let lastNameInput = document.getElementById('lastNameInput');
+// let emailAddressInput = document.getElementById('emailAddressInput');
+// let passwordInput = document.getElementById('passwordInput');
+// let confirmPasswordInput = document.getElementById('confirmPasswordInput');
+// let roleInput = document.getElementById('roleInput');
+// let errorDiv = document.getElementById('error')
+// const nameRegex = /^[a-zA-Z]+$/;
+// const emailRegex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+// const spaceRegex = /\s/;
+// const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 
 
 // login form 
-let loginForm = document.getElementById('login-form');
+// // let loginForm = document.getElementById('login-form');
 
-if(loginForm){
-    loginForm.addEventListener('submit', (event)=> {
-        event.preventDefault();
-        errorDiv.hidden = true;
-        if(!emailAddressInput.value.trim()) {
-            errorDiv.hidden = false;
-            return errorDiv.innerHTML = "Please provide email<br>";
-        } else {
-            if (!emailRegex.test(emailAddressInput.value.trim())) {
-                errorDiv.hidden = false;
-                return errorDiv.innerHTML = "Invalid email address<br>";
-            }
+// if(loginForm){
+//     loginForm.addEventListener('submit', (event)=> {
+//         event.preventDefault();
+//         errorDiv.hidden = true;
+//         if(!emailAddressInput.value.trim()) {
+//             errorDiv.hidden = false;
+//             return errorDiv.innerHTML = "Please provide email<br>";
+//         } else {
+//             if (!emailRegex.test(emailAddressInput.value.trim())) {
+//                 errorDiv.hidden = false;
+//                 return errorDiv.innerHTML = "Invalid email address<br>";
+//             }
+//         }
+
+//         if (!passwordInput.value.trim()) {
+//             errorDiv.hidden = false;
+//             return errorDiv.innerHTML = "Password not provided<br>";
+//         } else {
+//             if (passwordInput.value.trim().length < 8) {
+//                 errorDiv.hidden = false;
+//                 return errorDiv.innerHTML = "Password must be at least 8 characters<br>";
+//             }
+
+//             if (spaceRegex.test(passwordInput.value.trim())) {
+//                 errorDiv.hidden = false;
+//                 return errorDiv.innerHTML = "Password must not contain whitespace<br>";
+//             }
+//             // if (!passwordRegex.test(passwordInput.value.trim())) {
+//             //     errorDiv.hidden = false;
+//             //     return errorDiv.innerHTML = "Password must contain at least 1 uppercase character, 1 lowercase character, 1 number, and 1 special character<br>";
+//             // }
+//         }
+
+//         // if(errorMsg.length > 0){
+//         //     event.preventDefault();
+//         //     errorDiv.innerHTML = errorMsg;
+//         //     errorDiv.hidden = false;
+//         // } else {
+
+//             loginForm.submit();
+
+
+//     })
+// }
+
+
+import authCheck from "./validationChecker.js"
+(function () {
+    document.addEventListener("DOMContentLoaded", function () {
+        const loginForm = document.getElementById("login-form");
+        const errorHandle = document.getElementById("errorHandle");
+        let emailIn = document.getElementById("email");
+        let passwordIn = document.getElementById("password");
+        if (loginForm) {
+            loginForm.addEventListener("submit", (event) => {
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                const elements = event.target.elements;
+                errorHandle.hidden = true;
+                let email = emailIn.value;
+                let password = passwordIn.value;
+                try {
+                    email = authCheck.checkEmail(email);
+                    password = authCheck.checkPassword(password);
+                } catch (e) {
+                    document.getElementById("email").setAttribute("value", email);
+                    document.getElementById("password").setAttribute("value", password);
+                    return handleError(e.message || "Something went wrong");
+                }
+                fetch("/login", {
+                    method: "post", headers: {
+                        Accept: "application/json, text/plain, */*", "Content-Type": "application/json",
+                    }, body: JSON.stringify({
+                        email: email, password: password
+                    }),
+                }).then((res) => {
+                    if (res.status === 401) {
+                        handleError("Wrong username or password");
+                        return null;
+                    } else {
+                        return res.json();
+                    }
+                }).then((response) => {
+                        if (response) {
+                            if (response.success) {
+                                sessionStorage.setItem("user", JSON.stringify(response.data));
+                                location.herf = '/';
+                            } else {
+                                return handleError(response.message || "Something went wrong.");
+                            }
+                        }
+                    }).catch((e) => {
+                        alert(e.errmsg || "Something went wrong.");
+                    });
+            });
         }
-
-        if (!passwordInput.value.trim()) {
-            errorDiv.hidden = false;
-            return errorDiv.innerHTML = "Password not provided<br>";
-        } else {
-            if (passwordInput.value.trim().length < 8) {
-                errorDiv.hidden = false;
-                return errorDiv.innerHTML = "Password must be at least 8 characters<br>";
-            }
-
-            if (spaceRegex.test(passwordInput.value.trim())) {
-                errorDiv.hidden = false;
-                return errorDiv.innerHTML = "Password must not contain whitespace<br>";
-            }
-            // if (!passwordRegex.test(passwordInput.value.trim())) {
-            //     errorDiv.hidden = false;
-            //     return errorDiv.innerHTML = "Password must contain at least 1 uppercase character, 1 lowercase character, 1 number, and 1 special character<br>";
-            // }
-        }
-
-        // if(errorMsg.length > 0){
-        //     event.preventDefault();
-        //     errorDiv.innerHTML = errorMsg;
-        //     errorDiv.hidden = false;
-        // } else {
-
-            loginForm.submit();
-
-
-    })
-}
+        const handleError = (errorMsg) => {
+            errorHandle.hidden = false;
+            errorHandle.innerHTML = errorMsg;
+        };
+    });
+})();
