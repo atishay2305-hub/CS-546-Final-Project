@@ -1,11 +1,9 @@
-
-<div class="container">
+<div class="login-container">
     <section class="body-wrapper con">
         <form id="login-form" action="/login" method="post">
 
             <div class="container">
                 <h1>Login</h1>
-                <p id="errorHandle" class="error" hidden></p>
                 <div class="inf">
                     <label for="email">Email: </label>
                     <div class="sec-2">
@@ -14,12 +12,13 @@
                     </div>
                 </div>
 
-                <div class="inf">
-                    <label for="psw">Password: </label>
+                <div class="password">
+                    <label for="password">Password: </label>
                     <div class="sec-2">
-                        <ion-icon name="person-outline"></ion-icon>
-                        <input type="password" placeholder="Enter Password" name="psw" id="password" value="{{password}}"
-                               required><br>
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        <input type="password" name="password" id="password" placeholder="******" value="{{password}}"
+                               required>
+
                     </div>
                 </div>
 
@@ -29,48 +28,13 @@
                     <input type="checkbox" checked="checked" name="remember">Remember Me</label>
             </div>
 
-
-<div id="error" class="error" hidden>I'm an error. I will change through Client-Side JS</div>
-<div class="container center">
-    <h1 class="login">Login Page</h1>
-    <form id="login-form" action="/login" method="post">
-    <div class="inf">
-        <div class="sec-1">
-        <label for="emailAddressInput">Email Address:</label>
-    </div>
-    <div class="sec-2">
-        <input type="email" name="emailAddressInput" id="emailAddressInput">
-        </div>
-    </div>
-     <div class="inf">
-        <div class="sec-1">
-        <label for="passwordInput">Password:</label>
-        </div>
-            <div class="sec-2">
-        <input type="password" name="passwordInput" id="passwordInput">
-     </div>
-     </div>
-        
-        <button type="submit" class="registerbtn">Login</button>
-    </form>
-   <div class="hlink">
-    
-    
-         
-    <a href="/">Forgot your password?</a>
-    <a href="/register">Click here to register!</a>
-    </div>
-    <script src="../public/js/main.js"></script>
-</div>
-
             <div class="footer">
                 <a href="/register">Click here to register!</a><br>
-
                 <a href="/forgot-password">Forgot Password?</a>
-
             </div>
+            <ul id="loginError" class="error" hidden></ul>
         </form>
     </section>
 </div>
-<script src="/public/js/login.js" type="module"></script>
+<script src="/public/js/auth/login.js" type="module"></script>
 <link rel="stylesheet" href="/public/css/main.css">

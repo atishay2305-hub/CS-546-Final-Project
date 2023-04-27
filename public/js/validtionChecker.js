@@ -19,9 +19,14 @@ const authCheck = {
         return name;
     },
 
+    checkLoginPass(password){
+        if (!password) throw "Password not provided";
+        if (password.length < 8 || password.length > 25) throw "Password must be at least 8 characters and less than 25 characters";
+        return password;
+    },
+
     checkPassword(password) {
         if (!password) throw "Password not provided";
-        if (typeof password !== "string") throw "Password must be a string!";
         password = password.trim();
         if (password.length < 8 || password.length > 25) throw "Password must be at least 8 characters and less than 25 characters";
         const spaceRegex = /\s/;
@@ -31,6 +36,12 @@ const authCheck = {
         return password;
     },
 
+    checkIdentify(password, confirmPassword){
+        if(password !== confirmPassword){
+            throw "ConfirmPassword must be the same as password";
+        }
+
+    },
     checkEmail(email) {
         if (!email) throw "Please provide email";
         if (typeof email !== "string" || email.trim().length <= 0) throw "Please provide a valid email";
@@ -70,7 +81,7 @@ const authCheck = {
     },
 
     checkAuth(authMsg) {
-        if (authMsg) throw "Authentication code is not provided";
+        if (!authMsg) throw "Authentication code is not provided";
         if (typeof authMsg !== "string" || authMsg.trim().length === 0) throw "Authentication code is not a valid type";
         authMsg = authMsg.trim().toLowerCase();
         const code = "getprivilege";
@@ -91,6 +102,54 @@ const authCheck = {
             throw "Department select from the existed department from Stevens Institute of Technology.";
         }
     },
-}
 
+    checkCategory(category){
+        if (!category) throw "Category is not provided";
+        if (typeof category !== 'string' || category.trim().length === 0) throw "Category is not a valid type";
+        category = category.trim().toLowerCase();
+        const allowCategories = ["education", "sport", "entertainment"]
+        if(allowCategories.includes(category)){
+            return category;
+        }else{
+            throw "Category must select from the list"
+        }
+    },
+
+    checkPhrases(phrase, valName) {
+        if (!phrase) throw `${valName} not provided`;
+        if (typeof phrase !== "string" || phrase.trim().length === 0) throw `Please provide a valid input of ${valName}`
+        phrase = phrase.trim();
+        if (phrase.length < 5)
+            throw `${valName} length must greater than 5 characters`;
+        if (phrase.length > 300)
+            throw `${valName} length must less than 300 characters`;
+        return phrase;
+    },
+
+    checkLocation(building) {
+        if (!building) throw `${building} not provided`;
+        if (typeof building !== "number") throw `Please provide a valid input of buildingIndex`
+        const allowedLocation = [" ",
+            "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
+            "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
+            "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
+            "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
+            "alexander house", "colonial house"];
+        if (building !== 0 && allowedLocation[building]) {
+            return allowedLocation[building];
+        } else {
+            throw "Location must be on Stevens Institute of Technology main campus.";
+        }
+    },
+
+    checkCapacity(seatCapacity) {
+        if (!seatCapacity) throw "seatCapacity not provided.";
+        if (typeof seatCapacity !== "number") throw "Please provide a number."
+        if (seatCapacity < 5)
+            throw "seatCapacity must greater than 10";
+        if (seatCapacity > 300)
+            throw "seatCapacity must less than 300";
+        return seatCapacity;
+    }
+}
 export default authCheck;
