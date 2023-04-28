@@ -250,6 +250,58 @@ router.route('/removeAttendee').get(async (req, res)=> {
     const userCollection = await userData.removeAttendee(userId, eventId);
 })
 
+router
+    .route('/reset-password/:id')
+    .get(async (req, res) => {
+        try {
+            return res.render('resetPassword', {id: req.params.id})
+        }catch (e){
+            return res.status(404).sendFile(path.resolve("public/static/404.html"));
+        }
+    })
+    .post(async (req, res) =>{
+        try{
+            let newPassword = xss(req.body.newPassword);
+            let confirmNewPassword = xss(req.body.confirmNewPassword);
+            newPassword = validation.checkPassword(newPassword);
+            confirmNewPassword = validation.checkPassword(confirmNewPassword);
+            let result = validation.checkIdentify(newPassword, confirmNewPassword);
+            if(result){
+                const passwordUpdate = await userData.updatePassword(req.params.id, newPassword);
+            };
+            res.redirect('/login');
+        }catch (e){
+            return res.status(400).render("/resetPassword",{
+                id: req.params.id,
+                error: e
+            })
+        }
+    });
+
+router
+    .route('/forgot-password')
+    .get(async (req, res) => {
+        try {
+            return res.render("forgotPassword");
+        } catch (e) {
+            return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
+        }
+    })
+    .post(async (req, res) => {
+        try {
+            let email = xss(req.body.email);
+            email = validation.checkEmail(email);
+
+            let checkExist = await userData.getUserByEmail(email);
+            await passwordResetByEmail({id: checkExist._id, email: checkExist.email}, res);
+        } catch (e) {
+            return res.status(400).json({
+                success: false,
+                message: e,
+                email: req.body.email
+            });
+        }
+    });
 
 
   router.route('/logout').get(async (req, res) => {

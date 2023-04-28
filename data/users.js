@@ -419,6 +419,23 @@ let exportedMethods = {
         }
     },
 
+    async updatePassword(userId, password){
+        userId = validation.checkId(userId);
+        password = validation.checkPassword(password);
+        const  userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if(!user) throw `Error: ${userId} not found`;
+        const updatedInfo = await userCollection.updateOne(
+        {_id: new ObjectId(userId)},
+        {$set: {password: await bcrypt.hash(password, 10)}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) {
+            throw `Error: could not update password ${password}`;
+        }
+        return "Password update successfully";
+
+    },
+
 
     async removeUserById(userId) {
         userId = validation.checkId(userId);
