@@ -91,10 +91,6 @@ const exportedMethods = {
         if (DOB > currentDate) {
             throw "Date of birth must be in the past";
         }
-
-        const age = moment().diff(dobMoment, 'years');
-        if (age < 12) throw "You are too small to register.";
-        
         return DOB;
     },
 
@@ -110,7 +106,7 @@ const exportedMethods = {
         if (!department) throw "Department is not provided";
         if (typeof department !== 'string') throw "Department is not a valid type";
         const allowedDepartment = [
-             "biomedical Engineering", "chemistry and chemical biology", "chemical engineering and materials science",
+             "biomedical engineering", "chemistry and chemical biology", "chemical engineering and materials science",
             "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering",
             "mathematical sciences", "mechanical engineering", "physics"];
         department = department.trim().toLowerCase();
@@ -121,17 +117,28 @@ const exportedMethods = {
         }
     },
 
-    checkLocation(buildingIndex) {
-        if (!buildingIndex) throw `${buildingIndex} not provided`;
-        if (typeof buildingIndex !== "number") throw `Please provide a valid input of buildingIndex`
+    checkAuth(authentication){
+        if(!authentication) return false;
+        if(typeof authentication !== "string" || authentication.trim().length ===0) return false;
+        authentication = authentication.trim().toLowerCase();
+        if(authentication === "getprivilege"){
+            return true;
+        }else{
+            return false;
+        }
+    },
+
+    checkLocation(building) {
+        if (!building) throw `${building} not provided`;
+        if (typeof building !== "number") throw `Please provide a valid input of buildingIndex`
         const allowedLocation = [" ",
             "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
             "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
             "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
             "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
             "alexander house", "colonial house"];
-        if (buildingIndex !== 0 && allowedLocation[buildingIndex]) {
-            return allowedLocation[buildingIndex];
+        if (building !== 0 && allowedLocation[building]) {
+            return allowedLocation[building];
         } else {
             throw "Location must be on Stevens Institute of Technology main campus.";
         }
@@ -178,6 +185,13 @@ const exportedMethods = {
         } catch (e) {
             console.error(`Error removing image ${image} from file system: ${e}`);
         }
+    },
+
+    async checkIdentify(password, confirmPassword){
+        if(password !== confirmPassword){
+            throw "ConfirmPassword must be the same as password";
+        }
+        return true;
     },
 
 };

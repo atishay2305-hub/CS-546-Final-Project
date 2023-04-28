@@ -6,9 +6,8 @@ import validation from '../validationchecker.js';
 router
   .route('/')
   .post(async (req, res) => {
-    
+
     try{
-        
         const {firstname,lastname,email,hashPassword,dob,department} = req.body;
         try{
             firstname = validation.checkString(firstname, 'First name');

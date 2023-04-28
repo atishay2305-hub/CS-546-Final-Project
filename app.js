@@ -37,19 +37,19 @@ app.use(express.urlencoded({extended: true}));
 app.engine("handlebars", exphbs.engine({defaultLayout: "main"}));
 app.set("view engine", "handlebars");
 
-// app.use((req, res, next) => {
-//   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-//   res.setHeader("Pragma", "no-cache");
-//   res.setHeader("Expires", "0");
-//   next();
-// });
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+next();
+});
 
 
 app.use(session({
     name: 'AuthCookie',
     secret: 'myKeySecret',
-    resave: false,
-    saveUninitialized: true
+    saveUninitialized: false,
+    resave: false
   }));
 
 
@@ -69,9 +69,6 @@ app.use(session({
 
 
 app.use('/login', (req, res, next) => {
-  // if (!req.session.userId) {
-  //     return res.redirect('login');
-  // }
   // // req.method = 'post';
   // next();
   if (req.method === 'GET') {
@@ -84,18 +81,23 @@ app.use('/login', (req, res, next) => {
       // }
       return res.redirect('/homepage')
     }
+    else{
+      return res.redirect('/login')
+    }
   }
   next();
 });
 
-// app.use('/homepage', (req, res, next) => {
-//     // if (!req.session.userId) {
-//     //     return res.redirect('/login');
-//     // }
-//     // res.render('homepage')
-//     // req.method = 'post';
-//     next();
-// });
+app.use('/homepage', (req, res, next) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+    // res.render('homepage')
+    // req.method = 'post';
+    next();
+});
+
+
 
   app.use('/register', (req, res, next) => {
     if (req.session.user) {
@@ -134,12 +136,15 @@ app.use('/login', (req, res, next) => {
 //   return res.render('logout');
 //   // next();
 // });
-app.use('/logout',(req,res,next)=>{
+app.use('/logout',(req,res)=>{
   if(!req.session.userId){
-      return res.render('logout')
+      return res.redirect('/login')
   }
-  next();
+  req.session.destroy();
+  return res.render('logout');
+
 });
+
 
 
 // const storage = multer.diskStorage({

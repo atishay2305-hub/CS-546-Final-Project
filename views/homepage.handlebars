@@ -1,17 +1,16 @@
-<h1>Welcome {{userName}}</h1>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-<h2>Your user ID is: {{userId}}</h2>
-
-
-<a href="/profile">My Profile</a>
 
 {{#each posts}}
     <div class="post-container">
         <h2>{{content}}</h2>
+        <img id="img-home" src="{{image}}" alt="Post image">
         <p>Category: {{category}}</p>
         <p>Created by: {{name}}</p>
         <p>Created at: {{created_Date}}</p>
-        <p>Likes: {{likes}}, Dislikes: {{dislikes}}</p>
+        <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
+        <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
+                  
         <div class="comments-container">
             <h3>Comments:</h3>
             {{#each comments}}
@@ -23,10 +22,11 @@
         {{/each}}
             <form class="comment-form" id="comment-form" action="/add-comment" method="POST">
                 <input type="hidden" name="postId" value="{{_id}}">
-                <label for="comment-text">Add a Comment:</label>
+                <label for="comment-text"></label>
                 <input type="text" name="commentText" id="comment-text" required>
-                <input type="submit" value="Submit">
+                <input type="submit" value="Comment">
             </form>
+            <a href="#" id="view-comments">View Comments</a>
         </div>
         {{#if deletable}}
             <button class="delete-btn" onClick ="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
@@ -35,6 +35,11 @@
 {{/each}}
 
 <script>
+
+function myFunction(x) {
+  x.classList.toggle("fa-thumbs-down");
+}
+
 function deletePost(id) {
   fetch(`/posts/${id}`, {
     method: "delete",
@@ -68,5 +73,5 @@ cForm.addEventListener('submit',function(event){
 
 })
 </script>
-
+<link rel="stylesheet" href="/public/css/homepage.css">
 
