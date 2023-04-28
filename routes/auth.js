@@ -190,94 +190,6 @@ router.route('/profile').get(async(req,res)=> {
     const user = await userData.getUserByID(id);
     return res.render('profile',{user:user});
 });
-
-// image upload
-
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "/images");
-//   },
-//   filename: function (req, file, cb) {
-//     const timestamp = new Date().getTime();
-//     const randomString = Math.random().toString(36).slice(2);
-//     const ext = path.extname(file.originalname);
-//     const filename = `${timestamp}-${randomString}${ext}`;
-//     cb(null, filename);
-//   },
-// });
-// const upload = multer({ storage: storage });
-// const uploadImage = upload.single("image");
-
-
-
-
-// router.route('/posts').get(async(req, res)=>{
-
-//     return res.render('posts');
-//   });
-
-// router.route('/posts')
-// .post(uploadImage, async(req,res)=>{
-
-//     const id = req.session.userId;
-//     console.log(id);
-//     const userName = req.session.userName;
-
-//     const{postCategory,postContent} = req.body;
-//     console.log(postContent);
-//     try{
-//         const post = await postData.createPost(postCategory,postContent,id);
-//         const user  = await userData.putPost(id,post._id);
-//         console.log(user);
-//         console.log(post);
-//         console.log("The post is posted");
-//         return res.redirect('/homepage');
-//     }catch(e){
-//         console.log(e)
-//         return res.render('posts',{Error:e});
-//     }
-
-// });
-// const storage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//       cb(null, "./images");
-//     },
-//     filename: function (req, file, cb) {
-//       const timestamp = new Date().getTime();
-//       const randomString = Math.random().toString(36).slice(2);
-//       const ext = path.extname(file.originalname);
-//       const filename = `${timestamp}-${randomString}${ext}`;
-//       cb(null, filename);
-//     },
-//   });
-  
-//   const upload = multer({ storage: storage });
-//   const uploadImage = upload.single("image");
-  
-//   router.route('/posts')
-//     .get(async(req, res)=>{
-//       return res.render('posts');
-//     })
-//     .post(uploadImage, async(req,res)=>{
-//       const id = req.session.userId;
-//       console.log(id);
-//       const userName = req.session.userName;
-  
-//       const{postCategory,postContent} = req.body;
-//       console.log(postContent);
-  
-//       try{
-//           const post = await postData.createPost(postCategory,postContent,id);
-//           const user  = await userData.putPost(id,post._id);
-//           console.log(user);
-//           console.log(post);
-//           console.log("The post is posted");
-//           return res.redirect('/homepage');
-//       }catch(e){
-//           console.log(e)
-//           return res.render('posts',{Error:e});
-//       }
-//   });
   
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -315,7 +227,7 @@ const storage = multer.diskStorage({
             imagePath = 'images/default.jpg';
           }
   
-          const post = await postData.createPost(postCategory, imagePath, postContent, userName, req);
+          const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
           const user  = await userData.putPost(id,post._id);
           console.log(user);
           console.log(post);

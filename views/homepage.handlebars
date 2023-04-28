@@ -2,31 +2,36 @@
 
 <h2>Your user ID is: {{userId}}</h2>
 
-{{!-- 
-{{#each newEvent}}
-    <h2>Event Name: {{eventName}}</h2><br>
-    <p>Description: {{description}}</p><br>
-    <p>Building Name: {{buildingName}}</p><br>
-    <p>Seating Capacity{{seatingCapacity}}</p><br>
-{{/each}} --}}
-
 
 <a href="/profile">My Profile</a>
-<a href="/logout">Logout</a>
-
 
 {{#each posts}}
-  <div class="post-container">
-    <h2>{{content}}</h2>
-    <p>Category: {{category}}</p>
-    <p>Created by: {{name}}</p>
-    <p>Created at: {{created_Date}}</p>
-    <p>Likes: {{likes}}, Dislikes: {{dislikes}}</p>
-    <p>Comments: {{commentIds}}</p>
-    {{#if deletable}}
-      <button class="delete-btn" onClick ="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
-    {{/if}}
-  </div>
+    <div class="post-container">
+        <h2>{{content}}</h2>
+        <p>Category: {{category}}</p>
+        <p>Created by: {{name}}</p>
+        <p>Created at: {{created_Date}}</p>
+        <p>Likes: {{likes}}, Dislikes: {{dislikes}}</p>
+        <div class="comments-container">
+            <h3>Comments:</h3>
+            {{#each comments}}
+                <div class="comment-container">
+                <p>{{text}}</p>
+                <p>Posted by: {{author}}</p>
+                <p>Posted at: {{created_Date}}</p>
+                </div>
+        {{/each}}
+            <form class="comment-form" id="comment-form" action="/add-comment" method="POST">
+                <input type="hidden" name="postId" value="{{_id}}">
+                <label for="comment-text">Add a Comment:</label>
+                <input type="text" name="commentText" id="comment-text" required>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+        {{#if deletable}}
+            <button class="delete-btn" onClick ="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
+        {{/if}}
+    </div>
 {{/each}}
 
 <script>
@@ -54,6 +59,14 @@ function deletePost(id) {
   });
 }
 
+cForm = document.getElementById('comment-form');
+
+cForm.addEventListener('submit',function(event){
+    event.preventDefault();
+
+    cForm.submit();
+
+})
 </script>
 
 
