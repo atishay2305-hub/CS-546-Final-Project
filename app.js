@@ -37,6 +37,13 @@ app.use(express.urlencoded({extended: true}));
 app.engine("handlebars", exphbs.engine({defaultLayout: "main"}));
 app.set("view engine", "handlebars");
 
+app.use((req, res, next) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+  next();
+});
+
 
 app.use(session({
     name: 'AuthCookie',
@@ -134,26 +141,27 @@ app.use('/logout',(req,res,next)=>{
   next();
 });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    // null for error argument
-    cb(null, 'images')
-  },
 
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname))
-  }
-});
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     // null for error argument
+//     cb(null, 'images')
+//   },
 
-const upload = multer({storage: storage})
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + path.extname(file.originalname))
+//   }
+// });
 
-app.get("/upload", (req, res) => {
-  res.render('upload')
-});
+// const upload = multer({storage: storage})
 
-app.post("/upload",upload.single('image'),(req, res) => {
-  res.send("Image Uploaded")
-});
+// app.get("/upload", (req, res) => {
+//   res.render('upload')
+// });
+
+// app.post("/upload",upload.single('image'),(req, res) => {
+//   res.send("Image Uploaded")
+// });
 
 configRoutes(app);
 app.listen(3000, () => {
