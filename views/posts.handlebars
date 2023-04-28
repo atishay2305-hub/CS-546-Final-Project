@@ -1,26 +1,40 @@
-{{!-- TODO: Change the action below --}}
-
-{{!-- creating post handlebar below --}}
 <form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
-
-<label for="postCategory">Post Category:</label>
-
-<select name="postCategory" id ="postCategory">
+  <label for="postCategory">Post Category:</label>
+  <select name="postCategory" id="postCategory">
     <option value="education">Education</option>
-    <option value="sports">sports</option>
+    <option value="sports">Sports</option>
     <option value="entertainment">Entertainment</option>  
-</select><br>
+  </select><br>
 
+  <label for="postContent">Post Content:</label>
+  <textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea><br>
 
-<label for="postContent">Post Content: </label>
-<textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea><br>
-
-<h1>Upload Image</h1>
-<input type="file" name="postImage">
-<button type="submit">Add Post</button>
+  <h1>Upload Image</h1>
+  <input type="file" name="postImage" id="postImage">
+  <button type="submit">Add Post</button>
 </form><br>
 
-<p>{{Error}}</p>
+<p id="error-message">{{Error}}</p>
+
+<img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+
+<script>
+  const postImageInput = document.getElementById("postImage");
+  const imagePreview = document.getElementById("image-preview");
+
+  postImageInput.addEventListener("change", function() {
+    const file = this.files[0];
+    const reader = new FileReader();
+
+    reader.addEventListener("load", function() {
+      imagePreview.src = reader.result;
+      imagePreview.style.display = "block";
+    });
+
+    reader.readAsDataURL(file);
+  });
+</script>
+
 
 
 

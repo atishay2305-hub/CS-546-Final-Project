@@ -2,8 +2,10 @@ import {Router} from 'express';
 import moment from 'moment';
 //import {userData} from '../data/index.js';
 //import { userData } from '../data/index.js';
+import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
+import eventData from 
 import validation from '../validationchecker.js';
 //import { requireAuth } from '../app.js';
 import multer from "multer";
@@ -45,50 +47,6 @@ router.route('/register').get(async(req,res)=>{
     return res.status(200).render('register',{title:"Register Page"});
 });
 
-// router.route('/register').post(async(req,res)=>{
-//     try{
-//         // removed dept
-//         const {firstName,lastName,userName,email,password,DOB, role, department} = req.body;
-//         /*try{
-//             firstname = validation.checkString(firstname, 'First name');
-//             lastname = validation.checkString(lastname, 'Last name');
-//             email = validation.checkString(email, 'email');
-//             password = validation.checkString(psw, 'Password');
-//             dob = validation.checkString(dob, 'date of birth');
-//             department = validation.checkString(dept, 'department');
-//             validation.emailValidation(email);
-//         }catch(e){
-//             console.log(e);
-//             return res.status(400).send(e); 
-//         }*/
-//         const date = moment(DOB).format('MM-DD-YYYY');
-//         //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
-//         //console.log(user);
-//         //const {sessionUser} = await userData.;
-//         // const user  = await userData.createUser(firstName,lastName,userName,email,password,DOB, role, dept);
-//         if(role === 'admin'){
-//             let authentication = xss(req.body.authentication);
-//             user = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department, authentication);
-//         }else{
-//             user  = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department);
-//         }
-//         console.log(user);
-//         if(user.createUser)
-//         {
-//             return res.redirect('/login');
-//         }
-
-//         req.session.userId = sessionUser.userId;
-//         req.session.userName = sessionUser.userName;
-//         console.log(req.session.userId);
-//         console.log(req.session.userName);
-//         return res.redirect('/homepage');
-//         //return res.json(newuser);
-//     }catch(e){
-//         console.log(e);
-//         return res.redirect('/register'); 
-//     }
-// });
 router.route('/register').post(async(req,res)=>{
     try{
         // removed dept
@@ -239,14 +197,11 @@ const storage = multer.diskStorage({
       }
   });
   
-  
-  
 
-
-// router.route('/error').get(async (req, res) => {
-//     //code here for GET
-//     res.render('error', {message: "Something"});
-// },
+router.route('/error').get(async (req, res) => {
+    //code here for GET
+    return res.render('error', {error: "Something"});
+}),
 
 
 router.route('/posts/:id').delete(async(req,res)=>{
@@ -269,6 +224,34 @@ router.route('/posts/:id').delete(async(req,res)=>{
 //     }
 //     res.redirect('/');
 //   });
+
+router.route('/add-comment').post(async(req,res)=>{
+
+    const userId = req.session.userId;
+    const{postId,commentText} =req.body;
+    console.log(postId);
+    console.log(commentText);
+    const comment = await commentData.createPostComment(userId, postId, commentText);
+    console.log(comment);
+    //userId, postID,commentText ->> 4 things _id
+    //await commentData.c
+
+});
+
+
+router.route('/putAttendee').post(async(req, res) => {
+    const userId = req.session.userId;
+    const eventId = req.body;
+    const userCollection = await userData.putAttendee(userId, eventId);
+})
+
+router.route('/removeAttendee').get(async (req, res)=> {
+    const userId = req.session.id;
+    const eventId = req.body;
+    const userCollection = await userData.removeAttendee(userId, eventId);
+})
+
+
 
   router.route('/logout').get(async (req, res) => {
     //code here for GET

@@ -26,6 +26,14 @@ let exportedMethods = {
         //     throw `Only administrator can edit events`
         // }
 
+        
+        let imagePath = '';
+        if (req.file) {
+          imagePath = req.file.path.replace('public', '');
+        } else {
+          imagePath = 'images/default.jpg';
+        }
+
         let event = {
             eventName: eventName,
             description: description,
@@ -34,6 +42,7 @@ let exportedMethods = {
             organizer: organizer,
             attendees: {},
             seatingCapacity: seatingCapacity,
+            image: imagePath,
             commentIds: [],
         }
         // if (image) {
@@ -45,6 +54,7 @@ let exportedMethods = {
         const insertInfo = await eventCollection.insertOne(event);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event";
         console.log(insertInfo);
+
         // if (userId) {
         //     await userData.putEvent(userId, insertInfo.insertedId.toString());
         // }
@@ -99,6 +109,14 @@ let exportedMethods = {
             deleted: true
         };
     },
+
+    async searchEvent(searchTerm) {
+        const eventCollection = await events();
+        const searchRegex = new RegExp(searchTerm, 'i');
+        const allEvents = await eventCollection.find({ eventName: searchRegex }).toArray();
+        return allEvents;
+      },
+      
 
     async updateEvent(
         id,

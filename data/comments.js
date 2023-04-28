@@ -7,46 +7,46 @@ import express from "express";
 
 let exportedMethods ={
 
-    async createComment(userId,
-                        eventId,
+    async createPostComment(userId,
                         postId,
-                        userName,
                         contents){
         userId = validation.checkId(userId);
         contents = validation.checkPhrases(contents);
 
         const comment = {
             _id: new ObjectId(),
-            userName,
+            userId,
+            postId,
+            // userName,
             contents,
             created_Date: validation.getDate()
         }
-        if(eventId){
-            eventId = validation.checkId(eventId);
-            comment.evenId = eventId;
-            const eventCollection = await events();
-            const updateEvent = await eventCollection.updateOne(
-                {_id: eventId},
-                {$push: {commentIds: comment._id.toString()}}
-            );
-            console.log(updateEvent);
-            // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-            //     throw "Could not update event with commentId";
-            // }
-        }
-        if(postId){
-            postId = validation.checkId(postId);
-            comment.postId = postId;
-            const postCollection = await posts();
+        // if(eventId){
+        //     eventId = validation.checkId(eventId);
+        //     comment.evenId = eventId;
+        //     const eventCollection = await events();
+        //     const updateEvent = await eventCollection.updateOne(
+        //         {_id: eventId},
+        //         {$push: {commentIds: comment._id.toString()}}
+        //     );
+        //     console.log(updateEvent);
+        //     // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+        //     //     throw "Could not update event with commentId";
+        //     // }
+        // }
+        // if(postId){
+        //     postId = validation.checkId(postId);
+        //     comment.postId = postId;
+        //     const postCollection = await posts();
            
-            const updateEvent = await postCollection.updateOne(
-                {_id: postId},
-                {$push: {commentIds: comment._id.toString()}}
-            );
-            // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-            //     throw "Could not update post with commentId";
-            // }
-        }
+        //     const updateEvent = await postCollection.updateOne(
+        //         {_id: postId},
+        //         {$push: {commentIds: comment._id.toString()}}
+        //     );
+        //     // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+        //     //     throw "Could not update post with commentId";
+        //     // }
+        // }
         const commentCollection = await comments();
         const commentInfo = await commentCollection.insertOne(comment);
         if (!commentInfo.acknowledged || !commentInfo.insertedId) {
