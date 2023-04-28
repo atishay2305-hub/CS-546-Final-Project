@@ -1,66 +1,48 @@
-import authCheck from "./validationChecker.js";
-(function () {
+import validation from '/validationchecker.js';
+
+$(function () {
     document.addEventListener("DOMContentLoaded", function () {
-        const registerForm = document.getElementById("register-Form");
-        const errorHandle = document.getElementById("errorHandle");
-        let firstNameIn = document.getElementById("FN");
-        let lastNameIn = document.getElementById("LN");
-        let userNameIn = document.getElementById("UN");
-        let emailIn = document.getElementById("email");
-        let passwordIn = document.getElementById("password");
-        let confirmPasswordIn = document.getElementById("CP");
-        let DOBIn = document.getElementById("DOB");
-        let roleIn = document.getElementById("role");
-        let departmentIn = document.getElementById("department");
+        const registerForm = document.getElementById('registrationForm');
+        const errorHandle = document.getElementById("registerError");
         if (registerForm) {
-            registerForm.addEventListener("submit", (event) => {
+            registerForm.addEventListener('submit', (event) => {
                 event.stopPropagation();
                 event.stopImmediatePropagation();
                 event.preventDefault();
-                const elements = event.target.elements;
+                const form = event.target.elements;
                 errorHandle.hidden = true;
-                let firstName = firstNameIn.value;
-                let lastName = lastNameIn.value;
-                let userName = userNameIn.value;
-                let email = emailIn.value;
-                let password = passwordIn.value;
-                let confirmPassword = confirmPasswordIn.value;
-                let DOB = DOBIn.value;
-                let role = roleIn.value;
-                let department = departmentIn.value;
-                let authentication = "";
+
+                let firstName = document.getElementById('FN').value;
+                let lastName = document.getElementById('LN').value;
+                let userName = document.getElementById('UN').value;
+                let email = document.getElementById('email').value;
+                let password = document.getElementById('password').value;
+                let DOB = document.getElementById('DOB').value;
+                let role = document.getElementById('role').selectedIndex;
+
                 try {
-                    firstName = authCheck.checkLegitName(firstName, "First Name");
-                    lastName = authCheck.checkLegitName(lastName, "Last Name");
-                    userName = authCheck.checkLegitName(userName, "User Name");
-                    email = authCheck.checkEmail(email);
-                    password = authCheck.checkPassword(password);
-                    confirmPassword = authCheck.checkPassword(confirmPassword, true, password);
-                    DOB = authCheck.checkDOB(DOB);
-                    role = authCheck.checkRole(role);
-                    department = authCheck.checkDepartment(department);
-                    if (role === 'admin') {
-                        authentication = document.getElementById("authentication");
-                        authentication = authCheck.checkAuth(authentication.value);
-                    }
+                    firstName = validation.checkLegitName(firstName, "First Name");
+                    lastName = validation.checkLegitName(lastName, "Last Name");
+                    userName = validation.checkName(userName, "User Name");
+                    email = validation.checkEmail(email);
+                    password = validation.checkPassword(password);
+                    DOB = validation.checkDOB(DOB);
+                    role = validation.checkRole(role);
                 } catch (e) {
-                    document.getElementById("FN").setAttribute("value", firstName);
-                    document.getElementById("LN").setAttribute("value", lastName);
-                    document.getElementById("UN").setAttribute("value", userName);
+                    document.getElementById('FN').setAttribute("value", firstName);
+                    document.getElementById('LN').setAttribute("value", lastName);
+                    document.getElementById('UN').setAttribute("value", userName);
                     document.getElementById("email").setAttribute("value", email);
                     document.getElementById("password").setAttribute("value", password);
-                    document.getElementById("CP").setAttribute("value", confirmPassword);
                     document.getElementById("DOB").setAttribute("value", DOB);
-                    document.getElementById("role").setAttribute("value", role);
-                    document.getElementById("department").setAttribute("value", department);
-                    document.getElementById("authentication").setAttribute("value", authentication);
                     return handleError(e.message || "Something went wrong");
                 }
-                fetch("/register", {
+
+                fetch('/register', {
                     method: "post",
                     headers: {
-                        Accept: "application/json, text/plain, */*",
-                        "Content-Type": "application/json",
+                        Accept: 'application/json, text/plain, */*',
+                        "Content-type": 'application/json'
                     },
                     body: JSON.stringify({
                         firstName: firstName,
@@ -69,43 +51,39 @@ import authCheck from "./validationChecker.js";
                         email: email,
                         password: password,
                         DOB: DOB,
-                        role: role,
-                        department: department,
-                        confirmPassword: confirmPassword,
-                        authentication: authentication
+                        dept: dept
                     }),
-                }).then((response) => {
-                    if(!response.ok){
-                        return response.json();
-                    }
-                    }).then((data) => {
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            return response.json();
+                        }
+                    })
+                    .then((data) => {
                         if (data) {
-                            if (data.success) {
-                                location.href = "/login";
-                                sessionStorage.setItem("user", JSON.stringify(data.data));
-                            }else{
-                                document.getElementById("FN").value = data.firstName;
-                                document.getElementById("LN").value = data.lastName;
-                                document.getElementById("UN").value = data.userName;
-                                document.getElementById("email").value = data.email;
-                                document.getElementById("password").value = data.password;
-                                document.getElementById("DOB").value = data.DOB;
-                                document.getElementById("role").value = data.role;
-                                document.getElementById("department").value = data.department;
-                                document.getElementById("authentication").value = data.authentication;
+                            if (data.success === false) {
+                                document.getElementById('FN').setAttribute("value", firstName);
+                                document.getElementById('LN').setAttribute("value", lastName);
+                                document.getElementById('UN').setAttribute("value", userName);
+                                document.getElementById("email").setAttribute("value", email);
+                                document.getElementById("password").setAttribute("value", password);
+                                document.getElementById("DOB").setAttribute("value", DOB);
                                 return handleError(data.message || "Something went wrong");
                             }
                         }
+                        location.href = '/login';
+                        return;
+
                     })
-                    .catch((e) => {
-                        alert(e.message || "Something went wrong.");
+                    .catch((error) => {
+                        alert(error.message || "Something went wrong.");
                     });
             });
         }
-        const handleError = (errorMsg) => {
+        function handleError(errorMsg){
             errorHandle.hidden = false;
             errorHandle.innerHTML = errorMsg;
-        };
-    });
+        }
+    })
+})
 
-})();
