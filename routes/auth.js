@@ -5,7 +5,6 @@ import moment from 'moment';
 import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
-import eventData from 
 import validation from '../validationchecker.js';
 //import { requireAuth } from '../app.js';
 import multer from "multer";
