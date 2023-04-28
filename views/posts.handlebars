@@ -1,16 +1,32 @@
 <form method="POST" action="/posts" id="post-form">
-
+ <div class="container center">
+    <h1 class="login">Posts</h1>
+    <div class="inf">
+        <div class="sec-1">
 <label for="postCategory">Post Category:</label>
-
+        </div>
+ <div class="sec-2">
 <select name="postCategory" id ="postCategory">
     <option value="education">Education</option>
     <option value="sports">Sports</option>
     <option value="entertainment">Entertainment</option>  
-</select><br>
-
+</select>
+</div>
+</div>
+ <div class="inf">
+        <div class="sec-1">
 
 <label for="postContent">Post Content: </label>
-<textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea><br>
+
+</div>
+ <div class="sec-2">
+<textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea>
+</div>
+</div>
+
+        <button type="submit" class="registerbtn">Add Post</button>
+        </div>
+
 
 <h1>Upload Image</h1>
 <form method="POST" action="/posts/upload" enctype="multipart/form-data">

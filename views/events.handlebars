@@ -2,20 +2,39 @@
   <h2>{{eventName}}</h2>
   <p>{{description}}</p>
 {{/each}} --}}
-  <div class="event-card">
-<h1 id="event-header">Create Events</h1>
-<form method="POST" action="/events">
-  <label for="eventName">Event Name</label>
+
+  {{!-- <div class="event-card"> --}}
+    <div class="container center">
+      <h1 id="event-header">Create Events</h1>
+      <form method="POST" action="/events">
+      <div class="inf">
+          <div class="sec-1">
+      <label for="eventName">Event Name</label>
+          </div>
+          <div class="sec-2">
   <input id="eventName" type="text" name="eventName">
+  </div>
+      </div>
 
-  <label for="description">Description</label>
-  <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
-
+        <div class="inf">
+          <div class="sec-1">
+            <label for="description">Description:</label>
+          </div>
+          <div class="sec-2">
+            <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
+          </div>
+        </div>
+     <div class="inf">
+        <div class="sec-1">
       <label for="buildingName">Select Building Location:</label>
+        </div>
+     </div>
+      <div class="sec-2">
     <select id="buildingName" name="buildingName"><br>
+    
       <option value=""></option>
     </select>
-  
+  </div>
 
     <script>
       const allowedLocation = [
@@ -35,16 +54,29 @@
         selectElement.appendChild(option);
       });
     </script>
+<div class="inf">
+        <div class="sec-1">
+  <label for="organizer">Organizer:</label>
+        </div>
 
-  <label for="organizer">Organizer</label>
+  <div class="sec-2">
   <input id = "organizer" type="text" name="organizer">
-
-  <label for="seatingCapacity">Seating Capacity</label>
+  </div>
+  </div>
+   <div class="inf">
+      <div class="sec-1">
+  <label for="seatingCapacity">Seating Capacity:</label>
+      </div>
+     <div class="sec-2">
   <input id = "seatingCapacity" type="number" name="seatingCapacity">
-
-  <button type="submit">Create Event</button>
+  </div>
+  </div>
+  <button type="submit" class="registerbtn">Create Event</button>
+  
     </div>
+    {{!-- </div> --}}
 </form>
+
 <br>
 <div>  
     <h2>{{newEvent.eventName}}</h2><br>
@@ -59,6 +91,7 @@
     <p>Building Name: {{buildingName}}</p><br>
     <p>Seating Capacity{{seatingCapacity}}</p><br>
 {{/each}}
+
 
 {{!-- 
 {{#if newEvent}}
