@@ -16,17 +16,7 @@ router.route('/events')
   }
 })
   .post(async (req, res) => {
-    // const event = req.body;
-    // try {
-    //   // event.eventName = validation.checkString(event.eventName, "eventName");
-    //   // event.description = validation.checkString(event.description, "description");
-    //   // event.buildingName = validation.checkString(event.buildingName, "buildingName");
-    //   // event.organizer = validation.checkString(event.organizer, "organizer");
-    //   // event.seatingCapacity = validation.checkSeating(event.seatingCapacity, "seatingCapacity");
-    //   // event.userId = validation.checkString(event.eventName, "userId");
-    // } catch(error){
-    //   return res.status(400).render('events', {error: error});
-    // }
+
     try{
       const {eventName, description, buildingName, organizer, seatingCapacity, userId} = req.body;
       console.log({eventName, description, buildingName, organizer, seatingCapacity, userId})

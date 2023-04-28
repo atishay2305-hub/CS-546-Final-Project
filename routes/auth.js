@@ -1,43 +1,47 @@
 import {Router} from 'express';
-import moment from 'moment';
 //import {userData} from '../data/index.js';
 //import { userData } from '../data/index.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
 import validation from '../validationchecker.js';
 //import { requireAuth } from '../app.js';
+import path from 'path'
 import xss from 'xss';
-const router = Router();
 
-router.route('/').get(async(req,res)=>{
+const router = Router();
+import {passwordResetByEmail} from '../email.js'
+import authCheck from "../public/js/validtionChecker.js";
+
+router.route('/').get(async (req, res) => {
     return res.status(200).render('login');
 });
 
 router.get('/login', async (req, res) => {
-return res.status(200).render('login', { title: 'Login Page' });
+    return res.status(200).render('login', {title: 'Login Page'});
 });
 
 router.post('/login', async (req, res) => {
-try {
-    let { emailAddressInput, passwordInput } = req.body;
-    // console.log(emailAddressInput)
-    // console.log(passwordInput)
-    emailAddressInput = validation.checkEmail(emailAddressInput);
-    passwordInput = validation.checkPassword(passwordInput);
-    // console.log(emailAddressInput)
-    // console.log(passwordInput)
-    const sessionUser = await userData.checkUser(emailAddressInput, passwordInput);
-    console.log(sessionUser);
-    req.session.userId = sessionUser.userId;
-    req.session.userName = sessionUser.userName;
-    return res.redirect('/homepage');
-} catch (e) {
-    return res.redirect('/login');
-}
+    try {
+        let {email, password} = req.body;
+        // console.log(emailAddressInput)
+        // console.log(passwordInput)
+        email = validation.checkEmail(email);
+        password = validation.checkPassword(password);
+        // console.log(emailAddressInput)
+        // console.log(passwordInput)
+        const sessionUser = await userData.checkUser(email, password);
+        console.log(sessionUser);
+        req.session.user
+        req.session.userId = sessionUser.userId;
+        req.session.userName = sessionUser.userName;
+        return res.redirect('/homepage');
+    } catch (e) {
+        return res.redirect('/login');
+    }
 });
 
-router.route('/register').get(async(req,res)=>{
-    return res.status(200).render('register',{title:"Register Page"});
+router.route('/register').get(async (req, res) => {
+    return res.status(200).render('register', {title: "Register Page"});
 });
 
 // router.route('/register').post(async(req,res)=>{
@@ -84,8 +88,8 @@ router.route('/register').get(async(req,res)=>{
 //         return res.redirect('/register'); 
 //     }
 // });
-router.route('/register').post(async(req,res)=>{
-    try{
+router.route('/register').post(async (req, res) => {
+    try {
         // removed dept
         let firstName = xss(req.body.firstName);
         let lastName = xss(req.body.lastName);
@@ -96,28 +100,27 @@ router.route('/register').post(async(req,res)=>{
         let role = xss(req.body.role);
         let department = xss(req.body.department);
         let user;
-        if(role === 'admin'){
+        if (role === 'admin') {
             let authentication = xss(req.body.authentication);
-            user = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department, authentication);
-        }else{
-            user  = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department);
+            user = await userData.createUser(firstName, lastName, userName, email, password, DOB, role, department, authentication);
+        } else {
+            user = await userData.createUser(firstName, lastName, userName, email, password, DOB, role, department);
         }
         const date = validation.getDate();
         //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
         //console.log(user);
         //const {sessionUser} = await userData.;
         console.log(user);
-        if(user.insertedUser)
-        {
+        if (user.insertedUser) {
             return res.redirect('/login');
         }
         // req.session.userId = sessionUser.userId;
         // req.session.userName = sessionUser.userName;
         // console.log(req.session.userId);
         // console.log(req.session.userName);
-      
+
         //return res.json(newuser);
-    }catch(e){
+    } catch (e) {
         console.log(e);
         return res.redirect('/register');
     }
@@ -132,7 +135,7 @@ router.route('/register').post(async(req,res)=>{
 //     userData.updatePassword(email, )
 // }), 
 
-router.route('/homepage').get(async(req,res)=>{
+router.route('/homepage').get(async (req, res) => {
     const userId = req.session.userId;
     console.log(userId);
 
@@ -142,7 +145,7 @@ router.route('/homepage').get(async(req,res)=>{
     //const user = await userData.getUserByID(userId);
     //const postList = await userData.getPostList(user.email);
 
-  
+
     //user info from ID
     //getpost list if true 
     const userName = req.session.userName;
@@ -153,63 +156,64 @@ router.route('/homepage').get(async(req,res)=>{
     console.log(postList);
 
     //console.log(postList);
-    for (let x of postList){
+    for (let x of postList) {
         let resId = x?.userId;
-       
+
         console.log(resId);
-        
-        let resString= resId.toString();
+
+        let resString = resId.toString();
 
         const user = await userData.getUserByID(resString);
-        x.name =user.userName;
+        x.name = user.userName;
         console.log(user.userName);
         console.log(resString);
         console.log(x.userName);
-        if(resString === userId){
-            x.editable =true;
+        if (resString === userId) {
+            x.editable = true;
             x.deletable = true;
-        }else{
+        } else {
             x.editable = false;
             x.deletable = false;
         }
     }
-    
-    return res.render('homepage',{userId:userId,userName:userName,posts:postList});
+
+    return res.render('homepage', {userId: userId, userName: userName, posts: postList});
 
 });
 
 
-router.route('/profile').get(async(req,res)=> {
+router.route('/profile').get(async (req, res) => {
     const id = req.session.userId;
     console.log(id);
     const user = await userData.getUserByID(id);
-    return res.render('profile',{user:user});
+    return res.render('profile', {user: user});
 });
 
-router.route('/posts').get(async(req, res)=>{
+router.route('/posts').get(async (req, res) => {
 
     return res.render('posts');
-  });
+});
 
-router.route('/posts').post(async(req,res)=>{
+router.route('/posts').post(async (req, res) => {
 
     const id = req.session.userId;
     console.log(id);
     const userName = req.session.userName;
 
-    const{postCategory,postContent} = req.body;
+    const {postCategory, postContent} = req.body;
     console.log(postContent);
-    try{
-        const post = await postData.createPost(postCategory,postContent,id);
-        const user  = await userData.putPost(id,post._id);
-        console.log(user);
-        console.log(post);
-        console.log("The post is posted");
-        return res.redirect('/homepage');
-    }catch(e){
-        console.log(e)
-        return res.render('posts',{Error:e});
-    }
+    // try{
+    //     const post = await postData.createPost(postCategory,postContent,id);
+    //     const user  = await userData.putPost(id,post._id);
+    //     console.log(user);
+    //     console.log(post);
+    //     console.log("The post is posted");
+    //     return res.redirect('/homepage');
+    // }catch(e){
+    //     console.log(e)
+    //     return res.render('posts',{Error:e});
+    // }
+    return res.render('posts');
 
 });
 
@@ -217,11 +221,11 @@ router.route('/posts').post(async(req,res)=>{
 //     //code here for GET
 //     res.render('error', {message: "Something"});
 // },
-router.route('/posts/:id').delete(async(req,res)=>{
+router.route('/posts/:id').delete(async (req, res) => {
     console.log(req.params.id);
-    
+
     const response = await postData.removeById(req.params.id);
-    console.log("hi",response.deleted);
+    console.log("hi", response.deleted);
     //const user = await userData.removePost()
     //const postList = await postData.getAllPosts();
     //res.status(200).send(response);
@@ -237,11 +241,62 @@ router.route('/posts/:id').delete(async(req,res)=>{
 //     }
 //     res.redirect('/');
 //   });
+router
+    .route('/reset-password/:id')
+    .get(async (req, res) => {
+        try {
+            return res.render('resetPassword', {id: req.params.id})
+        }catch (e){
+            return res.status(404).sendFile(path.resolve("public/static/404.html"));
+        }
+    })
+    .post(async (req, res) =>{
+        try{
+            let newPassword = xss(req.body.newPassword);
+            let confirmNewPassword = xss(req.body.confirmNewPassword);
+            newPassword = validation.checkPassword(newPassword);
+            confirmNewPassword = validation.checkPassword(confirmNewPassword);
+            let result = validation.checkIdentify(newPassword, confirmNewPassword);
+            if(result){
+                const passwordUpdate = await userData.updatePassword(req.params.id, newPassword);
+            };
+            res.redirect('/login');
+        }catch (e){
+            return res.status(400).render("/resetPassword",{
+                id: req.params.id,
+                error: e
+            })
+        }
+    });
 
-  router.route('/logout').get(async (req, res) => {
+router
+    .route('/forgot-password')
+    .get(async (req, res) => {
+        try {
+            return res.render("forgotPassword");
+        } catch (e) {
+            return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
+        }
+    })
+    .post(async (req, res) => {
+        try {
+            let email = xss(req.body.email);
+            email = validation.checkEmail(email);
+
+            let checkExist = await userData.getUserByEmail(email);
+            await passwordResetByEmail({id: checkExist._id, email: checkExist.email}, res);
+        } catch (e) {
+            return res.status(400).json({
+                success: false,
+                message: e,
+                email: req.body.email
+            });
+        }
+    });
+router.route('/logout').get(async (req, res) => {
     //code here for GET
     req.session.destroy();
-    return res.render('logout',{title:'Logout'})
-  });
+    return res.render('logout', {title: 'Logout'})
+});
 
 export default router;

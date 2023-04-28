@@ -40,7 +40,7 @@ const authCheck = {
         if(password !== confirmPassword){
             throw "ConfirmPassword must be the same as password";
         }
-
+        return true;
     },
     checkEmail(email) {
         if (!email) throw "Please provide email";

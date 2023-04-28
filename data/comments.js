@@ -8,8 +8,8 @@ import e from "express";
 let exportedMethods ={
 
     async createComment(userId,
-                        eventId,
-                        postId,
+                        eventId = null,
+                        postId = null,
                         userName,
                         contents){
         userId = validation.checkId(userId);
@@ -29,23 +29,21 @@ let exportedMethods ={
                 {_id: eventId},
                 {$push: {commentIds: comment._id.toString()}}
             );
-            console.log(updateEvent);
-            // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-            //     throw "Could not update event with commentId";
-            // }
+            if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+                throw "Could not update event with commentId";
+            }
         }
         if(postId){
             postId = validation.checkId(postId);
             comment.postId = postId;
-            const postCollection = await posts();
-           
+            const postCollection = posts();
             const updateEvent = await postCollection.updateOne(
                 {_id: postId},
                 {$push: {commentIds: comment._id.toString()}}
             );
-            // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-            //     throw "Could not update post with commentId";
-            // }
+            if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+                throw "Could not update post with commentId";
+            }
         }
         const commentCollection = await comments();
         const commentInfo = await commentCollection.insertOne(comment);
@@ -73,12 +71,9 @@ let exportedMethods ={
             throw `No comment with that id ${commentId}`;
         }
         const user = userData.getUserByUserName(comment.userName);
-        console.log(user) 
-        // TODO: IT can return the user who commented that comment whose comment ID is provided.
-        // but we return that comment
-        return comment;
+
     },
-    // remove comments by a particular ID
+
     async removeCommentById(commentId){
         commentId = validation.checkId(commentId);
         const commentCollection = await comments();
@@ -118,36 +113,30 @@ let exportedMethods ={
         return `The comment ${commentId} delete successfully`;
     },
 
-    // get all comments that the user did
-    // async getUserCommentById(userId){
-    //     userId = await validation.checkId(userId)
-    //     const user = await userData.getUserByID(userId);
-    //     if(!user) throw `No event with that id ${userId}`;
-    //     const commentList = userId.commentIds || [];
-    //     const comments = [];
-    //     for(let i = 0; i < commentList.length; i++){
-    //         const comment = await this.getCommentById(commentList[i]);
-    //     }
-    //     return comments;
-    // },
-
-    // get all comments that the events had
-    async getEventCommentById(eventId){
-        eventId = await validation.checkId(eventId)
-
-        const event = await eventsData.getEventByID(eventId);
-        // console.log(event)
-        if(!event) throw `No event with that id ${eventId}`;
-        const commentList = event.commentIds;
+    async getUserCommentById(userId){
+        userId = await validation.checkId(userId)
+        const user = await userData.getUserByID(userId);
+        if(!user) throw `No event with that id ${userId}`;
+        const commentList = userId.commentIds;
         const comments = [];
         for(let i = 0; i < commentList.length; i++){
             const comment = await this.getCommentById(commentList[i]);
-            console.log(comment)
-            comments = comments.push(comment)
         }
         return comments;
     },
-// get all comments that the posts had
+
+    async getEventCommentById(eventId){
+        eventId = await validation.checkId(eventId)
+        const event = await eventsData.getEventByID(eventId);
+        if(!event) throw `No event with that id ${eventId}`;
+        const commentList = eventId.commentIds;
+        const comments = [];
+        for(let i = 0; i < commentList.length; i++){
+            const comment = await this.getCommentById(commentList[i]);
+        }
+        return comments;
+    },
+
     async getPostCommentById(postId){
         postId = await validation.checkId(postId)
         const post = await postData.getPostById(postId);
