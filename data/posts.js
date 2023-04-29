@@ -97,13 +97,13 @@ let exportedMethods = {
             } 
         }
 
-        const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
+        const removeDiscuss = await postCollection.deleteOne({_id: new ObjectId(id)});
         if (removePost.deletedCount === 0) {
-            throw `Could not delete band with id of ${id}`;
+            throw `Could not delete post with id of ${id}`;
         }
-        await userData.removePost(post.userId.toString(), id);
+        await userData.removeDiscuss(discuss.userId.toString(), id);
         return {
-            eventId: id,
+            discussionId: id,
             deleted: true
         };
 
@@ -112,8 +112,7 @@ let exportedMethods = {
     async updatePost(id,
                      userId,
                      category,
-                     postedContent,
-                     image) {
+                     postedContent) {
         id = validation.checkId(id);
         userId = validation.checkId(userId);
         category = validation.checkLegitName(category, "category");

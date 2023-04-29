@@ -101,7 +101,7 @@ let exportedMethods = {
         // if (user.isAdmin === undefined || !user.isAdmin) throw "Only administrators can delete events.";
         const removeEvent = eventCollection.deleteOne({_id: new ObjectId(id)});
         if (removeEvent.deletedCount === 0) {
-            throw `Could not delete band with id of ${id}`;
+            throw `Could not delete event with id of ${id}`;
         }
         // await userData.removeEvent(event.userId.toString(), id);
         return {
