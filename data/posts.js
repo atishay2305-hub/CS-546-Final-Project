@@ -97,13 +97,13 @@ let exportedMethods = {
             } 
         }
 
-        const removeDiscuss = await postCollection.deleteOne({_id: new ObjectId(id)});
+        const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
         if (removePost.deletedCount === 0) {
             throw `Could not delete post with id of ${id}`;
         }
-        await userData.removeDiscuss(discuss.userId.toString(), id);
+        await userData.removePost(post.userId.toString(), id);
         return {
-            discussionId: id,
+            postId: id,
             deleted: true
         };
 
@@ -152,8 +152,21 @@ let exportedMethods = {
                 return await this.getEventByID(eventId);
             })
         );
-    }
+    },
 
+    async increaseLikes(postId) {
+        const post = await this.getPostById(postId);
+        post.likes++;
+        await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
+        return post;
+      },
+      
+      async increaseDislikes(postId) {
+        const post = await this.getPostById(postId);
+        post.dislikes++;
+        await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
+        return post;
+      },      
 
 };
 //express session,handlebars

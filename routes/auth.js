@@ -14,7 +14,12 @@ import xss from 'xss';
 const router = Router();
 
 router.route('/').get(async(req,res)=>{
+    if(req.session.userId){
+        return res.status(200).redirect('/homepage');
+    }
+    else{
     return res.status(200).render('login');
+    }
 });
 
 router.get('/login', async (req, res) => {
@@ -303,6 +308,20 @@ router
         }
     });
 
+    router.route('/increaseLikes')
+    .post(async (req, res) => {
+      const postId = req.body.postId;
+      const updatedPost = await postData.increaseLikes(postId);
+      return res.json(updatedPost);
+    });
+
+    router.route('/increaseDislikes')
+    .post(async (req, res) => {
+        const postId = req.body.postId;
+        const updatedPost = await postData.increaseDislikes(postId);
+        return res.json(updatedPost);
+    })
+  
 
   router.route('/logout').get(async (req, res) => {
     //code here for GET
