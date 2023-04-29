@@ -19,7 +19,7 @@
                 <p>Posted by: {{author}}</p>
                 <p>Posted at: {{created_Date}}</p>
                 </div>
-        {{/each}}
+        {{/each}}<br>
             <form class="comment-form" id="comment-form" action="/add-comment" method="POST">
                 <input type="hidden" name="postId" value="{{_id}}">
                 <label for="comment-text"></label>
@@ -72,6 +72,36 @@ cForm.addEventListener('submit',function(event){
     cForm.submit();
 
 })
+
+const likeBtn = document.getElementById(`like-btn-${postId}`);
+likeBtn.addEventListener('click', async () => {
+  const response = await fetch(`/posts/${postId}/increaseLikes`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  if (response.ok) {
+    const post = await response.json();
+    likeBtn.innerHTML = `<i class="fa fa-thumbs-up"></i> Like (${post.likes})`;
+  } else {
+    console.error('Failed to increase likes');
+  }
+});
+
+document.querySelectorAll('.dislike-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const postId = btn.dataset.postId;
+    fetch(`/increaseDislikes?postId=${postId}`)
+      .then(response => response.json())
+      .then(data => {
+        btn.textContent = `Dislike (${data.dislikes})`;
+      })
+      .catch(error => console.error(error));
+  });
+});
+
+
 </script>
 <link rel="stylesheet" href="/public/css/homepage.css">
 

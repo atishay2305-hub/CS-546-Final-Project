@@ -99,11 +99,11 @@ let exportedMethods = {
 
         const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
         if (removePost.deletedCount === 0) {
-            throw `Could not delete band with id of ${id}`;
+            throw `Could not delete post with id of ${id}`;
         }
         await userData.removePost(post.userId.toString(), id);
         return {
-            eventId: id,
+            postId: id,
             deleted: true
         };
 
@@ -112,8 +112,7 @@ let exportedMethods = {
     async updatePost(id,
                      userId,
                      category,
-                     postedContent,
-                     image) {
+                     postedContent) {
         id = validation.checkId(id);
         userId = validation.checkId(userId);
         category = validation.checkLegitName(category, "category");
@@ -153,8 +152,21 @@ let exportedMethods = {
                 return await this.getEventByID(eventId);
             })
         );
-    }
+    },
 
+    async increaseLikes(postId) {
+        const post = await this.getPostById(postId);
+        post.likes++;
+        await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
+        return post;
+      },
+      
+      async increaseDislikes(postId) {
+        const post = await this.getPostById(postId);
+        post.dislikes++;
+        await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
+        return post;
+      },      
 
 };
 //express session,handlebars

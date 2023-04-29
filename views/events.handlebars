@@ -1,9 +1,4 @@
-{{!-- {{#each events}}
-  <h2>{{eventName}}</h2>
-  <p>{{description}}</p>
-{{/each}} --}}
-  {{!-- <div class="event-card"> --}}
-     <div class="container center">
+<div class="container center">
 <h1 id="event-header">Create Events</h1>
 <form method="POST" action="/events">
 <div class="inf">
@@ -88,7 +83,29 @@
     <p>Seating Capacity{{seatingCapacity}}</p><br>
 {{/each}}
 
-  <h1>Upload Image</h1>
-  <input type="file" name="postImage" id="postImage">
-  <button type="submit">Add Post</button>
+<h1>Upload Image</h1>
+<input type="file" name="postImage">
+<button type="submit">Add Post</button>
+</div>
 </form><br>
+
+<p id="error-message">{{Error}}</p>
+
+<img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+
+<script>
+  const postImageInput = document.getElementById("postImage");
+  const imagePreview = document.getElementById("image-preview");
+
+  postImageInput.addEventListener("change", function() {
+    const file = this.files[0];
+    const reader = new FileReader();
+
+    reader.addEventListener("load", function() {
+      imagePreview.src = reader.result;
+      imagePreview.style.display = "block";
+    });
+
+    reader.readAsDataURL(file);
+  });
+</script>
