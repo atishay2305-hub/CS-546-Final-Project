@@ -7,6 +7,7 @@ import exphbs from 'express-handlebars';
 const __filename = fileURLToPath(import.meta.url);
 // import cookieParser from 'cookie-parser';
 // app.use(cookieParser());
+import multer from "multer";
 import path from "path";
 import {dirname} from 'path';
 const __dirname = dirname(__filename);

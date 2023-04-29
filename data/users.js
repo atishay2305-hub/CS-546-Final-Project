@@ -201,7 +201,7 @@ let exportedMethods = {
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         let postIdList = user.postIDs;
-        postIdList.push(postId);
+        postIdList.push(new ObjectId(postId));
         const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(userId)},
             {$set: {postIDs: postIdList}}
@@ -217,12 +217,15 @@ let exportedMethods = {
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
-        let postIdList = user.postIDs;
+        
+        let postIdList = user.postIDs.map(post => post.toString());
+        console.log(postIdList);
+
         if (postIdList.includes(postId)) {
             postIdList = postIdList.filter(elem => elem !== postId);
             const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},
-                {$set: {postIDs: postIdList}}
+                {$set: {postIDs: postIdList.map(id=>new ObjectId(id))}}
             );
             if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove post with that ID${userId}`;
             return true;

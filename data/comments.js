@@ -5,56 +5,67 @@ import { ObjectId } from "mongodb";
 import e from "express";
 
 
-let exportedMethods ={
+const exportedMethods ={
 
-    async createComment(userId,
+    async createPostComment(userId,
                         eventId = null,
-                        postId = null,
-                        userName,
+                        postId=null,
+                        //userName,
                         contents){
         userId = validation.checkId(userId);
+        postId = validation.checkId(postId);
         contents = validation.checkPhrases(contents);
+        //const userCollection = await users();
+        //const user = userCollection.findOne({_id:new ObjectId(userId)});
+
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id:new ObjectId(postId)});
+        if(!post){
+            throw new Error('No Post found!!');
+        }
 
         const comment = {
             _id: new ObjectId(),
-            userName,
             contents,
+            userId:new ObjectId(userId),
+            postId:post._id,
             created_Date: validation.getDate()
         }
-        if(eventId){
-            eventId = validation.checkId(eventId);
-            comment.evenId = eventId;
-            const eventCollection = await events();
-            const updateEvent = await eventCollection.updateOne(
-                {_id: eventId},
-                {$push: {commentIds: comment._id.toString()}}
-            );
-            if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-                throw "Could not update event with commentId";
-            }
-        }
-        if(postId){
-            postId = validation.checkId(postId);
-            comment.postId = postId;
-            const postCollection = posts();
-            const updateEvent = await postCollection.updateOne(
-                {_id: postId},
-                {$push: {commentIds: comment._id.toString()}}
-            );
-            if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-                throw "Could not update post with commentId";
-            }
-        }
+        // if(eventId){
+        //     eventId = validation.checkId(eventId);
+        //     comment.evenId = eventId;
+        //     const eventCollection = await events();
+        //     const updateEvent = await eventCollection.updateOne(
+        //         {_id: eventId},
+        //         {$push: {commentIds: comment._id.toString()}}
+        //     );
+        //     if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+        //         throw "Could not update event with commentId";
+        //     }
+        //}
+        // if(postId){
+        //     postId = validation.checkId(postId);
+        //     comment.postId = postId;
+        //     const postCollection = posts();
+        //     const updateEvent = await postCollection.updateOne(
+        //         {_id: postId},
+        //         {$push: {commentIds: comment._id.toString()}}
+        //     );
+        //     if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+        //         throw "Could not update post with commentId";
+        //     }
+        // }
+
         const commentCollection = await comments();
         const commentInfo = await commentCollection.insertOne(comment);
         if (!commentInfo.acknowledged || !commentInfo.insertedId) {
             throw "Could not add this comment";
         }
 
-        const insertToUser = await userData.putComment(userId, comment._id.toString());
-        if(!insertToUser){
-            throw "Cannot insert commentID to user";
-        }
+        // const insertToUser = await userData.putComment(userId, comment._id.toString());
+        // if(!insertToUser){
+        //     throw "Cannot insert commentID to user";
+        // }
         return {commentId: commentInfo.insertedId.toString()};
     },
 

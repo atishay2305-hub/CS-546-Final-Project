@@ -1,7 +1,7 @@
 {{!-- TODO: Change the action below --}}
 
 {{!-- creating post handlebar below --}}
-<form method="POST" action="/posts" id="post-form">
+<form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
 
 <label for="postCategory">Post Category:</label>
 
@@ -14,6 +14,9 @@
 
 <label for="postContent">Post Content: </label>
 <textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea><br>
+
+<Label for="postImage">Upload Image</Label>
+<input type="file" name="postImage" id="postImage">
 
 <button type="submit">Add Post</button>
 </form><br>

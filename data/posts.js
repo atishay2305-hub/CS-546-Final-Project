@@ -4,10 +4,12 @@ import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
 
 let exportedMethods = {
+    
     async createPost(category,
-                     //image,
+                     imagePath,
                      postedContent,
-                     userName
+                     userName,
+                     req
     ) {
         category = validation.checkLegitName(category, "category");
         postedContent = validation.checkPhrases(postedContent, "PostedContent");
@@ -23,22 +25,22 @@ let exportedMethods = {
         if(user.isAdmin){
             throw "Post can only create by users."
         }
-        /*let path = "";
-        if(!image || image.trim().length === 0){
-            path = "public/images/default.png";
-        }else{
-            path = validation.createImage(image);
-        }*/
+        imagePath = '';
+        if (req.file) {
+          imagePath = req.file.path.replace('public', '');
+        } else {
+          imagePath = 'images/default.jpg';
+        }
 
         let post = {
             category: category,
             content: postedContent,
-            //image: path,
-            userId:userId,
+            imagePath: imagePath,
+            userId:user._id,
             created_Date: validation.getDate(),
             likes: 0,
             dislikes: 0,
-            commentIds: {}
+            commentIds: []
         };
         const postCollection = await posts();
         let insertInfo = await postCollection.insertOne(post);
@@ -81,10 +83,13 @@ let exportedMethods = {
             throw `No post found with that Id ${id}`;
         }
         const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
-        //console.log(user.postID);
-        if (user.isAdmin === undefined || !user.isAdmin) {
-            if(!user.postIDs.includes(id)){
+        const user = await userCollection.findOne({_id: new ObjectId(post.userId.toString())});
+        console.log(user);
+        console.log("hello macha!!",user.postIDs);
+        let postIdList = user.postIDs.map(post => post.toString());
+        console.log(postIdList);
+        if (user.isAdmin === undefined || !user.isAdmin){
+            if(!postIdList.includes(id)){
                 throw "Only administrators or the poster can delete posts.";
             } 
         }
@@ -120,8 +125,10 @@ let exportedMethods = {
         const checkPostExist = userCollection.findOne({_id: new ObjectId(id)});
         if (!checkPostExist) throw `Post is not exist with that ${id}`;
         const user = await userCollection.findOne({_id: new ObjectId(userId)})
-        if (user.isAdmin === undefined || !user.isAdmin || !user.postIDs.includes(id)) {
-            throw "Only administrators or the poster can delete posts.";
+        if (user.isAdmin === undefined || !user.isAdmin){
+            if (!user.postIDs.includes(id)){
+                throw "Only administrators or the poster can delete posts.";
+            }
         }
         const updatedPost = {
             category: category,
@@ -145,7 +152,43 @@ let exportedMethods = {
                 return await this.getEventByID(eventId);
             })
         );
+    },
+
+    async putComment(postId, commentId) {
+        postId = validation.checkId(postId);
+        commentId = validation.checkId(commentId);
+        
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(userId)});
+        if (!post) throw `Error: ${post} not found`; //check password as well
+
+        let commentIdList = post.commentIds;
+        commentIdList.push(new ObjectId(commentId));
+        const updatedInfo = await postCollection.updateOne(
+            {_id: new ObjectId(postId)},
+            {$set: {commentIds: commentIdList}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${postId}`;
+        return true;
+    },
+
+    async getPostByUserId(userId){
+
+        try{
+            userId = validation.checkId(userId);
+
+            const postCollection = await posts();
+            const post = await postCollection.find({userId:new ObjectId(userId)});
+            console.log(post);
+            return post
+
+
+        }catch(e){
+            console.log(e);
+        }
+
     }
+
 
 
 };

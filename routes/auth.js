@@ -5,6 +5,9 @@ import moment from 'moment';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
 import validation from '../validationchecker.js';
+import commentData from '../data/comments.js';
+import multer from 'multer';
+import path from 'path';
 //import { requireAuth } from '../app.js';
 const router = Router();
 
@@ -89,7 +92,7 @@ router.route('/homepage').get(async(req,res)=>{
     //user info from ID
     //getpost list if true 
     const userName = req.session.userName;
-    console.log(userName);
+    //console.log(userName);
     //console.log(postList);
     const postList = await postData.getAllPosts();
 
@@ -97,7 +100,7 @@ router.route('/homepage').get(async(req,res)=>{
     for (let x of postList){
         let resId = x?.userId;
        
-        console.log(resId);
+        //console.log(resId);
         
         let resString= resId.toString();
 
@@ -124,52 +127,132 @@ router.route('/homepage').get(async(req,res)=>{
 });
 
 
-router.route('/profile').get(async(req,res)=> {
-    const id = req.session.userId;
-    console.log(id);
-    const user = await userData.getUserByID(id);
-    res.render('profile',{user:user});
+// router.route('/profile').get(async(req,res)=> {
+//     const id = req.session.userId;
+//     console.log(id);
+//     const user = await userData.getUserByID(id);
+
+//     res.render('profile',{user:user});
+// });
+
+
+router.get('/profile', async function(req, res, next) {
+      // Find the user by their ID
+      const user = await userData.getUserByID(req.session.userId);
+      console.log(user.postIDs);
+
+      const posts = await postData.getPostByUserId(req.session.userId);
+      
+      console.log(posts.commentIds);
+        
+      //const postCollection = await posts();
+      // Get all of the user's posts
+      //onst posts = await postCollection.findOne({ userId: user._id });
+  
+      // Create an array of promises to get the comments for each post
+    //   const promises = user.postIDs.map(async (postId) => {
+    //     const post = await postData.getPostById(postId);
+    //     const comment = await commentData.getPostCommentById(postId);
+    //     return { post, comment };
+    //   });
+      
+    //   try {
+    //     const postsWithComments = await Promise.all(promises);
+    //     // console.log(postsWithComments);
+        return res.render('profile',{user,posts});
+    //   } catch (err) {
+    //     console.log(err);
+    //     res.status(500).send('Internal Server Error');
+    //   }
+      
+      
 });
+  
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "./images");
+    },
+    filename: function (req, file, cb) {
+      const timestamp = new Date().getTime();
+      const randomString = Math.random().toString(36).slice(2);
+      const ext = path.extname(file.originalname);
+      const filename = `${timestamp}-${randomString}${ext}`;
+      cb(null, filename);
+    },
+  });
+  const upload = multer({ storage: storage });
 
-router.route('/posts').get(async(req, res)=>{
-
-    res.render('posts');
+  const uploadImage = upload.single("postImage");
+ 
+  router.route('/posts')
+    .get(async(req, res)=>{
+      return res.render('posts');
+    })
+    .post(uploadImage, async(req,res)=>{
+      const id = req.session.userId;
+      console.log(id);
+      const userName = req.session.userName;
+      const{postCategory,postContent,} = req.body;
+      console.log(postContent);
+      try{
+          let imagePath = '';
+          if (req.file) {
+            imagePath = req.file.path.replace('images', '');
+          } else {
+            imagePath = 'images/default.jpg';
+          }
+          console.log(imagePath);
+          const post = await postData.createPost(postCategory, imagePath, postContent,id,req);
+          console.log(post);
+          const user  = await userData.putPost(id,post._id);
+          console.log(user);
+          console.log(post);
+          console.log("The post is posted");
+          return res.redirect('/homepage');
+      }catch(e){
+          console.log(e)
+          return res.render('posts',{Error:e});
+      }
   });
 
-router.route('/posts').post(async(req,res)=>{
-
-    const id = req.session.userId;
-    console.log(id);
-    const userName = req.session.userName;
-
-    const{postCategory,postContent} = req.body;
-    console.log(postContent);
-    try{
-        const post = await postData.createPost(postCategory,postContent,id);
-        const user  = await userData.putPost(id,post._id);
-        console.log(user);
-        console.log(post);
-        console.log("The post is posted");
-        res.redirect('/homepage');
-    }catch(e){
-        console.log(e)
-        res.render('posts',{Error:e});
-    }
-
-});
-router.route('/posts/:id').delete(async(req,res)=>{
+  router.route('/posts/:id').delete(async(req,res)=>{
     console.log(req.params.id);
-    
     const response = await postData.removeById(req.params.id);
     console.log("hi",response.deleted);
     //const user = await userData.removePost()
     //const postList = await postData.getAllPosts();
     //res.status(200).send(response);
-
     //res.send(response);
     return res.sendStatus(200);
+  });
 
+router.route('/posts/:id/comment').post(async(req,res)=>{
+    try{
+
+        const userId = req.session.userId;
+        const postId = req.params.id;
+        const{commentText} =req.body;
+        console.log(postId);
+        console.log(commentText);
+        const comment = await commentData.createPostComment(userId,postId,commentText);
+        console.log();
+        const post = await postData.putComment(postId,comment.commentId);
+        console.log(post);
+        console.log('The comment is added');
+        return res.redirect(`/profile`);
+    }catch(e){
+        console.log(e);
+    }
+    
+    //userId, postID,commentText ->> 4 things _id
+    //await commentData.c
 });
+
+// router.route('/posts/:id').get(async(req,res)=>{
+
+//     const post = await postData.getPostById(id);
+//     console.log(post);
+// });
 
 
 export default router;
