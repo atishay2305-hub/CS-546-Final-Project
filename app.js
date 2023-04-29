@@ -58,7 +58,6 @@ app.use(session({
   resave: false
 }));
 
-// Middleware to check if user is logged in
 const isLoggedIn = (req, res, next) => {
   if (!req.session.userId) {
     return res.redirect('/login');
@@ -66,12 +65,10 @@ const isLoggedIn = (req, res, next) => {
   next();
 };
 
-// Restrict access to specific pages if user is not logged in
 app.use('/posts', isLoggedIn);
 app.use('/events', isLoggedIn);
 app.use('/profile', isLoggedIn);
 app.get('/events', (req, res) => {
-  // handle GET request for /events route
   return res.render('events')
 });
 
@@ -81,7 +78,6 @@ app.use('/logout', isLoggedIn);
 
 app.use('/protected', isLoggedIn);
 
-// Routes for login and registration
 app.use('/login', (req, res, next) => {
   if (req.method === 'GET') {
     if (req.session.userId) {
