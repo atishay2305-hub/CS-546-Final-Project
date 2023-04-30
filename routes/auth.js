@@ -141,6 +141,8 @@ router.route('/homepage').get(async(req,res)=>{
         }
     }
     
+    // const listOfPosts = [{category: "education", content: "Anime"}] 
+    // posts: postList
     return res.render('homepage',{userId:userId,userName:userName,posts:postList});
 
 });
@@ -221,6 +223,24 @@ router.route('/posts/:id').delete(async(req,res)=>{
     return res.sendStatus(200);
 });
 
+router.route('/posts/:id/comment').post(async(req,res)=>{
+    try{
+        const userId = req.session.userId;
+        const postId = req.params.id;
+        const{commentText} =req.body;
+        // console.log(postId);
+        // console.log(commentText);
+        const comment = await commentData.createPostComment(userId,postId,commentText);
+        console.log(comment);
+        const post = await postData.putComment(postId,comment.commentId);
+        // console.log(post);
+        console.log('The comment is added');
+        return res.sendStatus(200);
+    }catch(e){
+        console.log(e);
+    }
+}),
+
 // router.route('/logout')
 //   .get(async (req, res) => {
 //     if (req.cookies.AuthCookie) {
@@ -229,31 +249,34 @@ router.route('/posts/:id').delete(async(req,res)=>{
 //     res.redirect('/');
 //   });
 
-router.route('/add-comment').post(async(req,res)=>{
+// router.route('/add-comment').post(async(req,res)=>{
 
-    const userId = req.session.userId;
-    const{postId,commentText} =req.body;
-    console.log(postId);
-    console.log(commentText);
-    const comment = await commentData.createPostComment(userId, postId, commentText);
-    console.log(comment);
-    //userId, postID,commentText ->> 4 things _id
-    //await commentData.c
+//     const userId = req.session.userId;
+//     const{postId,commentText} =req.body;
+//     console.log(postId);
+//     console.log(commentText);
+//     const comment = await commentData.createPostComment(userId, postId, commentText);
+//     const post = await postData.putComment(postId,comment.commentId);
+//     // console.log(comment);
+//     //userId, postID,commentText ->> 4 things _id
+//     //await commentData.c
 
-});
+// });
+
+
 
 
 router.route('/putAttendee').post(async(req, res) => {
     const userId = req.session.userId;
     const eventId = req.body;
     const userCollection = await userData.putAttendee(userId, eventId);
-})
+}),
 
 router.route('/removeAttendee').get(async (req, res)=> {
     const userId = req.session.id;
     const eventId = req.body;
     const userCollection = await userData.removeAttendee(userId, eventId);
-})
+}),
 
 router
     .route('/reset-password/:id')
@@ -281,7 +304,7 @@ router
                 error: e
             })
         }
-    });
+    }),
 
 router
     .route('/forgot-password')
@@ -306,7 +329,7 @@ router
                 email: req.body.email
             });
         }
-    });
+    }),
 
     router.route('/increaseLikes')
     .post(async (req, res) => {
@@ -320,13 +343,24 @@ router
         const postId = req.body.postId;
         const updatedPost = await postData.increaseDislikes(postId);
         return res.json(updatedPost);
-    })
+    }),
   
 
   router.route('/logout').get(async (req, res) => {
     //code here for GET
     req.session.destroy();
     return res.render('logout',{title:'Logout'})
+  });
+
+  
+  router
+  .route('/posts/:postId/allComments')
+  .get(async (req, res) => {
+    const postId = req.params.postId;
+    console.log(postId);
+    const comment = await commentData.getPostCommentById(postId)
+    console.log(comment);
+    return res.render('allComments', {comment: comment});
   });
 
 export default router;

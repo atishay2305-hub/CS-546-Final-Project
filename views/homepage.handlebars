@@ -20,13 +20,13 @@
                 <p>Posted at: {{created_Date}}</p>
                 </div>
         {{/each}}<br>
-            <form class="comment-form" id="comment-form" action="/add-comment" method="POST">
-                <input type="hidden" name="postId" value="{{_id}}">
-                <label for="comment-text"></label>
-                <input type="text" name="commentText" id="comment-text" required>
-                <input type="submit" value="Comment">
-            </form>
-            <a href="#" id="view-comments">View Comments</a>
+            <form class="comment-form" id="comment-form-{{_id}}" action="/posts/{{_id}}/comment" method="POST">
+                  <input type="hidden" name="postId" value="{{_id}}">
+                  <label for="comment-text-{{_id}}">Add a Comment:</label>
+                  <input type="text" name="commentText" id="comment-text-{{_id}}">
+                  <input type="submit" value="Submit">
+              </form>
+            <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a>
         </div>
         {{#if deletable}}
             <button class="delete-btn" onClick ="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
@@ -64,14 +64,34 @@ function deletePost(id) {
   });
 }
 
-cForm = document.getElementById('comment-form');
-
-cForm.addEventListener('submit',function(event){
-    event.preventDefault();
-
-    cForm.submit();
-
-})
+document.querySelectorAll('.comment-form').forEach(form => {
+      form.addEventListener('submit', function(event){
+          event.preventDefault();
+          const commentText = this.querySelector('input[name="commentText"]').value;
+          const postId = this.querySelector('input[name="postId"]').value;
+          fetch(`/posts/${postId}/comment`, {
+              method: "post",
+              body: JSON.stringify({commentText: commentText}),
+              headers: {
+                  "Content-Type": "application/json"
+              }
+          })
+          .then(response => {
+              if (response.ok) {
+                  alert('Comment added successfully');
+                  window.location.href = `/homepage`;
+              } else {
+                  throw new Error('Network response was not ok');
+              }
+          })
+          .catch(error => {
+              alert(error.message || "Something went wrong.");
+          })
+          .then(() => {
+              console.log('This will run after either success or failure');
+          });
+      });
+  });
 
 const likeBtn = document.getElementById(`like-btn-${postId}`);
 likeBtn.addEventListener('click', async () => {
@@ -100,6 +120,7 @@ document.querySelectorAll('.dislike-btn').forEach(btn => {
       .catch(error => console.error(error));
   });
 });
+
 
 
 </script>

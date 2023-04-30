@@ -4,6 +4,7 @@ import eventsData from "../data/events.js";
 import validation from "../validationchecker.js";
 import { events } from "../config/mongoCollections.js";
 import multer from "multer";
+import path from "path";
 const router = Router();
 
 const storage = multer.diskStorage({
@@ -45,19 +46,21 @@ router.route('/events')
     //   return res.status(400).render('events', {error: error});
     // }
     try{
-      // try{
-      //   let imagePath = '';
-      //   if (req.file) {
-      //     imagePath = req.file.path.replace('public', '');
-      //   } else {
-      //     imagePath = 'images/default.jpg';
-      //   }
+        let imagePath = '';
+        if (req.file) {
+          imagePath = req.file.path.replace('public', '');
+        } else {
+          imagePath = 'images/default.jpg';
+        }
       const {eventName, description, buildingName, organizer, seatingCapacity, userId} = req.body;
-      const newEvent = await eventsData.createEvent(userId, eventName, description, buildingName, organizer, seatingCapacity, image);
+      const newEvent = await eventsData.createEvent(userId, eventName, description, buildingName, organizer, seatingCapacity, imagePath, req);
+      console.log(newEvent)
       const gettingAllEvents = await eventsData.getAllEvents();
+      // console.log(gettingAllEvents)
       return res.status(200).render('events', {newEvent: gettingAllEvents});
     }
     catch (error) {
+      console.log(error);
       return res.status(500).json({error: error});
     }
   })
