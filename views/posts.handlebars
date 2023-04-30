@@ -1,29 +1,60 @@
-{{!-- creating post handlebar below --}}
-<div class="post-container">
-<form method="POST" action="/posts" id="creatPost-form">
-    <h1>Post</h1>
-    <label for="postCategory">Post Category:</label>
-
-    <div class="post-inf">
-        <label for="role">Category: </label>
-        <select name="postCategory" id="postCategory" required>
-            <option value="education">Education</option>
-            <option value="sports">sports</option>
-            <option value="entertainment">Entertainment</option>
-        </select><br>
-    </div>
-
-    <div class="post-inf">
-    <label for="postContent">Post Content: </label>
-    <textarea name="postContent" rows="6" maxlength="300" id="postContent" content="{{postContent}}" required></textarea><br>
-    </div>
-    <button type="submit" value="Submit" class="post">Add Post</button>
-    <ul id="create-postError" class="error"  hidden></ul>
-</form><br>
+<form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
+<div class="container center">
+<h1 class="login">Posts</h1>
+    <div class="inf">
+        <div class="sec-1">
+<label for="postCategory">Post Category:</label>
 </div>
+ <div class="sec-2">
+<select name="postCategory" id ="postCategory">
+    <option value="education">Education</option>
+    <option value="sports">Sports</option>
+    <option value="entertainment">Entertainment</option>  
+</select>
+</div>
+    </div>
+     <div class="inf">
+        <div class="sec-1">
 
-<script src="/public/js/post/posts.js" type="module"></script>
-<link rel="stylesheet" href="/public/css/main.css">
+  <label for="postContent">Post Content:</label>
+  <textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea><br>
+
+<label for="postContent">Post Content: </label>
+</div>
+ <div class="sec-2">
+<textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea>
+</div>
+</div>
+  <button type="submit" class="registerbtn">Add Post</button>
+        </div>
+
+<h1>Upload Image</h1>
+<input type="file" name="postImage">
+<button type="submit">Add Post</button>
+</div>
+</form><br>
+
+<p id="error-message">{{Error}}</p>
+
+<img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+
+<script>
+  const postImageInput = document.getElementById("postImage");
+  const imagePreview = document.getElementById("image-preview");
+
+  postImageInput.addEventListener("change", function() {
+    const file = this.files[0];
+    const reader = new FileReader();
+
+    reader.addEventListener("load", function() {
+      imagePreview.src = reader.result;
+      imagePreview.style.display = "block";
+    });
+
+    reader.readAsDataURL(file);
+  });
+</script>
+
 
 
 

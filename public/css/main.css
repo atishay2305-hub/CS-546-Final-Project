@@ -2,10 +2,10 @@
   background: #fefefe;
   font-family: monospace;
   font-size: 15pt; */
-  
-  /* added for test */
-  /* position: relative;
-  min-height: 100vh;
+
+/* added for test */
+/* position: relative;
+min-height: 100vh;
 } */
 
 /* main {
@@ -34,10 +34,10 @@ input[type=text]:focus, input[type=password]:focus, input[type=email]:focus {
 } */
 
 
-  
-  
-    
-    
+
+
+
+
 
 h1
 {
@@ -47,6 +47,7 @@ h1
 
 h1 {
   font-size: 2rem;
+  text-align: center;
 }
 
 nav {
@@ -72,9 +73,11 @@ nav li a {
   padding: 14px 16px;
   text-decoration: none;
 }
+
 .container {
   display: table;
   width: 100%
+
 }
 
 .center {
@@ -83,16 +86,17 @@ nav li a {
   border: 3px solid green;
   padding: 10px;
   text-align: left;
+  margin-top: 10%;
 }
 
 
 .inf {
-width: 80%
+  width: 80%
 }
 
 .sec-1 {
-  width: 30%; 
-  float: left; 
+  width: 30%;
+  float: left;
   margin-left: 80pt;
   margin-top: 10px;
   align-content: center;
@@ -100,7 +104,7 @@ width: 80%
 
 .sec-2 {
   float: left;
-  
+
   margin-top: 10px;
 }
 
@@ -163,16 +167,16 @@ footer {
   height: 30px;
 }
 /* .inf {
-  width: 30%;
-  height: 100px;
-  float: left;
+  width: 30%; 
+  height: 100px; 
+  float: left; 
   margin-left: 100pt;
   margin-top: 50pt;
   align-content: center;
 }
 .sec-2 {
-  margin-left: 40%;
-  height: 100px;
+  margin-left: 40%; 
+  height: 100px; 
   margin-top: 20pt;
 } */
 
@@ -221,7 +225,6 @@ footer {
 .registerbtn:hover {
   opacity:1;
 }
-
 
 a {
   color: dodgerblue;

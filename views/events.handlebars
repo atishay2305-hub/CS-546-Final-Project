@@ -2,81 +2,79 @@
   <h2>{{eventName}}</h2>
   <p>{{description}}</p>
 {{/each}} --}}
-<div class="event-container">
-    <section class="body-wrapper con">
+  {{!-- <div class="event-card"> --}}
+     <div class="container center">
+<h1 id="event-header">Create Events</h1>
+<form method="POST" action="/events">
+<div class="inf">
+          <div class="sec-1">
+  <label for="eventName">Event Name</label>
+  </div>
+          <div class="sec-2">
+  <input id="eventName" type="text" name="eventName">
+  </div>
+      </div>
+       <div class="inf">
+          <div class="sec-1">
 
-        <form action={{url}} method="POST" id="event-form">
-            <h1 id="event-header">Create Events</h1>
-            <label>Tell me something interesting happen in the campus</label>
+  <label for="description">Description</label>
+  </div>
+   <div class="sec-2">
+  <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
+     </div>
+        </div>
+        <div class="inf">
+        <div class="sec-1">
+      <label for="buildingName">Select Building Location:</label>
+      </div>
+     </div>
+      <div class="sec-2">
+    <select id="buildingName" name="buildingName"><br>
+      <option value=""></option>
+    </select>
+    </div>
+  
 
-            <div class="event-inf">
-                <label for="eventName">Event Name: </label>
-                <div class="sec-2">
-                    <input id="eventName" type="text" name="eventName" value="{{eventName}}" required><br>>
-                </div>
-            </div>
+    <script>
+      const allowedLocation = [
+        "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
+        "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
+        "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
+        "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
+        "alexander house", "colonial house"
+      ];
 
-            <div class="event-inf">
-                <label for="description">Description</label><br>
-                <div class="sec-2">
-                <textarea id="description" name="description" content= {{description}} rows="6" required minlength="5"
-                          maxlength="300"></textarea><br>
-                </div>
-            </div>
+      const selectElement = document.getElementById("buildingName");
 
-            <div class="event-inf">
-                <label for="buildingName">Select Building Location:</label>
-                <div class="sec-2">
-                    <select id="buildingName" name="buildingName">
-                        <option value=""></option>
-                    </select>
-
-                    <script>
-                        const allowedLocation = [
-                            "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
-                            "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
-                            "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
-                            "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
-                            "alexander house", "colonial house"
-                        ];
-
-                        const selectElement = document.getElementById("buildingName");
-
-                        allowedLocation.forEach((location) => {
-                            const option = document.createElement("option");
-                            option.text = location;
-                            option.value = location;
-                            selectElement.appendChild(option);
-                        });
-                    </script>
-                    <br>
-                </div>
-            </div>
-
-            <div class="event-inf">
-                <label for="organizer">Organizer</label>
-                <div class="sec-2">
-                    <input id="organizer" type="text" name="organizer" value="{{eventName}} required><br>
-                </div>
-            </div>
-
-            <div class="event-inf">
-                <label for="seatCapacity">Seating Capacity</label>
-                <div class="sec-2">
-                    <input id="seatCapacity" type="number" name="seatCapacity"><br>
-                </div>
-            </div>
-
-            <div class="footer">
-                <button type="submit">Create Event</button>
-            </div>
-            <ul id="eventError" class="error" hidden></ul>
-        </form>
-    </section>
+      allowedLocation.forEach((location) => {
+        const option = document.createElement("option");
+        option.text = location;
+        option.value = location;
+        selectElement.appendChild(option);
+      });
+    </script>
+<div class="inf">
+        <div class="sec-1">
+  <label for="organizer">Organizer</label>
+  </div>
+   <div class="sec-2">
+  <input id = "organizer" type="text" name="organizer">
+   </div>
 </div>
-
+   <div class="inf">
+        <div class="sec-1">
+  <label for="seatingCapacity">Seating Capacity</label>
+        </div>
+        <div class="sec-2">
+  <input id = "seatingCapacity" type="number" name="seatingCapacity">
+   </div>
+   </div>
+   <button type="submit" class="registerbtn">Create Event</button>
+    
+    </div>
+</form>
 <br>
-<div>
+<div>  
     <h2>{{newEvent.eventName}}</h2><br>
     <p>{{newEvent.description}}</p><br>
     <p>{{newEvent.buildingName}}</p><br>
@@ -90,8 +88,7 @@
     <p>Seating Capacity{{seatingCapacity}}</p><br>
 {{/each}}
 
-{{!-- 
-{{#if newEvent}}
-{{newEvent.comments}}
-{{/if}} --}}
-
+  <h1>Upload Image</h1>
+  <input type="file" name="postImage" id="postImage">
+  <button type="submit">Add Post</button>
+</form><br>

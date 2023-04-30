@@ -1,37 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/public/css/main.css">
     <title>{{title}}</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
 {{{body}}}
-<header>
-    <nav>
-        <form action="/search" method="GET">
-            <input type="text" name="query" placeholder="Search...">
-            <button type="submit">Search</button>
-        </form>
-    </nav>
 
-    <nav id="get-posts-navbar">
-        <ul>
-            <li><a href="/">Home Page</a></li>
-            <li><a href="/post">Posts</a></li>
-            <li><a href="/events">Events</a></li>
-            {{!-- <li><a href="/profile">User Profile</a></li>     --}}
-        </ul>
-    </nav>
-</header>
+{{!-- <nav>
+<form action="/search" method="GET">
+<input type="text" name="query" placeholder="Search...">
+<button type="submit">Search</button>
+</form>
+</nav> --}}
 
-{{!-- <footer role="contentinfo">
-<div class="copyright">
-<p>&copy; EventCommunityApplication</p>
-</div>
-</footer> --}}
+<nav id="get-posts-navbar">
+    <ul>
+        <li><a href="/">Home Page</a></li>
+        <li><a href="/posts">Posts</a></li>
+        <li><a href="/events">Events</a></li>
+        <li><a href="/profile">User Profile</a></li>
+        <li><a href="/logout">Logout</a></li>
+
+    </ul>
+</nav>
+
 </body>
 </html>

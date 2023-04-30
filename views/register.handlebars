@@ -1,133 +1,158 @@
-<div class="container">
-    <section class="body-wrapper con">
-        <form id="register-Form" action="/register" method="post">
-            <div class="container">
-                <h1>Registration</h1>
+{{!-- <div class="container"> --}}
+{{!-- <section class="body-wrapper con"> --}}
+<form id="register-Form" action="/register" method="post">
+    <div class="container center">
+        <h1>Registration</h1>
 
 
-                <div class="inf">
-                    <label for="FN">First Name: </label>
-                    <div class="sec-2">
-                        <ion-icon name="person-outline"></ion-icon>
-                        <input type="text" name="firstName" id="FN" placeholder="Michael" value="{{firstName}}"
-                               required>
 
-                    </div>
-                </div>
-
-                <div class="inf">
-                    <label for="LN">Last Name: </label>
-                    <div class="sec-2">
-                        <ion-icon name="person-outline"></ion-icon>
-                        <input type="text" name="lastName" id="LN" placeholder="Jordan" value="{{lastName}}" required>
-
-                    </div>
-                </div>
-
-                <div class="inf">
-                    <label for="UN">User Name: </label>
-                    <div class="sec-2">
-                        <ion-icon name="person-outline"></ion-icon>
-                        <input type="text" name="userName" id="UN" placeholder="K1ingOfBBALL" value="{{userName}}"
-                               required>
-
-                    </div>
-                </div>
-
-                <div class="inf">
-                    <label for="email">Email: </label>
-                    <div class="sec-2">
-                        <ion-icon name="mail-outline"></ion-icon>
-                        <input type="email" name="email" id="email" placeholder="firstname.lastname@stevens.edu"
-                               value="{{email}}" required>
-
-                    </div>
-                </div>
-
-                <div class="password">
-                    <label for="password">Password: </label>
-                    <div class="sec-2">
-                        <ion-icon name="lock-closed-outline"></ion-icon>
-                        <input type="password" name="password" id="password" placeholder="******" value="{{password}}"
-                               required>
-
-                    </div>
-                </div>
-
-                <div class="password">
-                    <label for="CP">Confirm password: </label>
-                    <div class="sec-2">
-                        <ion-icon name="lock-closed-outline"></ion-icon>
-                        <input type="password" name="confirmPassword" id="CP" placeholder="******"
-                               value="{{password}}" required>
-                        <p>Use 8 or more characters with a mix of letters, numbers & symbols</p>
-                    </div>
-                </div>
-
-                <div class="DOB">
-                    <label for="DOB">DOB: </label>
-                    <div class="sec-2">
-                        <ion-icon name="calendar-outline"></ion-icon>
-                        <input type="date" name="DOB" id="DOB" placeholder="mm-dd-yyyy" value="{{DOB}}" required>
-
-                    </div>
-                </div>
-
-                <div class="inf">
-                    <label for="role">Role: </label>
-                    <select name="role" id="role" required>
-                        <option value=""></option>
-                        <option value="admin">Admin</option>
-                        <option value="user">User</option>
-                    </select>
-
-                </div>
-
-                <div class="auth" id="auth" hidden>
-                    <div class="inf">
-                        <label for="authentication">Authentication: </label>
-                        <div class="sec-2">
-                            <ion-icon name="person-outline"></ion-icon>
-                            <input type="text" name="authentication" id="authentication"
-                                   placeholder="Verification of admin" value="{{auth}}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="inf">
-                    <label for="department">Department: </label>
-                    <select id="department" name="department" required>
-                        <option value=""></option>
-                    </select>
-
-
-                    <script>
-                        const allowedDepartment = [
-                            "Biomedical Engineering", "Chemistry and Chemical Biology", "Chemical Engineering and Materials Science",
-                            "Civil, Environmental and Ocean Engineering", "Computer Science", "Electrical and Computer Engineering",
-                            "Mathematical Sciences", "Mechanical Engineering", "Physics"];
-
-                        const selectElement = document.getElementById("department");
-
-                        allowedDepartment.forEach((department) => {
-                            const option = document.createElement("option");
-                            option.text = department;
-                            option.value = department;
-                            selectElement.appendChild(option);
-                        });
-                    </script>
-                </div>
-                <div class="footer">
-                    <button type="submit" value="Submit" class="login">Register</button><br>
-                    <span><a href="/login">Already have an account? Click here to log-in</a></span>
-                </div>
-                <ul id="registerError" class="error" hidden></ul>
+        <div class="inf">
+            <div class="sec-1">
+                <label for="FN">First Name: </label>
             </div>
-        </form>
-    </section>
+            <div class="sec-2">
+                {{!-- <ion-icon name="person-outline"></ion-icon> --}}
+                <input type="text" name="firstName" id="FN" placeholder="Michael" value="{{firstName}}" required>
 
-</div>
+            </div>
+        </div>
+
+        <div class="inf">
+            <div class="sec-1">
+                <label for="LN">Last Name: </label>
+            </div>
+            <div class="sec-2">
+                {{!-- <ion-icon name="person-outline"></ion-icon> --}}
+                <input type="text" name="lastName" id="LN" placeholder="Jordan" value="{{lastName}}" required>
+
+            </div>
+        </div>
+
+        <div class="inf">
+            <div class="sec-1">
+                <label for="UN">User Name: </label>
+            </div>
+            <div class="sec-2">
+                {{!-- <ion-icon name="person-outline"></ion-icon> --}}
+                <input type="text" name="userName" id="UN" placeholder="K1ingOfBBALL" value="{{userName}}" required>
+
+            </div>
+        </div>
+
+        <div class="inf">
+            <div class="sec-1">
+                <label for="email">Email: </label>
+            </div>
+            <div class="sec-2">
+                <ion-icon name="mail-outline"></ion-icon>
+                <input type="email" name="email" id="email" placeholder="firstname.lastname@stevens.edu"
+                       value="{{email}}" required>
+
+            </div>
+        </div>
+
+        <div class="inf">
+            <div class="sec-1">
+                <label for="password">Password: </label>
+            </div>
+            <div class="sec-2">
+                {{!-- <ion-icon name="lock-closed-outline"></ion-icon> --}}
+                <input type="password" name="password" id="password" placeholder="******" value="{{password}}"
+                       required>
+
+            </div>
+        </div>
+
+        <div class="inf">
+            <div class="sec-1">
+                <label for="CP">Confirm password: </label>
+            </div>
+            <div class="sec-2">
+                {{!-- <ion-icon name="lock-closed-outline"></ion-icon> --}}
+                <input type="password" name="confirmPassword" id="CP" placeholder="******"
+                       value="{{password}}" required>
+
+            </div>
+        </div>
+
+        <div class="inf">
+            <div class="sec-1">
+                <label for="DOB">DOB: </label>
+            </div>
+            <div class="sec-2">
+                {{!-- <ion-icon name="calendar-outline"></ion-icon> --}}
+                <input type="date" name="DOB" id="DOB" placeholder="mm-dd-yyyy" value="{{DOB}}" required>
+
+            </div>
+        </div>
+
+        <div class="inf">
+            <div class="sec-1">
+                <label for="role">Role: </label>
+                <select name="role" id="role" required>
+
+                    <option value=""></option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="inf">
+            <div class="sec-1">
+                <label for="authentication">Authentication: </label>
+            </div>
+            <div class="sec-2">
+                {{!-- <ion-icon name="person-outline"></ion-icon> --}}
+                <input type="text" name="authentication" id="authentication" placeholder="Verification of admin" value="{{auth}}">
+            </div>
+        </div>
+        <br>
+        <div class="inf">
+            <div class="sec-1">
+                <label for="department">Department: </label>
+                <select id="department" name="department" required>
+
+                    <option value=""></option>
+                </select>
+            </div>
+
+
+
+
+            <script>
+                const allowedDepartment = [
+                    "Biomedical Engineering", "Chemistry and Chemical Biology", "Chemical Engineering and Materials Science",
+                    "Civil, Environmental and Ocean Engineering", "Computer Science", "Electrical and Computer Engineering",
+                    "Mathematical Sciences", "Mechanical Engineering", "Physics"];
+
+                const selectElement = document.getElementById("department");
+
+                allowedDepartment.forEach((department) => {
+                    const option = document.createElement("option");
+                    option.text = department;
+                    option.value = department;
+                    selectElement.appendChild(option);
+                });
+            </script>
+        </div>
+
+
+
+        <button type="submit" value="Submit" class="registerbtn">Register</button>
+
+        <div class="footer">
+            <span><a href="/login">Already have an account? Click here to log-in</a></span>
+
+        </div>
+    </div>
+    <ul class="error" id="registerError" hidden> </ul>
+</form>
+
 <script src="/public/js/auth/register.js" type="module"></script>
 <link rel="stylesheet" href="/public/css/main.css">
 
 
+
+    

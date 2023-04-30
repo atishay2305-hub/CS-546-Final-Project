@@ -26,6 +26,14 @@ let exportedMethods = {
         //     throw `Only administrator can edit events`
         // }
 
+
+        let imagePath = '';
+        if (req.file) {
+            imagePath = req.file.path.replace('public', '');
+        } else {
+            imagePath = 'images/default.jpg';
+        }
+
         let event = {
             eventName: eventName,
             description: description,
@@ -34,6 +42,7 @@ let exportedMethods = {
             organizer: organizer,
             attendees: {},
             seatingCapacity: seatingCapacity,
+            image: imagePath,
             commentIds: [],
         }
         // if (image) {
@@ -45,6 +54,7 @@ let exportedMethods = {
         const insertInfo = await eventCollection.insertOne(event);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event";
         console.log(insertInfo);
+
         // if (userId) {
         //     await userData.putEvent(userId, insertInfo.insertedId.toString());
         // }
@@ -59,7 +69,7 @@ let exportedMethods = {
     },
 
 
-    
+
     async getEventByID(id) {
         id = validation.checkId(id);
         // console.log(events());
@@ -69,7 +79,7 @@ let exportedMethods = {
         event._id = new ObjectId(event._id).toString();
         return event;
     },
-    
+
 
     async getEventByEmail(email) {
         email = validation.checkEmail(email);
@@ -91,7 +101,7 @@ let exportedMethods = {
         // if (user.isAdmin === undefined || !user.isAdmin) throw "Only administrators can delete events.";
         const removeEvent = eventCollection.deleteOne({_id: new ObjectId(id)});
         if (removeEvent.deletedCount === 0) {
-            throw `Could not delete band with id of ${id}`;
+            throw `Could not delete event with id of ${id}`;
         }
         // await userData.removeEvent(event.userId.toString(), id);
         return {
@@ -99,6 +109,14 @@ let exportedMethods = {
             deleted: true
         };
     },
+
+    async searchEvent(searchTerm) {
+        const eventCollection = await events();
+        const searchRegex = new RegExp(searchTerm, 'i');
+        const allEvents = await eventCollection.find({ eventName: searchRegex }).toArray();
+        return allEvents;
+    },
+
 
     async updateEvent(
         id,

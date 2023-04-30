@@ -3,8 +3,8 @@ const authCheck = {
         if (!name) throw `${valName} not provided`;
         if (typeof name !== "string" || name.trim().length === 0) throw `Please provide a valid input of ${valName}`
         name = name.trim();
-        const nameRegex = /^[ a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]+$/;
-        if (!nameRegex.test(name)) throw `${valName} must only contain letters, numbers, and common special characters`;
+        const nameRegex = /^[a-zA-Z]+$/;
+        if (!nameRegex.test(name)) throw `${valName} must be only contain character a-z and A-Z`;
         return name;
     },
 
@@ -12,8 +12,8 @@ const authCheck = {
         if (!name) throw `${valName} not provided`;
         if (typeof name !== "string" || name.trim().length === 0) throw `Please provide a valid input of ${valName}`
         name = name.trim();
-        const nameRegex = /^[a-zA-Z]+$/;
-        if (!nameRegex.test(name)) throw `${valName} must be only contain character a-z and A-Z`;
+        const nameRegex = /^[ a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]+$/;
+        if (!nameRegex.test(name)) throw `${valName} must only contain letters, numbers, and common special characters`;
         if (name.length < 2) throw `${valName} length must greater than 2 words`;
         if (name.length > 20) throw `${valName} length must less than 20 words`;
         return name;
@@ -94,7 +94,7 @@ const authCheck = {
     checkDepartment(department) {
         if (!department) throw "Department is not provided";
         if (typeof department !== 'string') throw "Department is not a valid type";
-        const allowedDepartment = ["biomedical Engineering", "chemistry and chemical biology", "chemical engineering and materials science", "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering", "mathematical sciences", "mechanical engineering", "physics"];
+        const allowedDepartment = ["biomedical engineering", "chemistry and chemical biology", "chemical engineering and materials science", "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering", "mathematical sciences", "mechanical engineering", "physics"];
         department = department.trim().toLowerCase();
         if (allowedDepartment.includes(department)) {
             return department;

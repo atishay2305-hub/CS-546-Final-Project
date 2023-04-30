@@ -2,49 +2,50 @@ import {posts, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
+import multer from "multer";
+import path from "path";
+
 
 let exportedMethods = {
-    async createPost(category,
-                     //image,
-                     postedContent,
-                     userId
-    ) {
+    async createPost(category, image, postedContent, userName, req) {
         category = validation.checkLegitName(category, "category");
-        postedContent = validation.checkPhrases(postedContent, "PostedContent");
-        userId = validation.checkId(userId);
+        // postedContent = validation.checkPhrases(postedContent, "PostedContent");
+        const userId = validation.checkId(userName);
         const userCollection = await users();
-        const user = await userCollection.findOne({userId: userId});
-        if(!user){
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) {
             throw `The user does not exist with that Id &{id}`;
         }
-        if(user.isAdmin){
-            throw "Post can only create by users."
+        if (user.isAdmin) {
+            throw "Post can only be created by users."
         }
-        let path = "";
-        if(!image || image.trim().length === 0){
-            path = "public/images/default.png";
-        }else{
-            path = validation.createImage(image);
+
+        let imagePath = '';
+        if (req.file) {
+            imagePath = req.file.path.replace('public', '');
+        } else {
+            imagePath = 'images/default.jpg';
         }
 
         let post = {
             category: category,
             content: postedContent,
-            image: path,
-            userName: user._id,
+            image: imagePath,
+            userId: userId,
             created_Date: validation.getDate(),
             likes: 0,
             dislikes: 0,
             commentIds: {}
         };
         const postCollection = await posts();
-        const insertInfo = await postCollection.insertOne(post);
-        if (!post.acknowledged || !post.insertedId) {
+        let insertInfo = await postCollection.insertOne(post);
+        if (!insertInfo.acknowledged || !insertInfo.insertedId) {
             throw "Could not add post";
         }
-        post._id = insertInfo.insertedId.toString();
-        post = Object.assign({_id: post._id}, post);
-        return post;
+
+        insertInfo._id = insertInfo.insertedId.toString();
+        insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
+        return insertInfo;
     },
 
     async getAllPosts() {
@@ -69,6 +70,17 @@ let exportedMethods = {
         return post;
     },
 
+    async getPostByUserId(userId) {
+        id = await validation.checkId(userId);
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(userId)});
+        if (post === null) {
+            throw `No post found with that ID ${userId}`;
+        }
+        post._id = new ObjectId(post._id).toString();
+        return post;
+    },
+
     async removeById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
@@ -78,17 +90,20 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
-        if (user.isAdmin === undefined || !user.isAdmin || !user.postIDs.includes(id)) {
-            throw "Only administrators or the poster can delete posts.";
+        //console.log(user.postID);
+        if (user.isAdmin === undefined || !user.isAdmin) {
+            if(!user.postIDs.includes(id)){
+                throw "Only administrators or the poster can delete posts.";
+            }
         }
 
-        const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
+        const removeDiscuss = await postCollection.deleteOne({_id: new ObjectId(id)});
         if (removePost.deletedCount === 0) {
-            throw `Could not delete band with id of ${id}`;
+            throw `Could not delete post with id of ${id}`;
         }
-        await userData.removePost(post.userId.toString(), id);
+        await userData.removeDiscuss(discuss.userId.toString(), id);
         return {
-            eventId: id,
+            discussionId: id,
             deleted: true
         };
 
@@ -97,8 +112,7 @@ let exportedMethods = {
     async updatePost(id,
                      userId,
                      category,
-                     postedContent,
-                     image) {
+                     postedContent) {
         id = validation.checkId(id);
         userId = validation.checkId(userId);
         category = validation.checkLegitName(category, "category");
@@ -138,8 +152,21 @@ let exportedMethods = {
                 return await this.getEventByID(eventId);
             })
         );
-    }
+    },
 
+    async increaseLikes(postId) {
+        const post = await this.getPostById(postId);
+        post.likes++;
+        await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
+        return post;
+    },
+
+    async increaseDislikes(postId) {
+        const post = await this.getPostById(postId);
+        post.dislikes++;
+        await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
+        return post;
+    },
 
 };
 //express session,handlebars
