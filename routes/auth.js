@@ -11,6 +11,7 @@ import multer from "multer";
 import path from "path";
 import {passwordResetByEmail} from "../email.js";
 import xss from 'xss';
+import validationchecker from "../validationchecker.js";
 
 const router = Router();
 
@@ -77,7 +78,7 @@ router.route('/register').post(async (req, res) => {
         if (user.insertedUser) {
             return res.redirect('/login');
         }
-        return res.status(200).json({success: true, message: "Registration complete" , data: req.session.user});
+        return res.status(200).json({success: true, message: "Registration complete", data: req.session.user});
     } catch (e) {
         return res.status(400).json({
             success: false,
@@ -101,6 +102,121 @@ router.route('/register').post(async (req, res) => {
 //     userData.updatePassword(email, )
 // }),
 
+
+
+
+
+
+router.route('/error').get(async (req, res) => {
+    //code here for GET
+    return res.render('error', {error: "Something"});
+});
+
+
+router.route('/posts/:id').delete(async (req, res) => {
+    console.log(req.params.id);
+
+    const response = await postData.removeById(req.params.id);
+    console.log("hi", response.deleted);
+    //const user = await userData.removePost()
+    //const postList = await postData.getAllPosts();
+    //res.status(200).send(response);
+
+    //res.send(response);
+    return res.sendStatus(200);
+});
+
+
+
+// router.route('/logout')
+//   .get(async (req, res) => {
+//     if (req.cookies.AuthCookie) {
+//       res.clearCookie('AuthCookie');
+//     }
+//     res.redirect('/');
+//   });
+
+// router.route('/add-comment').post(async(req,res)=>{
+
+//     const userId = req.session.userId;
+//     const{postId,commentText} =req.body;
+//     console.log(postId);
+//     console.log(commentText);
+//     const comment = await commentData.createPostComment(userId, postId, commentText);
+//     const post = await postData.putComment(postId,comment.commentId);
+//     // console.log(comment);
+//     //userId, postID,commentText ->> 4 things _id
+//     //await commentData.c
+
+// });
+
+
+router.route('/putAttendee').post(async (req, res) => {
+    const userId = req.session.userId;
+    const eventId = req.body;
+    const userCollection = await userData.putAttendee(userId, eventId);
+});
+
+router.route('/removeAttendee').get(async (req, res) => {
+    const userId = req.session.id;
+    const eventId = req.body;
+    const userCollection = await userData.removeAttendee(userId, eventId);
+});
+
+router
+    .route('/reset-password/:id')
+    .get(async (req, res) => {
+        try {
+            return res.render('resetPassword', {id: req.params.id})
+        } catch (e) {
+            return res.status(404).sendFile(path.resolve("public/static/404.html"));
+        }
+    })
+    .post(async (req, res) => {
+        try {
+            let newPassword = xss(req.body.newPassword);
+            let confirmNewPassword = xss(req.body.confirmNewPassword);
+            newPassword = validation.checkPassword(newPassword);
+            confirmNewPassword = validation.checkPassword(confirmNewPassword);
+            let result = validation.checkIdentify(newPassword, confirmNewPassword);
+            if (result) {
+                const passwordUpdate = await userData.updatePassword(req.params.id, newPassword);
+            }
+            ;
+            res.redirect('/login');
+        } catch (e) {
+            return res.status(400).render("/resetPassword", {
+                id: req.params.id,
+                error: e
+            })
+        }
+    });
+
+router
+    .route('/forgot-password')
+    .get(async (req, res) => {
+        try {
+            return res.render("forgotPassword");
+        } catch (e) {
+            return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
+        }
+    })
+    .post(async (req, res) => {
+        try {
+            let email = xss(req.body.email);
+            email = validation.checkEmail(email);
+
+            let checkExist = await userData.getUserByEmail(email);
+            await passwordResetByEmail({id: checkExist._id, email: checkExist.email}, res);
+        } catch (e) {
+            return res.status(400).json({
+                success: false,
+                message: e,
+                email: req.body.email
+            });
+        }
+    });
+
 router.route('/homepage').get(async (req, res) => {
     const userId = req.session.userId;
     console.log(userId);
@@ -119,9 +235,9 @@ router.route('/homepage').get(async (req, res) => {
     // console.log(userName);
     //console.log(postList);
     const postList = await postData.getAllPosts();
-    console.log(postList);
-
-    //console.log(postList);
+    // console.log(postList);
+    //
+    // //console.log(postList);
     // for (let x of postList) {
     //     let resId = x?.userId;
     //
@@ -143,7 +259,9 @@ router.route('/homepage').get(async (req, res) => {
     //     }
     // }
 
-    return res.render('homepage', {posts: postList});
+    // const listOfPosts = [{category: "education", content: "Anime"}]
+    // posts: postList
+    return res.render('homepage', {userId: userId, userName: userName, posts: postList});
 
 });
 
@@ -170,6 +288,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage: storage});
 const uploadImage = upload.single("postImage");
+
 
 router.route('/posts')
     .get(async (req, res) => {
@@ -204,115 +323,36 @@ router.route('/posts')
     });
 
 
-router.route('/error').get(async (req, res) => {
-    //code here for GET
-    return res.render('error', {error: "Something"});
-}),
-
-
-    router.route('/posts/:id').delete(async (req, res) => {
-        console.log(req.params.id);
-
-        const response = await postData.removeById(req.params.id);
-        console.log("hi", response.deleted);
-        //const user = await userData.removePost()
-        //const postList = await postData.getAllPosts();
-        //res.status(200).send(response);
-
-        //res.send(response);
+router.route('/posts/:id/comment').post(async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const postId = req.params.id;
+        const {commentText} = req.body;
+        // console.log(postId);
+        // console.log(commentText);
+        const comment = await commentData.createPostComment(userId, postId, commentText);
+        console.log(comment);
+        const post = await postData.putComment(postId, comment.commentId);
+        // console.log(post);
+        console.log('The comment is added');
         return res.sendStatus(200);
-    });
-
-// router.route('/logout')
-//   .get(async (req, res) => {
-//     if (req.cookies.AuthCookie) {
-//       res.clearCookie('AuthCookie');
-//     }
-//     res.redirect('/');
-//   });
-
-router.route('/add-comment').post(async (req, res) => {
-
-    const userId = req.session.userId;
-    const {postId, commentText} = req.body;
-    console.log(postId);
-    console.log(commentText);
-    const comment = await commentData.createPostComment(userId, postId, commentText);
-    console.log(comment);
-    //userId, postID,commentText ->> 4 things _id
-    //await commentData.c
-
+    } catch (e) {
+        console.log(e);
+    }
 });
 
-
-router.route('/putAttendee').post(async (req, res) => {
-    const userId = req.session.userId;
-    const eventId = req.body;
-    const userCollection = await userData.putAttendee(userId, eventId);
-})
-
-router.route('/removeAttendee').get(async (req, res) => {
-    const userId = req.session.id;
-    const eventId = req.body;
-    const userCollection = await userData.removeAttendee(userId, eventId);
-})
-
 router
-    .route('/reset-password/:id')
+    .route('posts/:category')
     .get(async (req, res) => {
-        try {
-            return res.render('resetPassword', {id: req.params.id})
-        } catch (e) {
-            return res.status(404).sendFile(path.resolve("public/static/404.html"));
+        try{
+            let category = req.params.category;
+            category = validationchecker.checkCategory(category);
+            let postList = await postData.getAllPosts({category: category});
+            res.render('post-list', { category, posts: postList });
+        }catch (e){
+            return res.status(500).sendFile(path.resolve("/public/static/notfound.h tml"));
         }
     })
-    .post(async (req, res) => {
-        try {
-            let email = xss(req.body.email);
-            let newPassword = xss(req.body.newPassword);
-            let confirmNewPassword = xss(req.body.confirmNewPassword);
-            email = validation.checkEmail(email);
-            newPassword = validation.checkPassword(newPassword);
-            confirmNewPassword = validation.checkPassword(confirmNewPassword);
-            let id = req.params.id;
-            let result = await validation.checkIdentify(newPassword, confirmNewPassword) &&
-                await userData.updatePassword(email, newPassword);
-            if(result){
-                res.redirect('/login')
-            }
-        } catch (e) {
-            return res.status(400).render("/resetPassword", {
-                success: false,
-                email: req.body.email,
-                error: e
-            })
-        }
-    });
-
-router
-    .route('/forgot-password')
-    .get(async (req, res) => {
-        try {
-            return res.render("forgotPassword");
-        } catch (e) {
-            return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
-        }
-    })
-    .post(async (req, res) => {
-        try {
-            let email = xss(req.body.email);
-            email = validation.checkEmail(email);
-
-            let checkExist = await userData.getUserByEmail(email);
-            await passwordResetByEmail({id: checkExist._id, email: checkExist.email}, res);
-        } catch (e) {
-            return res.status(400).json({
-                success: false,
-                message: e,
-                email: req.body.email
-            });
-        }
-    });
 
 router.route('/increaseLikes')
     .post(async (req, res) => {
@@ -321,12 +361,13 @@ router.route('/increaseLikes')
         return res.json(updatedPost);
     });
 
+
 router.route('/increaseDislikes')
     .post(async (req, res) => {
         const postId = req.body.postId;
         const updatedPost = await postData.increaseDislikes(postId);
         return res.json(updatedPost);
-    })
+    });
 
 
 router.route('/logout').get(async (req, res) => {
@@ -334,5 +375,16 @@ router.route('/logout').get(async (req, res) => {
     req.session.destroy();
     return res.render('logout', {title: 'Logout'})
 });
+
+
+router
+    .route('/posts/:postId/allComments')
+    .get(async (req, res) => {
+        const postId = req.params.postId;
+        console.log(postId);
+        const comment = await commentData.getPostCommentById(postId)
+        console.log(comment);
+        return res.render('allComments', {comment: comment});
+    });
 
 export default router;

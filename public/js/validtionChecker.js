@@ -93,7 +93,9 @@ const authCheck = {
 
     checkDepartment(department) {
         if (!department) throw "Department is not provided";
-        if (typeof department !== 'string') throw "Department is not a valid type";
+        if (typeof department !== 'string' || department.trim().length === 0) throw "Department is not a valid type";
+        department = department.trim();
+
         const allowedDepartment = ["biomedical engineering", "chemistry and chemical biology", "chemical engineering and materials science", "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering", "mathematical sciences", "mechanical engineering", "physics"];
         department = department.trim().toLowerCase();
         if (allowedDepartment.includes(department)) {
@@ -128,15 +130,16 @@ const authCheck = {
 
     checkLocation(building) {
         if (!building) throw `${building} not provided`;
-        if (typeof building !== "number") throw `Please provide a valid input of buildingIndex`
+        if (typeof building !== "string" || building.trim().length === 0) throw `Please provide a valid input of buildingIndex`
         const allowedLocation = [" ",
             "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
             "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
             "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
             "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
             "alexander house", "colonial house"];
-        if (building !== 0 && allowedLocation[building]) {
-            return allowedLocation[building];
+        building = building.trim();
+        if (!allowedLocation.includes(building)) {
+            return building;
         } else {
             throw "Location must be on Stevens Institute of Technology main campus.";
         }
