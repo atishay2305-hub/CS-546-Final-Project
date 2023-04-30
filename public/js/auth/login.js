@@ -1,4 +1,5 @@
 import authCheck from "../validtionChecker.js";
+
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const loginForm = document.getElementById("login-form");
@@ -23,11 +24,11 @@ import authCheck from "../validtionChecker.js";
                     document.getElementById("password").setAttribute("value", password);
                     return handleError(e || "Something went wrong");
                 }
-
                 fetch("/login", {
                     method: "post",
                     headers: {
-                        Accept: "application/json, text/plain, */*", "Content-Type": "application/json",
+                        Accept: "application/json, text/plain, */*",
+                        "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
                         email: email,
@@ -37,23 +38,21 @@ import authCheck from "../validtionChecker.js";
                     if (res.status === 401) {
                         handleError("Wrong username or password");
                         return null;
-                    } else {
+                    } else if (!res.ok) {
                         return res.json();
                     }
-                }).then((response) => {
-                        if (response) {
-                            if (response.success) {
-                                sessionStorage.setItem("user", JSON.stringify(response.data));
-                                location.herf = '/';
-                            } else {
-                                document.getElementById("email").value = response.email;
-                                document.getElementById("password").value = response.password;
-                                return handleError(response || "Something went wrong.");
-                            }
+                }).then((data) => {
+                    if (data) {
+                        if (!data.success) {
+                            document.getElementById("email").value = data.email;
+                            document.getElementById("password").value = data.password;
+                            return handleError(data || "Something went wrong");
                         }
-                    }).catch((e) => {
-                        alert(e || "Something went wrong.");
-                    });
+                    }
+                    location.href = "/homepage";
+                }).catch((e) => {
+                    alert(e || "Something went wrong.");
+                });
             });
         }
         const handleError = (errorMsg) => {

@@ -70,8 +70,8 @@ import authCheck from "../validtionChecker.js";
                         }
                     }
                 }).catch((e) => {
-                        alert(e || "Something went wrong.");
-                    });
+                    alert(e || "Something went wrong.");
+                });
             });
         }
         const handleError = (errorMsg) => {

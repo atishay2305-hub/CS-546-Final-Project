@@ -1,4 +1,5 @@
 import authCheck from "../validtionChecker.js";
+
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById("register-Form");
@@ -79,29 +80,26 @@ import authCheck from "../validtionChecker.js";
                         authentication: authentication
                     }),
                 }).then((response) => {
-                    if(!response.ok){
+                    if (!response.ok) {
                         return response.json();
                     }
-                    }).then((data) => {
-                        if (data) {
-                            if (data.success) {
-                                location.href = "/login";
-                                sessionStorage.setItem("user", JSON.stringify(data.data));
-                            }else{
-                                document.getElementById("FN").value = data.firstName;
-                                document.getElementById("LN").value = data.lastName;
-                                document.getElementById("UN").value = data.userName;
-                                document.getElementById("email").value = data.email;
-                                document.getElementById("password").value = data.password;
-                                document.getElementById("DOB").value = data.DOB;
-                                document.getElementById("role").value = data.role;
-                                document.getElementById("department").value = data.department;
-                                document.getElementById("authentication").value = data.authentication;
-                                return handleError(data || "Something went wrong");
-                            }
+                }).then((data) => {
+                    if (data) {
+                        if (!data.success) {
+                            document.getElementById("FN").value = data.firstName;
+                            document.getElementById("LN").value = data.lastName;
+                            document.getElementById("UN").value = data.userName;
+                            document.getElementById("email").value = data.email;
+                            document.getElementById("password").value = data.password;
+                            document.getElementById("DOB").value = data.DOB;
+                            document.getElementById("role").value = data.role;
+                            document.getElementById("department").value = data.department;
+                            document.getElementById("authentication").value = data.authentication;
+                            return handleError(data || "Something went wrong");
                         }
-
-                    })
+                    }
+                    location.href = "/login";
+                })
                     .catch((e) => {
                         alert(e || "Something went wrong.");
                     });
