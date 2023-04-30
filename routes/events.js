@@ -28,7 +28,8 @@ router.route('/events')
 .get(async (req, res) => {
   try {
     const events = await eventsData.getAllEvents();
-    return res.render('events', {events: events});
+    // console.log(events);
+    return res.render('events', {newEvent: events});
   } catch (error) {
     res.status(500).json({ error: error });
   }
@@ -54,7 +55,7 @@ router.route('/events')
         }
       const {eventName, description, buildingName, organizer, seatingCapacity, userId} = req.body;
       const newEvent = await eventsData.createEvent(userId, eventName, description, buildingName, organizer, seatingCapacity, imagePath, req);
-      console.log(newEvent)
+      // console.log(newEvent)
       const gettingAllEvents = await eventsData.getAllEvents();
       // console.log(gettingAllEvents)
       return res.status(200).render('events', {newEvent: gettingAllEvents});
