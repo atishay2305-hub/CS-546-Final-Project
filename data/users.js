@@ -231,11 +231,26 @@ let exportedMethods = {
         userName = validation.checkName(userName);
         const userCollection = await users();
         const user = await userCollection.findOne({userName: userName});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         user._id = user._id.toString();
         return user;
     },
 
+    // async putPost(userId, postId) {
+    //     userId = validation.checkId(userId);
+    //     postId = validation.checkId(postId);
+    //     const userCollection = await users();
+    //     const user = await userCollection.findOne({_id: new ObjectId(userId)});
+    //     if (!user) throw `Error: ${user} not found`; 
+    //     let postIdList = user.postIDs;
+    //     postIdList.push(postId);
+    //     const updatedInfo = await userCollection.updateOne(
+    //         {_id: new ObjectId(userId)},
+    //         {$set: {postIDs: postIdList}}
+    //     );
+    //     if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put post with that ID ${userId}`;
+    //     return true;
+    // },
     async putPost(userId, postId) {
         userId = validation.checkId(userId);
         postId = validation.checkId(postId);
@@ -243,7 +258,7 @@ let exportedMethods = {
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         let postIdList = user.postIDs;
-        postIdList.push(postId);
+        postIdList.push(new ObjectId(postId));
         const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(userId)},
             {$set: {postIDs: postIdList}}
@@ -253,18 +268,38 @@ let exportedMethods = {
     },
 
 
+    // async removePost(userId, postId) {
+    //     userId = validation.checkId(userId);
+    //     postId = validation.checkId(postId);
+    //     const userCollection = await users();
+    //     const user = await userCollection.findOne({_id: new ObjectId(userId)});
+    //     if (!user) throw `Error: ${user} not found`; 
+    //     let postIdList = user.postIDs;
+    //     if (postIdList.includes(postId)) {
+    //         postIdList = postIdList.filter(elem => elem !== postId);
+    //         const updatedInfo = await userCollection.updateOne(
+    //             {_id: new ObjectId(userId)},
+    //             {$set: {postIDs: postIdList}}
+    //         );
+    //         if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove post with that ID${userId}`;
+    //         return true;
+    //     } else {
+    //         throw `Error: postId ${postId} not found in postIDs list for user ${userId}`;
+    //     }
+    // },
     async removePost(userId, postId) {
         userId = validation.checkId(userId);
         postId = validation.checkId(postId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
-        let postIdList = user.postIDs;
+        let postIdList = user.postIDs.map(post => post.toString());
+        console.log(postIdList);
         if (postIdList.includes(postId)) {
             postIdList = postIdList.filter(elem => elem !== postId);
             const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},
-                {$set: {postIDs: postIdList}}
+                {$set: {postIDs: postIdList.map(id=>new ObjectId(id))}}
             );
             if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove post with that ID${userId}`;
             return true;

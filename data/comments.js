@@ -13,12 +13,24 @@ let exportedMethods ={
         userId = validation.checkId(userId);
         contents = validation.checkPhrases(contents);
 
+        // const comment = {
+        //     _id: new ObjectId(),
+        //     userId,
+        //     postId,
+        //     // userName,
+        //     contents,
+        //     created_Date: validation.getDate()
+        // }
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id:new ObjectId(postId)});
+        if(!post){
+            throw new Error('No Post found!!');
+        }
         const comment = {
             _id: new ObjectId(),
-            userId,
-            postId,
-            // userName,
             contents,
+            userId:new ObjectId(userId),
+            postId:post._id,
             created_Date: validation.getDate()
         }
         // if(eventId){
@@ -53,10 +65,11 @@ let exportedMethods ={
             throw "Could not add this comment";
         }
 
-        const insertToUser = await userData.putComment(userId, comment._id.toString());
-        if(!insertToUser){
-            throw "Cannot insert commentID to user";
-        }
+        // const insertToUser = await userData.putComment(userId, comment._id.toString());
+        // if(!insertToUser){
+        //     throw "Cannot insert commentID to user";
+        // }
+
         return {commentId: commentInfo.insertedId.toString()};
     },
 
@@ -150,14 +163,17 @@ let exportedMethods ={
 // get all comments that the posts had
     async getPostCommentById(postId){
         postId = await validation.checkId(postId)
-        const post = await postData.getPostById(postId);
-        if(!post) throw `No  post with that id ${postId}`;
-        const commentList = postId.commentIds;
-        const comments = [];
-        for(let i = 0; i < commentList.length; i++){
-            const comment = await this.getCommentById(commentList[i]);
+        // const post = await postData.getPostById(postId);
+        // if(!post) throw `No  post with that id ${postId}`;
+        const commentCollection = await comments();
+        const userCollection = await users();
+        const commentList = await commentCollection.find({postId:new ObjectId(postId)}).toArray();
+        for(let x of commentList){
+            const user = await userCollection.findOne({_id:x.userId});
+            x.userName = user.userName;
         }
-        return comments;
+        return commentList;
+        // return comments;
     }
 
 };

@@ -12,7 +12,8 @@ let exportedMethods = {
         buildingName,
         organizer,
         seatingCapacity,
-        image =null
+        image,
+        req
     ) {
         // eventName = validation.checkName(eventName, "EventName");
         // description = validation.checkPhrases(description, "Description");
@@ -53,7 +54,7 @@ let exportedMethods = {
         const eventCollection = await events();
         const insertInfo = await eventCollection.insertOne(event);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event";
-        console.log(insertInfo);
+        // console.log(insertInfo);
 
         // if (userId) {
         //     await userData.putEvent(userId, insertInfo.insertedId.toString());

@@ -1,7 +1,7 @@
 import {discussion, posts, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
-import {discussData} from "./index.js";
+import {userData} from "./index.js";
 
 
 let exportedMethods = {
@@ -90,14 +90,13 @@ let exportedMethods = {
         if (removeDiscussion.deletedCount === 0) {
             throw `Could not delete with id of ${id}`;
         }
-        await userData.removePost(discuss.userId.toString(), id);
+        await userData.removePost(post.userId.toString(), id);
         return {
             eventId: id,
             deleted: true
         };
 
     }
-    
 };
 //express session,handlebars
 export default exportedMethods;
