@@ -19,8 +19,8 @@ app.set('view engine', 'handlebars');
 app.use('/public', staticDir);
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
-import eventsRoutes from './routes/events.js';
-app.use('/', eventsRoutes);
+//import eventsRoutes from './routes/events.js';
+//app.use('/', eventsRoutes);
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -51,59 +51,59 @@ app.use(session({
     resave: false
   }));
 
-app.use(session({
-  name: 'AuthCookie',
-  secret: 'myKeySecret',
-  saveUninitialized: false,
-  resave: false
-}));
+// app.use(session({
+//   name: 'AuthCookie',
+//   secret: 'myKeySecret',
+//   saveUninitialized: false,
+//   resave: false
+// }));
 
-const isLoggedIn = (req, res, next) => {
-  if (!req.session.userId) {
-    return res.redirect('/login');
-  }
-  next();
-};
+// const isLoggedIn = (req, res, next) => {
+//   if (!req.session.user) {
+//     return res.redirect('/login');
+//   }
+//   next();
+// };
 
-app.use('/posts', isLoggedIn);
-app.use('/events', isLoggedIn);
-app.use('/profile', isLoggedIn);
-app.get('/events', (req, res) => {
-  return res.render('events')
-});
+// //app.use('/posts', isLoggedIn);
+// //app.use('/events', isLoggedIn);
+// //app.use('/profile', isLoggedIn);
+// // app.get('/events', (req, res) => {
+// //   return res.render('events')
+// // });
 
-app.use('/homepage', isLoggedIn);
-app.use('/logout', isLoggedIn);
+// app.use('/homepage', isLoggedIn);
+// app.use('/logout', isLoggedIn);
 
 
-app.use('/protected', isLoggedIn);
+// app.use('/protected', isLoggedIn);
 
-app.use('/login', (req, res, next) => {
-  if (req.method === 'GET') {
-    if (req.session.userId) {
-      return res.redirect('/homepage')
-    } else {
-      return res.render('login');
-    }
-  }
-  next();
-});
+// app.use('/login', (req, res, next) => {
+//   if (req.method === 'GET') {
+//     if (req.session.userId) {
+//       return res.redirect('/homepage')
+//     } else {
+//       return res.render('login');
+//     }
+//   }
+//   next();
+// });
 
-app.use('/register', (req, res, next) => {
-  if (req.session.userId) {
-    return res.redirect('/login');
-  }
-  next();
-});
+// app.use('/register', (req, res, next) => {
+//   if (req.session.userId) {
+//     return res.redirect('/login');
+//   }
+//   next();
+// });
 
-// Route for logging out
-app.use('/logout', (req, res) => {
-  if (!req.session.userId) {
-    return res.render('login');
-  }
-  req.session.destroy();
-  return res.render('logout');
-});
+// // Route for logging out
+// app.use('/logout', (req, res) => {
+//   if (!req.session.userId) {
+//     return res.render('login');
+//   }
+//   req.session.destroy();
+//   return res.render('logout');
+// });
 
 configRoutes(app);
 
