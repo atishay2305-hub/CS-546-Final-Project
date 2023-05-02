@@ -38,7 +38,7 @@ try {
     // console.log(emailAddressInput)
     // console.log(passwordInput)
     const sessionUser = await userData.checkUser(emailAddressInput, passwordInput);
-    console.log(sessionUser);
+    // console.log(sessionUser);
     req.session.userId = sessionUser.userId;
     req.session.userName = sessionUser.userName;
     return res.redirect('/homepage');
@@ -73,7 +73,7 @@ router.route('/register').post(async(req,res)=>{
         //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
         //console.log(user);
         //const {sessionUser} = await userData.;
-        console.log(user);
+        // console.log(user);
         if(user.insertedUser)
         {
             return res.redirect('/login');
@@ -85,7 +85,7 @@ router.route('/register').post(async(req,res)=>{
       
         //return res.json(newuser);
     }catch(e){
-        console.log(e);
+        // console.log(e);
         return res.redirect('/register');
     }
 });
@@ -101,7 +101,7 @@ router.route('/register').post(async(req,res)=>{
 
 router.route('/homepage').get(async(req,res)=>{
     const userId = req.session.userId;
-    console.log(userId);
+    // console.log(userId);
 
     // console.log(userId)
     //const email = req.session.email;    
@@ -113,25 +113,25 @@ router.route('/homepage').get(async(req,res)=>{
     //user info from ID
     //getpost list if true 
     const userName = req.session.userName;
-    console.log(userName)
+    // console.log(userName)
     // console.log(userName);
     //console.log(postList);
     const postList = await postData.getAllPosts();
-    console.log(postList);
+    // console.log(postList);
 
     //console.log(postList);
     for (let x of postList){
         let resId = x?.userId;
        
-        console.log(resId);
+        // console.log(resId);
         
         let resString= resId.toString();
 
         const user = await userData.getUserByID(resString);
         x.name =user.userName;
-        console.log(user.userName);
-        console.log(resString);
-        console.log(x.userName);
+        // console.log(user.userName);
+        // console.log(resString);
+        // console.log(x.userName);
         if(resString === userId){
             x.editable =true;
             x.deletable = true;
@@ -150,7 +150,7 @@ router.route('/homepage').get(async(req,res)=>{
 
 router.route('/profile').get(async(req,res)=> {
     const id = req.session.userId;
-    console.log(id);
+    // console.log(id);
     const user = await userData.getUserByID(id);
     return res.render('profile',{user:user});
 });
@@ -177,11 +177,11 @@ const storage = multer.diskStorage({
     })
     .post(uploadImage, async(req,res)=>{
       const id = req.session.userId;
-      console.log(id);
+    //   console.log(id);
       const userName = req.session.userName;
   
       const{postCategory,postContent} = req.body;
-      console.log(postContent);
+    //   console.log(postContent);
   
       try{
           let imagePath = '';
@@ -193,12 +193,12 @@ const storage = multer.diskStorage({
   
           const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
           const user  = await userData.putPost(id,post._id);
-          console.log(user);
-          console.log(post);
-          console.log("The post is posted");
+        //   console.log(user);
+        //   console.log(post);
+        //   console.log("The post is posted");
           return res.redirect('/homepage');
       }catch(e){
-          console.log(e)
+        //   console.log(e)
           return res.render('posts',{Error:e});
       }
   });
@@ -211,10 +211,10 @@ router.route('/error').get(async (req, res) => {
 
 
 router.route('/posts/:id').delete(async(req,res)=>{
-    console.log(req.params.id);
+    // console.log(req.params.id);
     
     const response = await postData.removeById(req.params.id);
-    console.log("hi",response.deleted);
+    // console.log("hi",response.deleted);
     //const user = await userData.removePost()
     //const postList = await postData.getAllPosts();
     //res.status(200).send(response);
@@ -231,13 +231,14 @@ router.route('/posts/:id/comment').post(async(req,res)=>{
         // console.log(postId);
         // console.log(commentText);
         const comment = await commentData.createPostComment(userId,postId,commentText);
-        console.log(comment);
+        // console.log(comment);
         const post = await postData.putComment(postId,comment.commentId);
         // console.log(post);
-        console.log('The comment is added');
+        // console.log('The comment is added');
         return res.sendStatus(200);
     }catch(e){
-        console.log(e);
+        return e;
+        // console.log(e);
     }
 }),
 
@@ -357,9 +358,9 @@ router
   .route('/posts/:postId/allComments')
   .get(async (req, res) => {
     const postId = req.params.postId;
-    console.log(postId);
+    // console.log(postId);
     const comment = await commentData.getPostCommentById(postId)
-    console.log(comment);
+    // console.log(comment);
     return res.render('allComments', {comment: comment});
   });
 

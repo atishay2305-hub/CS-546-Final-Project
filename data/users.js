@@ -288,14 +288,25 @@ let exportedMethods = {
     //     }
     // },
     async removePost(userId, postId) {
+        console.log(userId)
+        console.log(postId)
+        console.log("291")
         userId = validation.checkId(userId);
+        console.log("293")
         postId = validation.checkId(postId);
+        console.log("295")
         const userCollection = await users();
+        console.log("297")
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        console.log("298")
         if (!user) throw `Error: ${user} not found`; //check password as well
+        console.log("301")
         let postIdList = user.postIDs.map(post => post.toString());
-        console.log(postIdList);
-        if (postIdList.includes(postId)) {
+        console.log("303")
+        // console.log(postIdList);
+        postIdList.push(postId)
+        if(postIdList.includes(postId)) {
+            console.log("306")
             postIdList = postIdList.filter(elem => elem !== postId);
             const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},

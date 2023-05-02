@@ -22,6 +22,8 @@ let exportedMethods ={
         //     created_Date: validation.getDate()
         // }
         const postCollection = await posts();
+        // postCollection.push(postId);
+        console.log("Hereeeee")
         const post = await postCollection.findOne({_id:new ObjectId(postId)});
         if(!post){
             throw new Error('No Post found!!');
