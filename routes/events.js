@@ -27,6 +27,31 @@ router.route('/new').get(async (req, res) => {
   res.render('newEvent', {});
 });
 
+router.route('/capacity/:id').post(async (req, res) => {
+        let id = req.params.id; // fix the id variable assignment
+        const {seatingCapacity,attendance} = req.body;
+        try{
+            let newSeatingCapacity = seatingCapacity;
+            if(typeof newSeatingCapacity === 'string') {
+              newSeatingCapacity = Number(newSeatingCapacity);
+            }
+            if(attendance === 'attend') {
+              newSeatingCapacity = newSeatingCapacity - 1;
+            } else if(attendance === 'cancel') {
+              newSeatingCapacity = newSeatingCapacity + 1;
+            }
+            
+            const result = await eventsData.updateCapacity(
+                id, // pass the correct id variable
+                newSeatingCapacity
+            );
+            return res.render('events', {newEvent: result});
+        }catch (e){
+            console.log(e);
+            return res.status(400).json({error: e});
+        }
+  });
+
 router.route('/events')
 .get(async (req, res) => {
   try {
@@ -68,9 +93,9 @@ router.route('/events')
       console.log(error);
       return res.status(500).json({error: error});
     }
-  })
+  });
 
-  router.route('/events/:id').delete(async(req,res)=>{
+router.route('/events/:id').delete(async(req,res)=>{
     console.log(req.params.id);
     
     const response = await eventsData.removeById(req.params.id);
@@ -82,17 +107,6 @@ router.route('/events')
     //res.send(response);
     return res.sendStatus(200);
 });
-
-router
-    .route('/:id')
-    .put(async (req, res) => {
-
-        console.log("put called");
-        const id = req.params.id;
-        const updateData = req.body;
-        console.log(updateData);
-        
-    });
 
 
 // router
@@ -127,46 +141,46 @@ router
 //             return res.status(404).json({error: e});
 //         }
 //     })
-// .put(async (req, res) => {
-//   let id = req.params.id; // fix the id variable assignment
-//   let updatedData = req.body;
-//   console.log(updatedData);
-//   if(!updatedData || Object.keys(updatedData).length === 0){ // fix the condition to check for empty object
-//       return res.status(400).json({error: `There are no fields in the request body`});
-//   }
-//   // try{
-//   //     id = validation.checkId(id); // fix the variable name and pass the correct id variable
-//   //     updatedData = validation.checkPostEventConditions(updatedData);
-//   //     updatedData.eventName = validation.checkString(updatedData.eventName, "eventName");
-//   //     updatedData.description = validation.checkString(updatedData.description, "description");
-//   //     updatedData.buildingName = validation.checkString(updatedData.buildingName, "buildingName");
-//   //     updatedData.organizer = validation.checkString(updatedData.organizer, "organizer"); // fix the commented line
-//   //     updatedData.seatingCapacity = validation.checkSeating(updatedData.seatingCapacity, "seatingCapacity");
-//   //     updatedData.userId = validation.checkString(updatedData.userId, "userId"); // fix the variable name
-//   // }catch (e){
-//   //     return res.status(400).json({error: e});
-//   // }
-//   try{
-//       let event = await eventsData.getEventByID(id);
-//   } catch (e){
-     
-//       return  res.status(404).json({error: e});
-//   }
-//   try{
-//       const result = await eventsData.updateEvent(
-//           id, // pass the correct id variable
-//           updatedData.eventName,
-//           updatedData.description,
-//           updatedData.buildingName,
-//           updatedData.organizer,
-//           updatedData.seatingCapacity,
-//           updatedData.userId
-//       );
-//       res.status(200).json(result);
-//   }catch (e){
-//       console.log(e);
-//       return res.status(400).json({error: e});
-//   }
+//     .put(async (req, res) => {
+//       let id = req.params.id; // fix the id variable assignment
+//       let updatedData = req.body;
+//       console.log(updatedData);
+//       if(!updatedData || Object.keys(updatedData).length === 0){ // fix the condition to check for empty object
+//           return res.status(400).json({error: `There are no fields in the request body`});
+//       }
+//       // try{
+//       //     id = validation.checkId(id); // fix the variable name and pass the correct id variable
+//       //     updatedData = validation.checkPostEventConditions(updatedData);
+//       //     updatedData.eventName = validation.checkString(updatedData.eventName, "eventName");
+//       //     updatedData.description = validation.checkString(updatedData.description, "description");
+//       //     updatedData.buildingName = validation.checkString(updatedData.buildingName, "buildingName");
+//       //     updatedData.organizer = validation.checkString(updatedData.organizer, "organizer"); // fix the commented line
+//       //     updatedData.seatingCapacity = validation.checkSeating(updatedData.seatingCapacity, "seatingCapacity");
+//       //     updatedData.userId = validation.checkString(updatedData.userId, "userId"); // fix the variable name
+//       // }catch (e){
+//       //     return res.status(400).json({error: e});
+//       // }
+//       try{
+//           let event = await eventsData.getEventByID(id);
+//       } catch (e){
+        
+//           return  res.status(404).json({error: e});
+//       }
+//       try{
+//           const result = await eventsData.updateEvent(
+//               id, // pass the correct id variable
+//               updatedData.eventName,
+//               updatedData.description,
+//               updatedData.buildingName,
+//               updatedData.organizer,
+//               updatedData.seatingCapacity,
+//               updatedData.userId
+//           );
+//           res.status(200).json(result);
+//       }catch (e){
+//           console.log(e);
+//           return res.status(400).json({error: e});
+//       }
 // });
 
 

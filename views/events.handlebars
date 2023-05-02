@@ -1,21 +1,22 @@
 
-<div class="container center">
+
   
 {{#each newEvent}}
-
+<div class="container center">
 <img id="img-home" src="{{image}}" alt="Event image">
 <h2>Event Name: {{eventName}}</h2><br>
 <p>Description: {{description}}</p><br>
 <p>Building Name: {{buildingName}}</p><br>
-<form method="PUT" action="/events/{{_id}}">
-<p>Seating Capacity{{seatingCapacity}}</p><br>
-
-<button type="submit">Attend</button>
+<p>Seating Capacity{{seatingCapacity}}</p>
+<form method="POST" action="/events/capacity/{{_id}}">
+<input type="hidden" id="seatingCapacity" name="seatingCapacity" value="{{seatingCapacity}}">
+<button type="submit" id="attendance" name="attendance" value="attend">Attend</button>
+<button type="submit" id="attendance" name="attendance" value="cancel">Cancel</button>
 </form>
-
+</div>
 {{/each}}
 
-</div>
+
 
 <p id="error-message">{{Error}}</p>
 

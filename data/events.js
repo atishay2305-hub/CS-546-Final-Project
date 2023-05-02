@@ -164,6 +164,25 @@ let exportedMethods = {
         return await eventCollection.findOne({_id: new ObjectId(id)});
     },
 
+    async updateCapacity(
+        id,
+        seatingCapacity
+    ) {
+        id = validation.checkId(id);
+        seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
+        const eventCollection = await events();
+        const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
+        if (!checkEventExist) throw `Event is not exist with that ${id}`;
+        let evenData = {
+            seatingCapacity: seatingCapacity
+        }
+        let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
+        if (!event.acknowledged || event.matchedCount !== 1) {
+            throw "Could not update record with that ID.";
+        }
+        return await this.getAllEvents();
+    }
+
 
 
 }
