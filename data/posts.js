@@ -7,31 +7,28 @@ import path from "path";
 
 
 let exportedMethods = {
-    async createPost(category, image, postedContent, userName, req) {
-        category = validation.checkLegitName(category, "category");
+    async createPost(category, image, postedContent, userName, address) {
+        category = validation.checkCategory(category, "category");
+        postedContent = validation.checkPhrases(postedContent);
         // postedContent = validation.checkPhrases(postedContent, "PostedContent");
-        const userId = validation.checkId(userName);
+        userName = validation.checkName(userName);
         const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        const user = await userCollection.findOne({userName: userName});
+        let userId = user._id. toString();
         if (!user) {
             throw `The user does not exist with that Id &{id}`;
         }
-        if (user.isAdmin) {
-            throw "Post can only be created by users."
+        if(user.role === 'admin'){
+            throw "You are unable to create post";
         }
 
-        let imagePath = '';
-        if (req.file) {
-            imagePath = req.file.path.replace('public', '');
-        } else {
-            imagePath = 'images/default.jpg';
-        }
 
         let post = {
             category: category,
             content: postedContent,
-            image: imagePath,
+            image: image,
             userId: userId,
+            address: address,
             created_Date: validation.getDate(),
             likes: 0,
             dislikes: 0,
@@ -48,9 +45,14 @@ let exportedMethods = {
         return insertInfo;
     },
 
-    async getAllPosts() {
+    async getAllPosts(projection) {
         const postCollection = await posts();
-        return await postCollection.find({}).sort({created_Date: -1}).toArray();
+        let postList = undefined;
+        if(!projection){
+            return postList = await postCollection.find({}).sort({created_Date: -1}).toArray()
+        }else{
+            return postList = await postCollection.find({}).project(projection).sort({created_Date: -1}).toArray()
+        }
     },
 
     async getPostByCategory(category){
@@ -71,7 +73,7 @@ let exportedMethods = {
     },
 
     async getPostByUserId(userId) {
-        id = await validation.checkId(userId);
+        let id = await validation.checkId(userId);
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(userId)});
         if (post === null) {

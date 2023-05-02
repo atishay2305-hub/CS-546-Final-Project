@@ -1,7 +1,4 @@
 import {Router} from 'express';
-import moment from 'moment';
-//import {userData} from '../data/index.js';
-//import { userData } from '../data/index.js';
 import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
@@ -11,9 +8,38 @@ import multer from "multer";
 import path from "path";
 import {passwordResetByEmail} from "../email.js";
 import xss from 'xss';
-import validationchecker from "../validationchecker.js";
+import authCheck from "../public/js/validtionChecker.js";
 
 const router = Router();
+
+const displayMap = (location) => {
+    // Create a new map centered at Stevens Institute of Technology
+    const map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 40.7431, lng: -74.0258},
+        zoom: 15
+    });
+
+    // Create a geocoder object
+    const geocoder = new google.maps.Geocoder();
+
+    // Make a geocoding request for the specific location
+    geocoder.geocode({address: location}, (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK) {
+            // Extract the latitude and longitude from the geocoding result
+            const {lat, lng} = results[0].geometry.location;
+
+            // Create a marker at the specified location
+            new google.maps.Marker({
+                position: {lat, lng},
+                map: map,
+                title: location
+            });
+        } else {
+            console.error("Geocode was not successful for the following reason: " + status);
+        }
+    });
+};
+
 
 router.route('/').get(async (req, res) => {
     return res.redirect('login');
@@ -28,7 +54,7 @@ router
             return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
         }
     })
-    .post(async (req, res) => {
+    .post(async (req, res, next) => {
         try {
             let email = xss(req.body.email);
             let password = xss(req.body.password);
@@ -46,14 +72,17 @@ router
                 error: e
             });
         }
-    });
+    })
+
 
 router.route('/register').get(async (req, res) => {
+
     return res.status(200).render('register', {title: "Register Page"});
 });
 
 router.route('/register').post(async (req, res) => {
     try {
+
         // removed dept
         let firstName = xss(req.body.firstName);
         let lastName = xss(req.body.lastName);
@@ -103,10 +132,6 @@ router.route('/register').post(async (req, res) => {
 // }),
 
 
-
-
-
-
 router.route('/error').get(async (req, res) => {
     //code here for GET
     return res.render('error', {error: "Something"});
@@ -125,7 +150,6 @@ router.route('/posts/:id').delete(async (req, res) => {
     //res.send(response);
     return res.sendStatus(200);
 });
-
 
 
 // router.route('/logout')
@@ -227,7 +251,6 @@ router.route('/homepage').get(async (req, res) => {
     //const user = await userData.getUserByID(userId);
     //const postList = await userData.getPostList(user.email);
 
-
     //user info from ID
     //getpost list if true
     const userName = req.session.userName;
@@ -237,31 +260,35 @@ router.route('/homepage').get(async (req, res) => {
     const postList = await postData.getAllPosts();
     // console.log(postList);
     //
-    // //console.log(postList);
-    // for (let x of postList) {
-    //     let resId = x?.userId;
-    //
-    //     console.log(resId);
-    //
-    //     let resString = resId.toString();
-    //
-    //     const user = await userData.getUserByID(resString);
-    //     x.name = user.userName;
-    //     console.log(user.userName);
-    //     console.log(resString);
-    //     console.log(x.userName);
-    //     if (resString === userId) {
-    //         x.editable = true;
-    //         x.deletable = true;
-    //     } else {
-    //         x.editable = false;
-    //         x.deletable = false;
-    //     }
-    // }
+    //console.log(postList);
+    for (let x of postList) {
+        let resId = x?.userId;
+
+        console.log(resId);
+
+        let resString = resId.toString();
+
+        const user = await userData.getUserByID(resString);
+        x.name = user.userName;
+        console.log(user.userName);
+        console.log(resString);
+        console.log(x.userName);
+        if (resString === userId) {
+            x.editable = true;
+            x.deletable = true;
+        } else {
+            x.editable = false;
+            x.deletable = false;
+        }
+    }
 
     // const listOfPosts = [{category: "education", content: "Anime"}]
     // posts: postList
-    return res.render('homepage', {userId: userId, userName: userName, posts: postList});
+    return res.render('homepage', {
+        userId: userId,
+        userName: userName,
+        posts: postList,
+    });
 
 });
 
@@ -292,6 +319,7 @@ const uploadImage = upload.single("postImage");
 
 router.route('/posts')
     .get(async (req, res) => {
+
         return res.render('posts');
     })
     .post(uploadImage, async (req, res) => {
@@ -299,26 +327,37 @@ router.route('/posts')
         console.log(id);
         const userName = req.session.userName;
 
-        const {postCategory, postContent} = req.body;
+        let category = xss(req.body.category);
+        let postContent = xss(req.body.postContent);
+        category = validation.checkCategory(category);
+        postContent = validation.checkPhrases(postContent);
         console.log(postContent);
-
+        let address = "";
         try {
-            let imagePath = '';
+            let imagePath;
             if (req.file) {
                 imagePath = req.file.path.replace('public', '');
             } else {
                 imagePath = 'images/default.jpg';
             }
 
-            const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
+            if(category === 'lost&found'){
+                address = xss(req.body.address);
+                address = validation.checkAddress(address);
+            }
+            const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
             console.log(user);
             console.log(post);
             console.log("The post is posted");
             return res.redirect('/homepage');
         } catch (e) {
-            console.log(e)
-            return res.render('posts', {Error: e});
+            return res.status(400).json({
+                success: false,
+                category: req.body.category,
+                content: req.body.postContent,
+                address: req.body.address
+            });
         }
     });
 
@@ -344,12 +383,12 @@ router.route('/posts/:id/comment').post(async (req, res) => {
 router
     .route('posts/:category')
     .get(async (req, res) => {
-        try{
+        try {
             let category = req.params.category;
-            category = validationchecker.checkCategory(category);
+            category = validation.checkCategory(category);
             let postList = await postData.getAllPosts({category: category});
-            res.render('post-list', { category, posts: postList });
-        }catch (e){
+            res.render('post-list', {category, posts: postList});
+        } catch (e) {
             return res.status(500).sendFile(path.resolve("/public/static/notfound.h tml"));
         }
     })

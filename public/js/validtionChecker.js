@@ -109,7 +109,7 @@ const authCheck = {
         if (!category) throw "Category is not provided";
         if (typeof category !== 'string' || category.trim().length === 0) throw "Category is not a valid type";
         category = category.trim().toLowerCase();
-        const allowCategories = ["education", "sport", "entertainment"]
+        const allowCategories = ["education", "sports", "entertainment", "lost&found"];
         if(allowCategories.includes(category)){
             return category;
         }else{
@@ -153,6 +153,26 @@ const authCheck = {
         if (seatCapacity > 300)
             throw "seatCapacity must less than 300";
         return seatCapacity;
+    },
+
+    checkAddress(address){
+        const addressRegex = /^\s*(\S+(\s+\S+)*)\s*,\s*(\S+(\s+\S+)*)\s*,\s*(\S+)\s*,\s*(\d{5})\s*$/;
+        const match = address.match(addressRegex)
+        if(match){
+            const address = match[1].trim().toLowerCase();
+            const city = match[3].trim().toLowerCase();
+            const state = match[5].trim().toLowerCase();
+            const zip = match[6];
+
+            return `${address}, ${city}, ${state}, ${zip}`;
+        }else{
+            throw "Invalid address format. Please provide address, city, state, and ZIP code separated by commas";
+        }
     }
+
+
+
+
+
 }
 export default authCheck;

@@ -1,67 +1,94 @@
 import authCheck from "../validtionChecker.js";
+
 (function () {
-    document.addEventListener("DOMContentLoaded", function () {
-        const registerForm = document.getElementById("creatPost-form");
-        const errorHandle = document.getElementById("create-postError");
-        let categoryIn = document.getElementById("postCategory");
-        let postContentIn = document.getElementById("postContent");
+    const postForm = document.getElementById("post-form");
+    const errorHandle = document.getElementById("postError");
+    const postImageInput = document.getElementById("postImage");
+    const imagePreview = document.getElementById("image-preview");
+    const categorySelect = document.getElementById("postCategory");
+    const addressInput = document.getElementById("address-input")
 
-        if (registerForm) {
-            registerForm.addEventListener("submit", (event) => {
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                event.preventDefault();
-                const elements = event.target.elements;
-                errorHandle.hidden = true;
+    postForm.addEventListener("submit", (event) => {
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        errorHandle.hidden = true;
+        let address = '';
 
-                let category = categoryIn.value;
-                let postContent = postContentIn.value;
+        let category = categorySelect.value;
+        let postContent = document.getElementById("postContent").value;
+        let file = postImageInput.files[0];
+        if (category === "lost&found") {
+            address = document.getElementById("address").value;
+        }
 
+        try {
+            category = authCheck.checkCategory(category);
+            postContent = authCheck.checkPhrases(postContent, "Post Content");
+            address = authCheck.checkAddress(address);
+        } catch (e) {
+            document.getElementById("postCategory").value = category;
+            document.getElementById("postContent").value = postContent;
+            return handleError(e || "Something went wrong");
+        }
 
-                try {
-                    category = authCheck.checkCategory(category);
-                    postContent = authCheck.checkPhrases(postContent, "Post Content");
+        const formData = new FormData();
+        formData.append("category", category);
+        formData.append("postContent", postContent);
+        formData.append("postImage", file); // Append the file
+        formData.append("address", address);
 
-                } catch (e) {
-                    document.getElementById("postCategory").setAttribute("value", category);
-                    document.getElementById("postContent").setAttribute("content", postContent);
-                    return handleError(e || "Something went wrong");
-                }
-                fetch("/posts", {
-                    method: "post",
-                    headers: {
-                        Accept: "application/json, text/plain, */*",
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        category: category,
-                        postContent: postContent
-                    }),
-                }).then((response) => {
-                    if(!response.ok){
+        // Add a delay of 2 seconds before submitting the form
+        setTimeout(() => {
+            fetch("/posts", {
+                method: "post",
+                body: formData,
+            })
+                .then((response) => {
+                    if (!response.ok) {
                         return response.json();
                     }
-                }).then((data) => {
+                })
+                .then((data) => {
                     if (data) {
-                        if (data.success) {
-                            location.href = "/login";
-                            sessionStorage.setItem("user", JSON.stringify(data.data));
-                        }else{
+                        if (!data.success) {
                             document.getElementById("postCategory").value = data.category;
                             document.getElementById("postContent").value = data.postContent;
-                            return handleError(data || "Something went wrong");
+                            document.getElementById("address").value = data.address;
+                            return handleError(data || "Something went wrong.");
                         }
                     }
+                    location.href = "/homepage";
                 })
-                    .catch((e) => {
-                        alert(e || "Something went wrong.");
-                    });
-            });
-        }
-        const handleError = (errorMsg) => {
-            errorHandle.hidden = false;
-            errorHandle.innerHTML = errorMsg;
-        };
+                .catch((e) => {
+                    alert(e || "Something went wrong.");
+                });
+        }, 2000);
     });
 
+    postImageInput.addEventListener("change", function () {
+        const file = this.files[0];
+        const reader = new FileReader();
+
+        reader.addEventListener("load", function () {
+            imagePreview.src = reader.result;
+            imagePreview.style.display = "block";
+        });
+
+        reader.readAsDataURL(file);
+    });
+
+    categorySelect.addEventListener("change", () => {
+        const selectedValue = categorySelect.value;
+        if (selectedValue === "lost&found") {
+            addressInput.style.display = "block";
+        } else {
+            addressInput.style.display = "none";
+        }
+    });
+
+    const handleError = (errorMsg) => {
+        errorHandle.hidden = false;
+        errorHandle.innerHTML = errorMsg;
+    };
 })();

@@ -8,8 +8,10 @@
         <p>Category: {{category}}</p>
         <p>Created by: {{name}}</p>
         <p>Created at: {{created_Date}}</p>
+
         <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
         <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
+
 
         <div class="comments-container">
             <h3>Comments:</h3>
@@ -104,4 +106,8 @@
 
 </script>
 <link rel="stylesheet" href="/public/css/homepage.css">
-
+<script>
+    window.onload = () => {
+        mapFunctions.initMap();
+    };
+</script>
