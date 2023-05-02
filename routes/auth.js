@@ -361,15 +361,6 @@ const eventUploadImage = eventUpload.single("postImage");
     }
   });
 
-
-
-
-
-
-
-
-  
-
 router.route('/error').get(async (req, res) => {
     //code here for GET
     return res.render('error', {error: "Something"});
@@ -387,14 +378,11 @@ router.route('/posts/:id').delete(async(req,res)=>{
     const commentCollection = await comments();
     const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
     console.log(post);
-    if(!post){
-        throw "No events found!!"
+
+    if(post.length !== 0){
+        const responsePost = await commentData.removeCommentByPost(req.params.id);
+        console.log("hi",responsePost.deleted);    
     }
-
-    const responsePost = await commentData.removeCommentByPost(req.params.id);
-    console.log("hi",responsePost.deleted);
-
-
     const response = await postData.removeById(req.params.id);
     console.log("hi",response.deleted);
     //const user = await userData.removePost()
@@ -437,15 +425,19 @@ router.route('/events/:id').delete(async(req,res)=>{
     console.log(user);
     if (user.role !== 'admin') throw "Only administrators can delete events.";
 
+
     const commentCollection = await comments();
     const event = await commentCollection.find({eventId:new ObjectId(req.params.id)}).toArray();
     console.log(event);
+    if(event.length!==0){
+        const response = await commentData.removeCommentByEvent(req.params.id);
+        console.log("hi",response.deleted);
+    }
     if(!event){
         throw "No events found!!"
     }
 
-    const response = await commentData.removeCommentByEvent(req.params.id);
-    console.log("hi",response.deleted);
+
 
     const responseEvent = await eventsData.removeEventById(req.params.id);
     console.log(responseEvent);
