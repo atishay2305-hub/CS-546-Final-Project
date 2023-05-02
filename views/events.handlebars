@@ -1,106 +1,22 @@
+
 <div class="container center">
-  <h1 id="event-header">Create Events</h1>
-  <form method="POST" action="/events" enctype="multipart/form-data">
-    <div class="inf">
-      <div class="sec-1">
-        <label for="eventName">Event Name</label>
-      </div>
-      <div class="sec-2">
-        <input id="eventName" type="text" name="eventName">
-      </div>
-    </div>
-    <div class="inf">
-      <div class="sec-1">
-
-        <label for="description">Description</label>
-      </div>
-      <div class="sec-2">
-        <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
-      </div>
-    </div>
-    <div class="inf">
-      <div class="sec-1">
-        <label for="buildingName">Select Building Location:</label>
-      </div>
-    </div>
-    <div class="sec-2">
-      <select id="buildingName" name="buildingName"><br>
-        <option value=""></option>
-      </select>
-    </div>
-
-
-    <script>
-      const allowedLocation = [
-        "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
-        "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
-        "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
-        "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
-        "alexander house", "colonial house"
-      ];
-
-      const selectElement = document.getElementById("buildingName");
-
-      allowedLocation.forEach((location) => {
-        const option = document.createElement("option");
-        option.text = location;
-        option.value = location;
-        selectElement.appendChild(option);
-      });
-    </script>
-    <div class="inf">
-      <div class="sec-1">
-        <label for="organizer">Organizer</label>
-      </div>
-      <div class="sec-2">
-        <input id="organizer" type="text" name="organizer">
-      </div>
-    </div>
-    <div class="inf">
-      <div class="sec-1">
-        <label for="seatingCapacity">Seating Capacity</label>
-      </div>
-      <div class="sec-2">
-        <input id="seatingCapacity" type="number" name="seatingCapacity">
-      </div>
-    </div>
-    <h1>Upload Image</h1>
-    <input type="file" name="postImage">
-    {{!-- <button type="submit">Add Post</button> --}}
-    <button type="submit" class="registerbtn">Create Event</button>
-</div>
-</form><br>
-
-
-</div>
-
+  
 {{#each newEvent}}
+
 <img id="img-home" src="{{image}}" alt="Event image">
 <h2>Event Name: {{eventName}}</h2><br>
 <p>Description: {{description}}</p><br>
 <p>Building Name: {{buildingName}}</p><br>
+<form method="PUT" action="/events/{{_id}}">
 <p>Seating Capacity{{seatingCapacity}}</p><br>
+
+<button type="submit">Attend</button>
+</form>
+
 {{/each}}
 
-
+</div>
 
 <p id="error-message">{{Error}}</p>
 
-<img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
 
-<script>
-  const postImageInput = document.getElementById("postImage");
-  const imagePreview = document.getElementById("image-preview");
-
-  postImageInput.addEventListener("change", function () {
-    const file = this.files[0];
-    const reader = new FileReader();
-
-    reader.addEventListener("load", function () {
-      imagePreview.src = reader.result;
-      imagePreview.style.display = "block";
-    });
-
-    reader.readAsDataURL(file);
-  });
-</script>

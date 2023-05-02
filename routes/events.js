@@ -23,18 +23,22 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const uploadImage = upload.single("postImage");
 
+router.route('/new').get(async (req, res) => {
+  res.render('newEvent', {});
+});
 
 router.route('/events')
 .get(async (req, res) => {
   try {
     const events = await eventsData.getAllEvents();
-    // console.log(events);
+    events.forEach(event => event._id = event._id.toString());
     return res.render('events', {newEvent: events});
   } catch (error) {
     res.status(500).json({ error: error });
   }
 })
   .post(uploadImage, async (req, res) => {
+    //console.log(req.body);
     // const event = req.body;
     // try {
     //   // event.eventName = validation.checkString(event.eventName, "eventName");
@@ -79,6 +83,17 @@ router.route('/events')
     return res.sendStatus(200);
 });
 
+router
+    .route('/:id')
+    .put(async (req, res) => {
+
+        console.log("put called");
+        const id = req.params.id;
+        const updateData = req.body;
+        console.log(updateData);
+        
+    });
+
 
 // router
 //     .route('/:id')
@@ -115,24 +130,26 @@ router.route('/events')
 // .put(async (req, res) => {
 //   let id = req.params.id; // fix the id variable assignment
 //   let updatedData = req.body;
+//   console.log(updatedData);
 //   if(!updatedData || Object.keys(updatedData).length === 0){ // fix the condition to check for empty object
 //       return res.status(400).json({error: `There are no fields in the request body`});
 //   }
-//   try{
-//       id = validation.checkId(id); // fix the variable name and pass the correct id variable
-//       updatedData = validation.checkPostEventConditions(updatedData);
-//       updatedData.eventName = validation.checkString(updatedData.eventName, "eventName");
-//       updatedData.description = validation.checkString(updatedData.description, "description");
-//       updatedData.buildingName = validation.checkString(updatedData.buildingName, "buildingName");
-//       updatedData.organizer = validation.checkString(updatedData.organizer, "organizer"); // fix the commented line
-//       updatedData.seatingCapacity = validation.checkSeating(updatedData.seatingCapacity, "seatingCapacity");
-//       updatedData.userId = validation.checkString(updatedData.userId, "userId"); // fix the variable name
-//   }catch (e){
-//       return res.status(400).json({error: e});
-//   }
+//   // try{
+//   //     id = validation.checkId(id); // fix the variable name and pass the correct id variable
+//   //     updatedData = validation.checkPostEventConditions(updatedData);
+//   //     updatedData.eventName = validation.checkString(updatedData.eventName, "eventName");
+//   //     updatedData.description = validation.checkString(updatedData.description, "description");
+//   //     updatedData.buildingName = validation.checkString(updatedData.buildingName, "buildingName");
+//   //     updatedData.organizer = validation.checkString(updatedData.organizer, "organizer"); // fix the commented line
+//   //     updatedData.seatingCapacity = validation.checkSeating(updatedData.seatingCapacity, "seatingCapacity");
+//   //     updatedData.userId = validation.checkString(updatedData.userId, "userId"); // fix the variable name
+//   // }catch (e){
+//   //     return res.status(400).json({error: e});
+//   // }
 //   try{
 //       let event = await eventsData.getEventByID(id);
 //   } catch (e){
+     
 //       return  res.status(404).json({error: e});
 //   }
 //   try{
@@ -147,6 +164,7 @@ router.route('/events')
 //       );
 //       res.status(200).json(result);
 //   }catch (e){
+//       console.log(e);
 //       return res.status(400).json({error: e});
 //   }
 // });
