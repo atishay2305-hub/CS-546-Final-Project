@@ -29,8 +29,9 @@
             <div class="sec-1">
                 <label for="address">Location:</label>
                 <div class="sec-2">
-                    <input type="text" name="address" id="address" placeholder="Address, City, State, Zip" value="{{address}}">
-                    <button onclick="showAddressOnMap()">Show on Map</button>
+                    <input type="text" name="address" id="address" placeholder="Address, City, State, Zip"
+                           value="{{address}}">
+                    <button  type="submit" id="showOnMapBtn">Show on Map</button>
                     <div id="map"></div>
                 </div>
             </div>
@@ -50,42 +51,40 @@
     </div>
 </form>
 <br>
-<div class="postText-container">
-    {{#each posts}}
-        <div class="post-container">
-            <h2>{{content}}</h2>
-            <img id="img-home" src="{{image}}" alt="Post image">
-            <p>Category: {{category}}</p>
-            <p>Created by: {{name}}</p>
-            <p>Created at: {{created_Date}}</p>
-            <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
-            <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
-            <div class="comments-container">
-                <h3>Comments:</h3>
-                {{#each comments}}
-                    <div class="comment-container">
-                        <p>{{text}}</p>
-                        <p>Posted by: {{author}}</p>
-                        <p>Posted at: {{created_Date}}</p>
-                    </div>
-                {{/each}}<br>
-                <form class="comment-form" id="comment-form-{{_id}}" action="/posts/{{_id}}/comment" method="POST">
-                    <input type="hidden" name="postId" value="{{_id}}">
-                    <label for="comment-text-{{_id}}">Add a Comment:</label>
-                    <input type="text" name="commentText" id="comment-text-{{_id}}">
-                    <input type="submit" value="Submit">
-                </form>
-                <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a>
-            </div>
-            {{#if deletable}}
-                <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
-            {{/if}}
+{{#each posts}}
+    <div class="post-container">
+        <h2>{{content}}</h2>
+        <img id="img-home" src="{{image}}" alt="Post image">
+        <p>Category: {{category}}</p>
+        <p>Created by: {{userName}}</p>
+        <p>Created at: {{created_Date}}</p>
+        {{#if (checkCategory category)}}
+            <p>Address: {{address}}</p>
+        {{/if}}
+        <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
+        <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button><br>
+        <button onClick="commentPopup({{_id}})">View Comments</button>
+        <div class="comments-popup" id="comments-popup-{{_id}}">
+            {{#each comments}}
+                <div class="comment-container">
+                    <p>{{text}}</p>
+                    <p>Posted by: {{author}}</p>
+                    <p>Posted at: {{created_Date}}</p>
+                </div>
+            {{/each}}
         </div>
-    {{/each}}
-</div>
+        {{#if deletable}}
+            <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
+        {{/if}}
+    </div>
+{{/each}}
+
+
 <script src="/public/js/post/map.js"></script>
 <script src="/public/js/post/posts.js" type="module"></script>
 <link rel="stylesheet" href="/public/css/posts.css">
+
+
 </body>
 
 

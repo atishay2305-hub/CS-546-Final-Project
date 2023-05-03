@@ -29,6 +29,7 @@ let exportedMethods = {
             content: postedContent,
             image: image,
             userId: userId,
+            userName: userName,
             address: address,
             created_Date: validation.getDate(),
             likes: 0,
