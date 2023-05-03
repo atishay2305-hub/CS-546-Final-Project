@@ -1,5 +1,4 @@
 import authCheck from "../validtionChecker.js";
-
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById("register-Form");

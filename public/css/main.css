@@ -48,6 +48,7 @@ h1
 h1 {
   font-size: 2rem;
   text-align: center;
+  text-align: center;
 }
 
 nav {
@@ -86,6 +87,7 @@ nav li a {
   border: 3px solid green;
   padding: 10px;
   text-align: left;
+  margin-top: 10%;
   margin-top: 10%;
 }
 

@@ -18,6 +18,19 @@ const exportedMethods = {
         return id;
     },
 
+    checkUserName(userName){
+        if(!userName){
+            throw "Username is not provided."
+        }
+        if(typeof userName !== "string" || userName.trim().length === 0){
+            throw "Username is not of proper type or is empty."
+        }
+        userName = userName.trim()
+        if(!isNaN(userName)){
+            throw "Username is a number."
+        }
+    },
+
     checkEmail(email) {
         if (!email) throw "Please provide email";
         if (typeof email !== "string" || email.trim().length <= 0) throw "Please provide a valid email";
@@ -80,33 +93,36 @@ const exportedMethods = {
     },
 
     checkDOB(DOB) {
-        if (!DOB) throw `DOB not provided`;
+        if (!DOB) throw `DOB is not provided`;
         if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB";
         const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
         const [_, year, month, day] = DOB.match(dateRegex);
-
+        if (month < "01" || month > "12") throw "Month should be between 01 and 12";
         const currentDate = new Date();
-
-        if (DOB > currentDate) {
-            throw "Date of birth must be in the past";
-        }
+        const dobDate = new Date(year, month - 1, day);
+        const ageDiffMs = currentDate - dobDate;
+        const ageDate = new Date(ageDiffMs);
+        const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+        if (age < 13) throw "User must be at least 13 years old";
+        if (day !== dobDate.getDate().toString()) throw "Invalid day of the month";
+        
         return DOB;
-    },
-
+      },
+      
     checkRole(role) {
         if (!role) throw  "Role is not provided";
         if (typeof role !== "string" || role.trim().length === 0) throw "Role is not a valid type";
         role = role.trim().toLowerCase();
-        if (role !== "admin" && role !== "user") throw "Please select a role";
-        return role
+        if (role !== "admin" && role !== "user") throw "Please select a valid role.";
+        return role;
     },
 
     checkDepartment(department) {
         if (!department) throw "Department is not provided";
         if (typeof department !== 'string') throw "Department is not a valid type";
         const allowedDepartment = [
-            "biomedical engineering", "chemistry and chemical biology", "chemical engineering and materials science",
+             "biomedical engineering", "chemistry and chemical biology", "chemical engineering and materials science",
             "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering",
             "mathematical sciences", "mechanical engineering", "physics"];
         department = department.trim().toLowerCase();
@@ -117,13 +133,13 @@ const exportedMethods = {
         }
     },
 
-    checkAuth(authentication) {
-        if (!authentication) return false;
-        if (typeof authentication !== "string" || authentication.trim().length === 0) return false;
+    checkAuth(authentication){
+        if(!authentication) return false;
+        if(typeof authentication !== "string" || authentication.trim().length ===0) return false;
         authentication = authentication.trim().toLowerCase();
-        if (authentication === "getprivilege") {
+        if(authentication === "getprivilege"){
             return true;
-        } else {
+        }else{
             return false;
         }
     },

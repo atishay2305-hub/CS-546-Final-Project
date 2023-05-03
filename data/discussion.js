@@ -1,7 +1,7 @@
 import {discussion, posts, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
-import {userData } from "./index.js";
+import {userData} from "./index.js";
 
 
 let exportedMethods = {
@@ -12,26 +12,26 @@ let exportedMethods = {
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) {
-            throw `The user does not exist with that Id &{id}`;
+          throw `The user does not exist with that Id &{id}`;
         }
         if (user.isAdmin) {
-            throw "Discussion can only be created by users."
+          throw "Discussion can only be created by users."
         }
-
+      
         let discuss = {
-            category: category,
-            topic: topic,
-            discussion: discussion,
-            userId: userId,
-            created_Date: validation.getDate(),
-            commentIds: {}
+          category: category,
+          topic: topic,
+          discussion: discussion,
+          userId: userId,
+          created_Date: validation.getDate(),
+          commentIds: {}
         };
         const discussionCollection = await discussion();
         let insertInfo = await discussionCollection.insertOne(discuss);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-            throw "Could not add discussion.";
+          throw "Could not add discussion.";
         }
-
+      
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
         return insertInfo;
@@ -83,7 +83,7 @@ let exportedMethods = {
         if (user.isAdmin === undefined || !user.isAdmin) {
             if(!user.postIDs.includes(id)){
                 throw "Only administrators or the poster can delete the discussion.";
-            }
+            } 
         }
 
         const removeDiscussion = await discussionCollection.deleteOne({_id: new ObjectId(id)});

@@ -5,8 +5,8 @@ import { events } from "../config/mongoCollections.js";
 const router = Router();
 
 // router.get('/search', async (req, res) => {
-//     const eventCollection = await events()
-//     const searchResults = eventsData.searchResults()
-//     return.redire
-
-// })
+//     const searchTerm = req.query.query;
+//     const eventCollection = await events();
+//     const searchResults = await searchEvent(searchTerm);
+//     res.render('search-results', { searchResults });
+// });
