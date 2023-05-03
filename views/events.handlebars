@@ -1,3 +1,5 @@
+  {{#each newEvent}}
+<div class="container center">
 
 
 {{#if isAdmin}}
@@ -83,16 +85,129 @@
 <h2>Event Name: {{eventName}}</h2><br>
 <p>Description: {{description}}</p><br>
 <p>Building Name: {{buildingName}}</p><br>
-<p>Seating Capacity{{seatingCapacity}}</p><br>
+<p>Seating Capacity{{seatingCapacity}}</p>
+<form method="POST" action="/events/capacity/{{_id}}">
+<input type="hidden" id="seatingCapacity" name="seatingCapacity" value="{{seatingCapacity}}">
+<button type="submit" id="attendance" name="attendance" value="attend">Attend</button>
+<button type="submit" id="attendance" name="attendance" value="cancel">Cancel</button>
+</form>
+</div>
+{{/each}} --}}
+
+
+
+
+{{#each newEvent}}
+    <div class="event-container">
+        <h2>{{eventName}}</h2>
+        <img id="img-home" src="{{image}}" alt="Event image">
+
+        <p>Description: {{description}}</p>
+        <p>Building Name: {{buildingName}}</p>
+        <p>Seating Capacity{{seatingCapacity}}</p>
+        
+        <p>Created by: {{organizer}}</p>
+        {{!-- <p>Created at: {{created_Date}}</p> --}}
+
+      <form method="POST" action="/events/capacity/{{_id}}" id="allevents-form">
+      <input type="hidden" id="seatingCapacity" name="seatingCapacity" value="{{seatingCapacity}}">
+      <input type="hidden" id="formsub" value="{{attenddone}}">
+      <button type="submit" id="attend" name="attendance" value="attend">Attend</button>
+      <button type="submit" id="cancel" name="attendance" value="cancel">Cancel</button>
+      <script>
+          var formsubatt = document.getElementById("formsub");
+          var seatingCapacity = document.getElementById("seatingCapacity");
+          console.log("form sub::",formsubatt.value,seatingCapacity);
+      </script>
+
+      </form>
+                  
+        <div class="comments-container">
+            <h3>Comments:</h3>
+            {{!-- {{#each comments}}
+                <div class="comment-container">
+                <p>{{text}}</p>
+                <p>Posted by: {{author}}</p>
+                <p>Posted at: {{created_Date}}</p>
+                </div>
+        {{/each}}<br> --}}
+            <form class="comment-form" id="comment-form-{{_id}}" action="/events/{{_id}}/comment" method="POST">
+                <input type="hidden" name="eventId" value="{{_id}}">
+                <label for="comment-text-{{_id}}">Add a Comment:</label>
+                <input type="text" name="commentText" id="comment-text-{{_id}}">
+                <input type="submit" value="Submit">
+            </form>
+            <a href="/events/{{_id}}/allComments" id="view-comments">View Comments</a>
+        </div>
+        {{#if deletable}}
+            <button class="delete-btn" onClick ="deleteEvent('{{_id}}')" data-event-id="{{_id}}">Delete</button>
+        {{/if}}
+    </div>
+
 {{/each}}
 
+<script>
 
+function myFunction(x) {
+  x.classList.toggle("fa-thumbs-down");
+}
 
-<p id="error-message">{{Error}}</p>
+function deleteEvent(id) {
+  fetch(`/events/${id}`, {
+    method: "delete",
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      "Content-type": 'application/json'
+    },
+  })
+  .then(response => {
+  if (response.ok) {
+    alert('event deleted successfully');
+    window.location.href = '/events';
+  } else {
+    throw new Error('Network response was not ok');
+  }
+})
+  .catch(error => {
+    alert(error.message || "Something went wrong.");
+  })
+  .then(() => {
+    console.log('This will run after either success or failure');
+  });
+}
 
-<p id="error-message">{{Error}}</p>
-
+document.querySelectorAll('.comment-form').forEach(form => {
+      form.addEventListener('submit', function(event){
+          event.preventDefault();
+          const commentText = this.querySelector('input[name="commentText"]').value;
+          const eventId = this.querySelector('input[name="eventId"]').value;
+          fetch(`/events/${eventId}/comment`, {
+              method: "post",
+              body: JSON.stringify({commentText: commentText}),
+              headers: {
+                  "Content-Type": "application/json"
+              }
+          })
+          .then(response => {
+              if (response.ok) {
+                  alert('Comment added successfully');
+                  window.location.href = `/events`;
+              } else {
+                  throw new Error('Network response was not ok');
+              }
+          })
+          .catch(error => {
+              alert(error.message || "Something went wrong.");
+          })
+          .then(() => {
+              console.log('This will run after either success or failure');
+          });
+      });
+  });
 <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+</script>
+<p id="error-message">{{Error}}</p>
+
 
 <script>
   const postImageInput = document.getElementById("postImage");
