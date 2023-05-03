@@ -17,4 +17,5 @@ export const posts = getCollectionFn('Posts');
 export const events = getCollectionFn('events');
 export const users = getCollectionFn('users');
 export const comments = getCollectionFn('comments');
+export const discussion = getCollectionFn('discussion');
 

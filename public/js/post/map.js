@@ -1,8 +1,8 @@
 let map = null; // Declare map variable outside the function
 
 function showAddressOnMap() {
-    let address = document.getElementById('address').value;
-
+    const addressInput = document.getElementById('address');
+    const address = addressInput.value;
 
     // Define the bounds of the Stevens Institute of Technology main campus
     const campusBounds = {

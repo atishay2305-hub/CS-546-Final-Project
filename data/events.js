@@ -1,18 +1,19 @@
 import {events, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
-import {userData} from "./index.js";
-
+import {commentData, userData} from "./index.js";
+//import commentData  from "./comments.js";
 
 let exportedMethods = {
     async createEvent(
-        userId,
+        //userId,
         eventName,
         description,
         buildingName,
         organizer,
         seatingCapacity,
-        image =null
+        image,
+        req
     ) {
         // eventName = validation.checkName(eventName, "EventName");
         // description = validation.checkPhrases(description, "Description");
@@ -26,12 +27,18 @@ let exportedMethods = {
         //     throw `Only administrator can edit events`
         // }
 
-
+    //    const userCollection = await users();
+    //    const user = await userCollection.findOne({_id:new ObjectId(userId)});
+    //    console.log("This is the event User ",user)
+    //    if(!user){
+    //     throw new Error('No user found!!');
+    //    } 
+        
         let imagePath = '';
         if (req.file) {
-            imagePath = req.file.path.replace('public', '');
+          imagePath = req.file.path.replace('public', '');
         } else {
-            imagePath = 'images/default.jpg';
+          imagePath = 'images/default.jpg';
         }
 
         let event = {
@@ -44,6 +51,7 @@ let exportedMethods = {
             seatingCapacity: seatingCapacity,
             image: imagePath,
             commentIds: [],
+            //userId:user._id
         }
         // if (image) {
         //     image = validation.createImage(image);
@@ -69,7 +77,7 @@ let exportedMethods = {
     },
 
 
-
+    
     async getEventByID(id) {
         id = validation.checkId(id);
         // console.log(events());
@@ -79,7 +87,7 @@ let exportedMethods = {
         event._id = new ObjectId(event._id).toString();
         return event;
     },
-
+    
 
     async getEventByEmail(email) {
         email = validation.checkEmail(email);
@@ -94,16 +102,23 @@ let exportedMethods = {
     async removeEventById(id) {
         id = await validation.checkId(id);
         const eventCollection = await events();
-        const event = eventCollection.findOne({_id: new ObjectId(id)});
+        const event =await eventCollection.findOne({_id: new ObjectId(id)});
         if (event === null) throw "No event with that id";
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(event.userId)});
+        //const userCollection = await users();
+
+        // const user = await userCollectio});
+        // console.log(user);
+        // if(!user){
+        //     throw "user does not exists";
+        // }
         // if (user.isAdmin === undefined || !user.isAdmin) throw "Only administrators can delete events.";
-        const removeEvent = eventCollection.deleteOne({_id: new ObjectId(id)});
+        const removeEvent = await eventCollection.deleteOne({_id: new ObjectId(id)});
         if (removeEvent.deletedCount === 0) {
             throw `Could not delete event with id of ${id}`;
         }
-        // await userData.removeEvent(event.userId.toString(), id);
+        //await commentData.removeCommentByEvent(id);
+        //await commentData.removeCommentByEvent(id);
+         //await commentData.removeCommentByEvent(id);
         return {
             eventId: id,
             deleted: true
@@ -115,8 +130,8 @@ let exportedMethods = {
         const searchRegex = new RegExp(searchTerm, 'i');
         const allEvents = await eventCollection.find({ eventName: searchRegex }).toArray();
         return allEvents;
-    },
-
+      },
+      
 
     async updateEvent(
         id,
@@ -162,6 +177,42 @@ let exportedMethods = {
         }
         return await eventCollection.findOne({_id: new ObjectId(id)});
     },
+
+    async updateCapacity(
+        id,
+        seatingCapacity
+    ) {
+        id = validation.checkId(id);
+        seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
+        const eventCollection = await events();
+        const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
+        if (!checkEventExist) throw `Event is not exist with that ${id}`;
+        let evenData = {
+            seatingCapacity: seatingCapacity
+        }
+        let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
+        if (!event.acknowledged || event.matchedCount !== 1) {
+            throw "Could not update record with that ID.";
+        }
+        return await this.getAllEvents();
+    },
+
+    async putComment(eventId, commentId) {
+        eventId = validation.checkId(eventId);
+        commentId = validation.checkId(commentId);
+        const eventCollection = await events();
+        const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
+        if (!event) throw `Error: ${event} not found`;
+        console.log(event) 
+        let commentIdList = event.commentIds;
+        commentIdList.push(new ObjectId(commentId));
+        const updatedInfo = await eventCollection.updateOne(
+            {_id: new ObjectId(eventId)},
+            {$set: {commentIds: commentIdList}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${eventId}`;
+        return true;
+        }
 
 
 

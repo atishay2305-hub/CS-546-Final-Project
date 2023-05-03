@@ -396,12 +396,12 @@ let exportedMethods = {
         }
     },
 
-    async updatePassword(email, password){
-        email = validation.checkEmail(email);
+    async updatePassword(id, password){
+        id = validation.checkId(id);
         password = validation.checkPassword(password);
         const  userCollection = await users();
-        const user = await userCollection.findOne({email: email});
-        if(!user) throw `Error: ${email} not found`;
+        const user = await userCollection.findOne({_id: new ObjectId(id)});
+        if(!user) throw `Error: user ${id} not found`;
         const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(user._id)},
             {$set: {password: await bcrypt.hash(password, 10)}}

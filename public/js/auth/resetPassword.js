@@ -4,29 +4,26 @@ import authCheck from "../validtionChecker.js";
         const resetPasswordForm = document.getElementById("resetPassword-form");
         const errorHandle = document.getElementById("resetPasswordError");
         if (resetPasswordForm) {
-
             resetPasswordForm.addEventListener("submit", (event) => {
                 event.stopPropagation();
                 event.stopImmediatePropagation();
                 event.preventDefault();
                 const elements = event.target.elements;
                 errorHandle.hidden = true;
-                let email = document.getElementById("email").value;
                 let newPassword = document.getElementById("newPassword").value;
                 let confirmNewPassword = document.getElementById("confirmNewPassword").value;
 
                 try {
-                    email = authCheck.checkEmail(email);
                     newPassword = authCheck.checkPassword(newPassword);
                     confirmNewPassword = authCheck.checkPassword(confirmNewPassword);
                     authCheck.checkIdentify(newPassword, confirmNewPassword);
 
                 } catch (e) {
-                    document.getElementById("email").setAttribute("value", email);
                     document.getElementById("newPassword").setAttribute("value", newPassword);
                     document.getElementById("confirmNewPassword").setAttribute("value", confirmNewPassword);
                     return handleError(e || "Something went wrong");
                 }
+                const id = resetPasswordForm.dataset.id;
                 fetch("/reset-password/:id", {
                     method: "post",
                     headers: {
@@ -34,7 +31,7 @@ import authCheck from "../validtionChecker.js";
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        email: email,
+                        id: id,
                         newPassword: newPassword,
                         confirmNewPassword: confirmNewPassword
                     }),
@@ -46,7 +43,7 @@ import authCheck from "../validtionChecker.js";
                 }).then((data) => {
                     if (data) {
                         if (!data.success) {
-                            document.getElementById("email").value = data.email;
+                            // document.getElementById("email").value = data.email;
                             document.getElementById("newPassword").value = data.newPassword;
                             document.getElementById("confirmNewPassword").value = data.confirmNewPassword;
                             return handleError(data || "Something went wrong.");

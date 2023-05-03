@@ -4,6 +4,7 @@ import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
 import multer from "multer";
 import path from "path";
+//import { pseudoRandomBytes } from "crypto";
 
 
 let exportedMethods = {
@@ -14,7 +15,7 @@ let exportedMethods = {
         userName = validation.checkName(userName);
         const userCollection = await users();
         const user = await userCollection.findOne({userName: userName});
-        let userId = user._id. toString();
+        let userId = user._id;
         if (!user) {
             throw `The user does not exist with that Id &{id}`;
         }
@@ -45,14 +46,9 @@ let exportedMethods = {
         return insertInfo;
     },
 
-    async getAllPosts(projection) {
+    async getAllPosts() {
         const postCollection = await posts();
-        let postList = undefined;
-        if(!projection){
-            return postList = await postCollection.find({}).sort({created_Date: -1}).toArray()
-        }else{
-            return postList = await postCollection.find({}).project(projection).sort({created_Date: -1}).toArray()
-        }
+        return await postCollection.find({}).sort({created_Date: -1}).toArray();
     },
 
     async getPostByCategory(category){
@@ -73,7 +69,7 @@ let exportedMethods = {
     },
 
     async getPostByUserId(userId) {
-        let id = await validation.checkId(userId);
+        id = await validation.checkId(userId);
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(userId)});
         if (post === null) {
@@ -83,6 +79,45 @@ let exportedMethods = {
         return post;
     },
 
+    async getPostByUserIdTop(userId){
+        const id = await validation.checkId(userId);
+        const postCollection = await posts();
+        const postList = await postCollection.find({userId:new ObjectId(userId)}).sort({created_Date: -1}).limit(5).toArray();
+        console.log(postList);
+        for(let x of postList){
+            x.deletable = true;
+        }
+        return postList;
+
+    },
+
+    // async removeById(id) {
+    //     id = await validation.checkId(id);
+    //     const postCollection = await posts();
+    //     const post = await postCollection.findOne({_id: new ObjectId(id)});
+    //     if (post === null) {
+    //         throw `No post found with that Id ${id}`;
+    //     }
+    //     const userCollection = await users();
+    //     const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
+    //     //console.log(user.postID);
+    //     if (user.isAdmin === undefined || !user.isAdmin) {
+    //         if(!user.postIDs.includes(id)){
+    //             throw "Only administrators or the poster can delete posts.";
+    //         } 
+    //     }
+
+    //     const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
+    //     if (removePost.deletedCount === 0) {
+    //         throw `Could not delete post with id of ${id}`;
+    //     }
+    //     await userData.removePost(post.userId.toString(), id);
+    //     return {
+    //         postId: id,
+    //         deleted: true
+    //     };
+
+    // },
     async removeById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
@@ -91,24 +126,26 @@ let exportedMethods = {
             throw `No post found with that Id ${id}`;
         }
         const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
-        //console.log(user.postID);
-        if (user.isAdmin === undefined || !user.isAdmin) {
-            if(!user.postIDs.includes(id)){
-                throw "Only administrators or the poster can delete posts.";
-            }
-        }
-
-        const removeDiscuss = await postCollection.deleteOne({_id: new ObjectId(id)});
+        const user = await userCollection.findOne({_id: new ObjectId(post.userId.toString())});
+        // console.log(user);
+        // console.log("hello macha!!",user.postIDs);
+        let postIdList = user.postIDs.map(post => post.toString());
+        // console.log(postIdList);
+        // if (user.isAdmin === undefined || !user.isAdmin){
+        //     if(!postIdList.includes(id)){
+        //         throw "Only administrators or the poster can delete posts.";
+        //     }
+        // }
+        const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
         if (removePost.deletedCount === 0) {
-            throw `Could not delete post with id of ${id}`;
+            throw `Could not delete band with id of ${id}`;
         }
-        await userData.removeDiscuss(discuss.userId.toString(), id);
+        await userData.removePost(post.userId.toString(), id);
+    
         return {
-            discussionId: id,
+            eventId: id,
             deleted: true
         };
-
     },
 
     async updatePost(id,
@@ -161,14 +198,31 @@ let exportedMethods = {
         post.likes++;
         await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
         return post;
-    },
-
-    async increaseDislikes(postId) {
+      },
+      
+      async increaseDislikes(postId) {
         const post = await this.getPostById(postId);
         post.dislikes++;
         await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
         return post;
-    },
+      },  
+      
+      async putComment(postId, commentId) {
+        postId = validation.checkId(postId);
+        commentId = validation.checkId(commentId);
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(postId)});
+        if (!post) throw `Error: ${post} not found`;
+        // console.log(post) 
+        let commentIdList = post.commentIds;
+        commentIdList.push(new ObjectId(commentId));
+        const updatedInfo = await postCollection.updateOne(
+            {_id: new ObjectId(postId)},
+            {$set: {commentIds: commentIdList}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${postId}`;
+        return true;
+        }
 
 };
 //express session,handlebars
