@@ -110,44 +110,36 @@ router.route('/homepage').get(async(req,res)=>{
 
 
     const userId = req.session.userId;
-    // console.log(userId);
-
+    console.log(userId);
     // console.log(userId)
-    //const email = req.session.email;    
+    //const email = req.session.email;
     //useremail from session and will just keep it
     //const user = await userData.getUserByID(userId);
     //const postList = await userData.getPostList(user.email);
-
-  
     //user info from ID
-    //getpost list if true 
+    //getpost list if true
     const userName = req.session.userName;
     console.log(userName)
-
     //const postList = await postData.getAllPosts();
-// getpost by userId--> all the post by userID[]. should have delete createDate(5) and 
+// getpost by userId--> all the post by userID[]. should have delete createDate(5) and
     // for (let x of postList){
     //     let resId = x?.userId;
-       
-        console.log(resId);
-        
-        let resString= resId.toString();
-
-        const user = await userData.getUserByID(resString);
-        x.name =user.userName;
-        console.log(user.userName);
-        console.log(resString);
-        console.log(x.userName);
-        if(resString === userId){
-            x.editable =true;
-            x.deletable = true;
-        }else{
-            x.editable = false;
-            x.deletable = false;
-        }
-    }
-    
-    // const listOfPosts = [{category: "education", content: "Anime"}] 
+    //     //console.log(resId);
+    //     let resString= resId.toString();
+    //     const user = await userData.getUserByID(resString);
+    //     x.name =user.userName;
+    //     //console.log(user.userName);
+    //     //console.log(x.userName);
+    //     if(resString === userId){
+    //         x.editable =true;
+    //         x.deletable = true;
+    //     }else{
+    //         x.editable = false;
+    //         x.deletable = false;
+    //     }
+    // }
+    const postList = await postData.getPostByUserIdTop(userId);
+      // const listOfPosts = [{category: "education", content: "Anime"}]
     // posts: postList
     return res.render('homepage',{userId:userId,userName:userName,posts:postList});
 
@@ -368,13 +360,24 @@ router.route('/error').get(async (req, res) => {
 
 router.route('/posts/:id').delete(async(req,res)=>{
     console.log(req.params.id);
-    
+    try{
+        const user = await userData.getUserByID(req.session.userId);
+    if(!user){
+        throw 'cannot find user';
+    }
+    //console.log(user);
+    const commentCollection = await comments();
+    const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
+    console.log(post);
+    if(post.length !== 0){
+        const responsePost = await commentData.removeCommentByPost(req.params.id);
+        console.log("hi",responsePost.deleted);
+    }
     const response = await postData.removeById(req.params.id);
-    // console.log("hi",response.deleted);
+    console.log("hi",response.deleted);
     //const user = await userData.removePost()
     //const postList = await postData.getAllPosts();
     //res.status(200).send(response);
-
     //res.send(response);
     return res.sendStatus(200);
 }catch(e){
@@ -389,15 +392,14 @@ router.route('/posts/:id/comment').post(async(req,res)=>{
         const{commentText} =req.body;
         // console.log(postId);
         // console.log(commentText);
-        const comment = await commentData.createPostComment(userId,postId,commentText);
+        const comment = await commentData.createComment(userId,null,postId,commentText,"post");
         console.log(comment);
         const post = await postData.putComment(postId,comment.commentId);
         // console.log(post);
-        // console.log('The comment is added');
+        console.log('The comment is added');
         return res.sendStatus(200);
     }catch(e){
-        return e;
-        // console.log(e);
+        console.log(e);
     }
 });
 
