@@ -80,7 +80,7 @@ router.route('/events')
 //   res.render('newEvent', {});
 // });
 
-// router.route('/capacity/:id').post(async (req, res) => {
+// router.route('events/capacity/:id').post(async (req, res) => {
 //         let id = req.params.id; // fix the id variable assignment
 //         const {seatingCapacity,attendance} = req.body;
 //         try{
