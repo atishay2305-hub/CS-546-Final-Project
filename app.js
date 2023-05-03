@@ -7,7 +7,6 @@ import exphbs from 'express-handlebars';
 const __filename = fileURLToPath(import.meta.url);
 import cookieParser from 'cookie-parser';
 app.use(cookieParser());
-import path from "path";
 import {dirname} from 'path';
 const __dirname = dirname(__filename);
 const staticDir= express.static(__dirname + '/public');
@@ -37,10 +36,10 @@ app.engine("handlebars", exphbs.engine({defaultLayout: "main"}));
 app.set("view engine", "handlebars");
 
 app.use((req, res, next) => {
-  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Expires", "0");
-next();
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    next();
 });
 
 
@@ -49,27 +48,27 @@ app.use(session({
     secret: 'myKeySecret',
     saveUninitialized: false,
     resave: false
-  }));
+}));
 
 app.use(session({
-  name: 'AuthCookie',
-  secret: 'myKeySecret',
-  saveUninitialized: false,
-  resave: false
+    name: 'AuthCookie',
+    secret: 'myKeySecret',
+    saveUninitialized: false,
+    resave: false
 }));
 
 const isLoggedIn = (req, res, next) => {
-  if (!req.session.userId) {
-    return res.redirect('/login');
-  }
-  next();
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+    next();
 };
 
 app.use('/posts', isLoggedIn);
 app.use('/events', isLoggedIn);
 app.use('/profile', isLoggedIn);
 app.get('/events', (req, res) => {
-  return res.render('events')
+    return res.render('events')
 });
 
 app.use('/homepage', isLoggedIn);
@@ -79,42 +78,42 @@ app.use('/logout', isLoggedIn);
 app.use('/protected', isLoggedIn);
 
 app.use('/login', (req, res, next) => {
-  if (req.method === 'GET') {
-    if (req.session.userId) {
-      return res.redirect('/homepage')
-    } else {
-      return res.render('login');
+    if (req.method === 'GET') {
+        if (req.session.userId) {
+            return res.redirect('/homepage')
+        } else {
+            return res.render('login');
+        }
     }
-  }
-  next();
+    next();
 });
 
 app.use('/register', (req, res, next) => {
-  if (req.session.userId) {
-    return res.redirect('/login');
-  }
-  next();
+    if (req.session.userId) {
+        return res.redirect('/login');
+    }
+    next();
 });
 
 // Route for logging out
 app.use('/logout', (req, res) => {
-  if (!req.session.userId) {
-    return res.render('login');
-  }
-  req.session.destroy();
-  return res.render('logout');
+    if (!req.session.userId) {
+        return res.render('login');
+    }
+    req.session.destroy();
+    return res.render('logout');
 });
 
 configRoutes(app);
 
 app.use((req, res, next) => {
-  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Expires", "0");
-  next();
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    next();
 });
 
 app.listen(3000, () => {
-  console.log("We've now got a server!");
-  console.log('Your routes will be running on http://localhost:3000');
+    console.log("We've now got a server!");
+    console.log('Your routes will be running on http://localhost:3000');
 });

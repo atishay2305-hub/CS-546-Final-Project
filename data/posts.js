@@ -4,45 +4,43 @@ import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
 import multer from "multer";
 import path from "path";
+//import { pseudoRandomBytes } from "crypto";
 
 
 let exportedMethods = {
-    async createPost(category, image, postedContent, userName, req) {
-        category = validation.checkLegitName(category, "category");
+    async createPost(category, image, postedContent, userName, address) {
+        category = validation.checkCategory(category, "category");
+        postedContent = validation.checkPhrases(postedContent);
         // postedContent = validation.checkPhrases(postedContent, "PostedContent");
-        const userId = validation.checkId(userName);
+        userName = validation.checkName(userName);
         const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        const user = await userCollection.findOne({userName: userName});
+        let userId = user._id;
         if (!user) {
-          throw `The user does not exist with that Id &{id}`;
+            throw `The user does not exist with that Id &{id}`;
         }
-        if (user.isAdmin) {
-          throw "Post can only be created by users."
+        if(user.role === 'admin'){
+            throw "You are unable to create post";
         }
-      
-        let imagePath = '';
-        if (req.file) {
-          imagePath = req.file.path.replace('public', '');
-        } else {
-          imagePath = 'images/default.jpg';
-        }
-      
+
+
         let post = {
-          category: category,
-          content: postedContent,
-          image: imagePath,
-          userId: user._id,
-          created_Date: validation.getDate(),
-          likes: 0,
-          dislikes: 0,
-          commentIds: []
+            category: category,
+            content: postedContent,
+            image: image,
+            userId: userId,
+            address: address,
+            created_Date: validation.getDate(),
+            likes: 0,
+            dislikes: 0,
+            commentIds: {}
         };
         const postCollection = await posts();
         let insertInfo = await postCollection.insertOne(post);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-          throw "Could not add post";
+            throw "Could not add post";
         }
-      
+
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
         return insertInfo;
@@ -81,6 +79,18 @@ let exportedMethods = {
         return post;
     },
 
+    async getPostByUserIdTop(userId){
+        const id = await validation.checkId(userId);
+        const postCollection = await posts();
+        const postList = await postCollection.find({userId:new ObjectId(userId)}).sort({created_Date: -1}).limit(5).toArray();
+        console.log(postList);
+        for(let x of postList){
+            x.deletable = true;
+        }
+        return postList;
+
+    },
+
     // async removeById(id) {
     //     id = await validation.checkId(id);
     //     const postCollection = await posts();
@@ -117,20 +127,21 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(post.userId.toString())});
-        console.log(user);
-        console.log("hello macha!!",user.postIDs);
+        // console.log(user);
+        // console.log("hello macha!!",user.postIDs);
         let postIdList = user.postIDs.map(post => post.toString());
-        console.log(postIdList);
-        if (user.isAdmin === undefined || !user.isAdmin){
-            if(!postIdList.includes(id)){
-                throw "Only administrators or the poster can delete posts.";
-            }
-        }
+        // console.log(postIdList);
+        // if (user.isAdmin === undefined || !user.isAdmin){
+        //     if(!postIdList.includes(id)){
+        //         throw "Only administrators or the poster can delete posts.";
+        //     }
+        // }
         const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
         if (removePost.deletedCount === 0) {
             throw `Could not delete band with id of ${id}`;
         }
         await userData.removePost(post.userId.toString(), id);
+    
         return {
             eventId: id,
             deleted: true
@@ -202,7 +213,7 @@ let exportedMethods = {
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(postId)});
         if (!post) throw `Error: ${post} not found`;
-        console.log(post) 
+        // console.log(post) 
         let commentIdList = post.commentIds;
         commentIdList.push(new ObjectId(commentId));
         const updatedInfo = await postCollection.updateOne(

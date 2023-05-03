@@ -106,7 +106,7 @@ const exportedMethods = {
         if (!department) throw "Department is not provided";
         if (typeof department !== 'string') throw "Department is not a valid type";
         const allowedDepartment = [
-             "biomedical engineering", "chemistry and chemical biology", "chemical engineering and materials science",
+            "biomedical engineering", "chemistry and chemical biology", "chemical engineering and materials science",
             "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering",
             "mathematical sciences", "mechanical engineering", "physics"];
         department = department.trim().toLowerCase();
@@ -117,28 +117,29 @@ const exportedMethods = {
         }
     },
 
-    checkAuth(authentication){
-        if(!authentication) return false;
-        if(typeof authentication !== "string" || authentication.trim().length ===0) return false;
+    checkAuth(authentication) {
+        if (!authentication) return false;
+        if (typeof authentication !== "string" || authentication.trim().length === 0) return false;
         authentication = authentication.trim().toLowerCase();
-        if(authentication === "getprivilege"){
+        if (authentication === "getprivilege") {
             return true;
-        }else{
+        } else {
             return false;
         }
     },
 
     checkLocation(building) {
         if (!building) throw `${building} not provided`;
-        if (typeof building !== "number") throw `Please provide a valid input of buildingIndex`
+        if (typeof building !== "string" || building.trim().length === 0) throw `Please provide a valid input of building`
+        building = building.trim();
         const allowedLocation = [" ",
             "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
             "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
             "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
             "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
             "alexander house", "colonial house"];
-        if (building !== 0 && allowedLocation[building]) {
-            return allowedLocation[building];
+        if (!allowedLocation.includes(building)) {
+            return building;
         } else {
             throw "Location must be on Stevens Institute of Technology main campus.";
         }
@@ -158,11 +159,11 @@ const exportedMethods = {
         const date = new Date();
         const year = date.getFullYear();
         const month = ('0' + (date.getMonth() + 1)).slice(-2);
-        const day = ('0' + date.getDay()).slice(-2);
+        const day = ('0' + date.getDate()).slice(-2);
         const hour = ('0' + date.getHours()).slice(-2);
         const minute = ('0' + date.getMinutes()).slice(-2);
         const second = ('0' + date.getSeconds()).slice(-2);
-        return `${year}/${month}/${day} ${hour}:${minute}:${second}`
+        return `${year}/${month}/${day} ${hour}:${minute}:${second}`;
     },
 
     async createImage(image) {
@@ -187,13 +188,41 @@ const exportedMethods = {
         }
     },
 
-    async checkIdentify(password, confirmPassword){
-        if(password !== confirmPassword){
+    checkIdentify(password, confirmPassword) {
+        if (password !== confirmPassword) {
             throw "ConfirmPassword must be the same as password";
         }
         return true;
     },
 
-};
+    checkCategory(category) {
+        if (!category) throw "Category is not provided";
+        if (typeof category !== 'string' || category.trim().length === 0) throw "Category is not a valid type";
+        category = category.trim().toLowerCase();
+        const allowCategories = ["education", "sports", "entertainment", "lost&found"]
+        if (allowCategories.includes(category)) {
+            return category;
+        } else {
+            throw "Category must select from the list"
+        }
+    },
+
+    checkAddress(address){
+        if(!address) throw "Address is not provided";
+        const addressRegex = /^\s*(\S+(\s+\S+)*)\s*,\s*(\S+(\s+\S+)*)\s*,\s*(\S+)\s*,\s*(\d{5})\s*$/;
+        const match = address.match(addressRegex)
+        if(match){
+            const address = match[1].trim().toLowerCase();
+            const city = match[3].trim().toLowerCase();
+            const state = match[5].trim().toLowerCase();
+            const zip = match[6];
+
+            return `${address}, ${city}, ${state}, ${zip}`;
+        }else{
+            throw "Invalid address format. Please provide address, city, state, and ZIP code separated by commas";
+        }
+    }
+}
+
 
 export default exportedMethods;

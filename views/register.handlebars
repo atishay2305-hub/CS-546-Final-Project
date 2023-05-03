@@ -99,7 +99,16 @@
 
         </div>
 
-        <div class="inf">
+        <div class="inf" id="location-input" style="display:none;">
+            <div class="sec-1">
+                <label for="location">Location:</label>
+                <div class="sec-2">
+                    <input type="text" name="location" id="location">
+                </div>
+            </div>
+        </div>
+
+        <div class="inf" id="auth-input" style="display:none">
             <div class="sec-1">
                 <label for="authentication">Authentication: </label>
             </div>
@@ -108,7 +117,7 @@
                 <input type="text" name="authentication" id="authentication" placeholder="Verification of admin" value="{{auth}}">
             </div>
         </div>
-        <br>
+
         <div class="inf">
             <div class="sec-1">
                 <label for="department">Department: </label>

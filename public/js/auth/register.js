@@ -4,15 +4,8 @@ import authCheck from "../validtionChecker.js";
     document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById("register-Form");
         const errorHandle = document.getElementById("registerError");
-        let firstNameIn = document.getElementById("FN");
-        let lastNameIn = document.getElementById("LN");
-        let userNameIn = document.getElementById("UN");
-        let emailIn = document.getElementById("email");
-        let passwordIn = document.getElementById("password");
-        let confirmPasswordIn = document.getElementById("CP");
-        let DOBIn = document.getElementById("DOB");
-        let roleIn = document.getElementById("role");
-        let departmentIn = document.getElementById("department");
+        const roleSelect  = document.getElementById("role");
+        const authInput = document.getElementById("auth-input");
         if (registerForm) {
             registerForm.addEventListener("submit", (event) => {
                 event.stopPropagation();
@@ -21,15 +14,15 @@ import authCheck from "../validtionChecker.js";
                 const elements = event.target.elements;
                 errorHandle.hidden = true;
 
-                let firstName = firstNameIn.value;
-                let lastName = lastNameIn.value;
-                let userName = userNameIn.value;
-                let email = emailIn.value;
-                let password = passwordIn.value;
-                let confirmPassword = confirmPasswordIn.value;
-                let DOB = DOBIn.value;
-                let role = roleIn.value;
-                let department = departmentIn.value;
+                let firstName = document.getElementById("FN").value;
+                let lastName = document.getElementById("LN").value;
+                let userName = document.getElementById("UN").value;
+                let email = document.getElementById("email").value;
+                let password = document.getElementById("password").value;
+                let confirmPassword = document.getElementById("CP").value;
+                let DOB = document.getElementById("DOB").value;
+                let role = roleSelect.value;
+                let department = document.getElementById("department").value;
                 let authentication = "";
 
                 try {
@@ -99,12 +92,21 @@ import authCheck from "../validtionChecker.js";
                         }
                     }
                     location.href = "/login";
-                })
-                    .catch((e) => {
+                }).catch((e) => {
                         alert(e || "Something went wrong.");
                     });
             });
         }
+
+        roleSelect.addEventListener("change", () => {
+            const selectedValue = roleSelect.value;
+            if(selectedValue === 'admin'){
+                authInput.style.display = 'block';
+            }else{
+                authInput.style.display = 'none';
+            }
+        });
+
         const handleError = (errorMsg) => {
             errorHandle.hidden = false;
             errorHandle.innerHTML = errorMsg;
