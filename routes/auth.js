@@ -13,37 +13,6 @@ import {ObjectId} from 'mongodb';
 
 const router = Router();
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, "./public/images");
-    },
-    filename: function (req, file, cb) {
-        const timestamp = new Date().getTime();
-        const randomString = Math.random().toString(36).slice(2);
-        const ext = path.extname(file.originalname);
-        const filename = `${timestamp}-${randomString}${ext}`;
-        cb(null, filename);
-    },
-});
-
-const eventStorage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, "./public/images");
-    },
-    filename: function (req, file, cb) {
-
-        const timestamp = new Date().getTime();
-        const randomString = Math.random().toString(36).slice(2);
-        const ext = path.extname(file.originalname);
-        const filename = `${timestamp}-${randomString}${ext}`;
-        cb(null, filename);
-    },
-});
-
-const upload = multer({storage: storage});
-const uploadImage = upload.single("postImage");
-const eventUpload = multer({storage: eventStorage});
-const eventUploadImage = eventUpload.single("postImage");
 
 router.route('/').get(async (req, res) => {
     if (req.session.userId) {
@@ -82,28 +51,7 @@ router
     })
 
 
-router.post('/login', async (req, res) => {
-    try {
-        let {emailAddressInput, passwordInput} = req.body;
-        // console.log(emailAddressInput)
-        // console.log(passwordInput)
-        emailAddressInput = validation.checkEmail(emailAddressInput);
-        passwordInput = validation.checkPassword(passwordInput);
-        // console.log(emailAddressInput)
-        // console.log(passwordInput)
-        const sessionUser = await userData.checkUser(emailAddressInput, passwordInput);
-        // console.log(sessionUser);
-        req.session.userId = sessionUser.userId;
-        console.log('Welcome', req.session.userId);
 
-        req.session.userName = sessionUser.userName;
-        console.log('welcome abc', req.session.userName);
-
-        return res.redirect('/homepage');
-    } catch (e) {
-        return res.redirect('/login');
-    }
-});
 
 router.route('/register').get(async (req, res) => {
 
@@ -260,11 +208,26 @@ router.route('/profile').get(async(req,res)=> {
     return res.render('profile',{user:user});
 });
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "./public/images");
+    },
+    filename: function (req, file, cb) {
+        const timestamp = new Date().getTime();
+        const randomString = Math.random().toString(36).slice(2);
+        const ext = path.extname(file.originalname);
+        const filename = `${timestamp}-${randomString}${ext}`;
+        cb(null, filename);
+    },
+});
+
+const upload = multer({storage: storage});
+const uploadImage = upload.single("postImage");
 
 router.route('/posts')
     .get(async (req, res) => {
-
-        return res.render('posts');
+        let posts = await postData.getAllPosts();
+        return res.render('posts', {posts: posts});
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.userId;
@@ -291,8 +254,7 @@ router.route('/posts')
             }
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
-            console.log(user);
-            console.log(post);
+
             console.log("The post is posted");
             return res.redirect('/homepage');
         } catch (e) {
@@ -361,6 +323,23 @@ router.route('/events').get(async (req, res) => {
         res.status(500).json({error: error});
     }
 });
+
+const eventStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "./public/images");
+    },
+    filename: function (req, file, cb) {
+
+        const timestamp = new Date().getTime();
+        const randomString = Math.random().toString(36).slice(2);
+        const ext = path.extname(file.originalname);
+        const filename = `${timestamp}-${randomString}${ext}`;
+        cb(null, filename);
+    },
+});
+
+const eventUpload = multer({storage: eventStorage});
+const eventUploadImage = eventUpload.single("postImage");
 
 router.route('/events').post(eventUploadImage, async (req, res) => {
 
@@ -657,7 +636,8 @@ router.route('/profile').get(async (req, res) => {
 
 router.route('/posts')
     .get(async (req, res) => {
-        return res.render('posts');
+        const posts = await postData.getAllPosts();
+        return res.render('posts', {posts: posts});
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.userId;
@@ -677,34 +657,12 @@ router.route('/posts')
 
             const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
             const user = await userData.putPost(id, post._id);
-            console.log(user);
-            console.log(post);
-            console.log("The post is posted");
             return res.redirect('/homepage');
         } catch (e) {
             console.log(e)
             return res.render('posts', {Error: e});
         }
     });
-
-
-router.route('/posts/:id/comment').post(async (req, res) => {
-    try {
-        const userId = req.session.userId;
-        const postId = req.params.id;
-        const {commentText} = req.body;
-        // console.log(postId);
-        // console.log(commentText);
-        const comment = await commentData.createPostComment(userId, postId, commentText);
-        console.log(comment);
-        const post = await postData.putComment(postId, comment.commentId);
-        // console.log(post);
-        console.log('The comment is added');
-        return res.sendStatus(200);
-    } catch (e) {
-        console.log(e);
-    }
-});
 
 router
     .route('posts/:category')
