@@ -7,32 +7,59 @@ import express from "express";
 
 let exportedMethods ={
 
-    async createPostComment(userId,
+    async createComment(userId,
+                        eventId,
                         postId,
-                        contents){
+                        contents,
+                        commentType){
+
+
         userId = validation.checkId(userId);
         contents = validation.checkPhrases(contents);
-
-        // const comment = {
-        //     _id: new ObjectId(),
-        //     userId,
-        //     postId,
-        //     // userName,
-        //     contents,
-        //     created_Date: validation.getDate()
-        // }
-        const postCollection = await posts();
-        const post = await postCollection.findOne({_id:new ObjectId(postId)});
-        if(!post){
-            throw new Error('No Post found!!');
+        
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id:new ObjectId(userId)});
+        
+        //const user = await userData.getUserByID(userId);
+        if(!user){
+            throw "No user found!"
         }
+
         const comment = {
             _id: new ObjectId(),
+            userId:user._id,
+            //postId,
+            // userName,
             contents,
-            userId:new ObjectId(userId),
-            postId:post._id,
             created_Date: validation.getDate()
         }
+        if(commentType === "post"){
+            postId = validation.checkId(postId);
+            const postCollection = await posts();
+            const post = await postCollection.findOne({_id:new ObjectId(postId)});
+            if(!post){
+                throw new Error('No Post found!!');
+            }
+            comment.postId = post._id;
+        }
+
+        if(commentType === "event"){
+            eventId = validation.checkId(eventId);
+            const eventCollection = await events();
+            const event = await eventCollection.findOne({_id:new ObjectId(eventId)});
+            if(!event){
+                throw new Error('No Event found!!');
+            }
+            comment.eventId = event._id;
+        }
+        
+        // const comment = {
+        //     _id: new ObjectId(),
+        //     contents,
+        //     userId:new ObjectId(userId),
+        //     postId:post._id,
+        //     created_Date: validation.getDate()
+        // }
         // if(eventId){
         //     eventId = validation.checkId(eventId);
         //     comment.evenId = eventId;
@@ -146,34 +173,71 @@ let exportedMethods ={
 
     // get all comments that the events had
     async getEventCommentById(eventId){
-        eventId = await validation.checkId(eventId)
 
-        const event = await eventsData.getEventByID(eventId);
-        // console.log(event)
-        if(!event) throw `No event with that id ${eventId}`;
-        const commentList = event.commentIds;
-        const comments = [];
-        for(let i = 0; i < commentList.length; i++){
-            const comment = await this.getCommentById(commentList[i]);
-            console.log(comment)
-            comments = comments.push(comment)
+        eventId = await validation.checkId(eventId)
+        // const post = await postData.getPostById(postId);
+        // if(!post) throw `No  post with that id ${postId}`;
+        const commentCollection = await comments();
+        const userCollection = await users();
+        console.log(eventId);
+        const commentList = await commentCollection.find({eventId:new ObjectId(eventId)}).toArray();
+        console.log(commentList);
+        for(let x of commentList){
+            const user = await userCollection.findOne({_id:x.userId});
+            console.log(user);
+            x.userName = user.userName;
         }
-        return comments;
+        return commentList;
+        // return comments;
     },
 // get all comments that the posts had
     async getPostCommentById(postId){
+
         postId = await validation.checkId(postId)
         // const post = await postData.getPostById(postId);
         // if(!post) throw `No  post with that id ${postId}`;
         const commentCollection = await comments();
         const userCollection = await users();
+        console.log(postId);
         const commentList = await commentCollection.find({postId:new ObjectId(postId)}).toArray();
+        console.log(commentList);
         for(let x of commentList){
             const user = await userCollection.findOne({_id:x.userId});
+            console.log(user);
             x.userName = user.userName;
         }
         return commentList;
         // return comments;
+    },
+
+    async removeCommentByEvent(eventId){
+        eventId = await validation.checkId(eventId);
+        const commentCollection = await comments();
+        try{
+            const commentList = await commentCollection.deleteMany({eventId:new ObjectId(eventId)});
+            console.log(commentList);
+            if(commentList.deletedCount===0){
+                throw 'cannot delete comments for this event';
+            }
+            return {deleted:true};
+        }catch(e){
+            console.log(e);
+        }
+    },
+
+    async removeCommentByPost(postId){
+        postId = await validation.checkId(postId);
+        const commentCollection = await comments();
+        try{
+            const commentList = await commentCollection.deleteMany({postId:new ObjectId(postId)});
+            console.log(commentList);
+            if(commentList.deletedCount===0){
+                throw 'cannot delete comments for this event';
+            }
+            return {deleted:true};
+        }catch(e){
+            console.log(e);
+        }
     }
 
 };

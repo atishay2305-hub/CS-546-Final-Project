@@ -4,10 +4,12 @@ import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
 import multer from "multer";
 import path from "path";
+//import { pseudoRandomBytes } from "crypto";
 
 
 let exportedMethods = {
     async createPost(category, image, postedContent, userName, req) {
+
         category = validation.checkLegitName(category, "category");
         // postedContent = validation.checkPhrases(postedContent, "PostedContent");
         const userId = validation.checkId(userName);
@@ -79,6 +81,18 @@ let exportedMethods = {
         }
         post._id = new ObjectId(post._id).toString();
         return post;
+    },
+
+    async getPostByUserIdTop(userId){
+        const id = await validation.checkId(userId);
+        const postCollection = await posts();
+        const postList = await postCollection.find({userId:new ObjectId(userId)}).sort({created_Date: -1}).limit(5).toArray();
+        console.log(postList);
+        for(let x of postList){
+            x.deletable = true;
+        }
+        return postList;
+
     },
 
     // async removeById(id) {
