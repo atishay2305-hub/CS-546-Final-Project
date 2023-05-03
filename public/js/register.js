@@ -1,5 +1,4 @@
 import validation from '/validationchecker.js';
-
 $(function () {
     document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById('registrationForm');
@@ -11,7 +10,6 @@ $(function () {
                 event.preventDefault();
                 const form = event.target.elements;
                 errorHandle.hidden = true;
-
                 let firstName = document.getElementById('FN').value;
                 let lastName = document.getElementById('LN').value;
                 let userName = document.getElementById('UN').value;
@@ -19,7 +17,6 @@ $(function () {
                 let password = document.getElementById('password').value;
                 let DOB = document.getElementById('DOB').value;
                 let role = document.getElementById('role').selectedIndex;
-
                 try {
                     firstName = validation.checkLegitName(firstName, "First Name");
                     lastName = validation.checkLegitName(lastName, "Last Name");
@@ -37,7 +34,6 @@ $(function () {
                     document.getElementById("DOB").setAttribute("value", DOB);
                     return handleError(e.message || "Something went wrong");
                 }
-
                 fetch('/register', {
                     method: "post",
                     headers: {
@@ -73,7 +69,6 @@ $(function () {
                         }
                         location.href = '/login';
                         return;
-
                     })
                     .catch((error) => {
                         alert(error.message || "Something went wrong.");
@@ -86,4 +81,17 @@ $(function () {
         }
     })
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
 

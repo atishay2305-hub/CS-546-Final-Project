@@ -62,18 +62,30 @@ router.route('/register').post(async(req,res)=>{
     try{
         // removed dept
         let firstName = xss(req.body.firstName);
+        console.log("65")
         let lastName = xss(req.body.lastName);
+        console.log("66")
         let userName = xss(req.body.userName);
+        console.log("67")
         let email = xss(req.body.email);
+        console.log("68")
         let password = xss(req.body.password);
+        console.log("69")
         let DOB = xss(req.body.DOB);
+        console.log("70")
         let role = xss(req.body.role);
+        console.log("71")
         let department = xss(req.body.department);
+        console.log("72")
         let user;
+        console.log("73")
         if(role === 'admin'){
+            console.log("74")
             let authentication = xss(req.body.authentication);
+            console.log("75")
             user = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department, authentication);
         }else{
+            console.log("76")
             user  = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department);
         }
         const date = validation.getDate();
@@ -83,6 +95,7 @@ router.route('/register').post(async(req,res)=>{
         // console.log(user);
         if(user.insertedUser)
         {
+            console.log("98")
             return res.redirect('/login');
         }
         // req.session.userId = sessionUser.userId;
@@ -351,6 +364,32 @@ const eventUploadImage = eventUpload.single("postImage");
       return res.status(500).json({error: error});
     }
   });
+
+  router.route('/events/capacity/:id').post(async (req, res) => {
+    let id = req.params.id; // fix the id variable assignment
+    const {seatingCapacity,attendance} = req.body;
+    try{
+        let newSeatingCapacity = seatingCapacity;
+        if(typeof newSeatingCapacity === 'string') {
+          newSeatingCapacity = Number(newSeatingCapacity);
+        }
+        if(attendance === 'attend') {
+          newSeatingCapacity = newSeatingCapacity - 1;
+        } else if(attendance === 'cancel') {
+          newSeatingCapacity = newSeatingCapacity + 1;
+        }
+        
+        const result = await eventsData.updateCapacity(
+            id, // pass the correct id variable
+            newSeatingCapacity
+        );
+        return res.render('events', {newEvent: result});
+    }catch (e){
+        console.log(e);
+        return res.status(400).json({error: e});
+    }
+});
+
 
 router.route('/error').get(async (req, res) => {
     //code here for GET

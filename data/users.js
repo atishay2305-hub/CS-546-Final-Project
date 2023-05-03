@@ -30,16 +30,27 @@ let exportedMethods = {
         authentication = null
     ) {
         firstName = validation.checkLegitName(firstName, 'First name');
+        console.log("validation 1")
         lastName = validation.checkLegitName(lastName, 'Last name');
+        console.log("validation 2")
         userName = validation.checkName(userName, 'User Name');
+        console.log("validation 3")
         email = validation.checkEmail(email);
+        console.log("validation 4")
         password = validation.checkPassword(password);
+        console.log("validation 5")
         DOB = validation.checkDOB(DOB);
+        console.log("validation 6")
         role = validation.checkRole(role);
+        console.log("validation 7")
         department = validation.checkDepartment(department);
+        console.log("validation 8")
         authentication = validation.checkAuth(authentication);
+        console.log("validation 9")
         const userCollection = await users();
+        console.log("validation 10")
         const checkExist = await userCollection.findOne({email: email});
+        console.log("validation 11")
         if (checkExist) throw "Sign in to this account or enter an email address that isn't already in user.";
         let user = {
             firstName: firstName,
