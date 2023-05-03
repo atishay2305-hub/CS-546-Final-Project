@@ -416,31 +416,8 @@ let exportedMethods = {
         return `Successfully removed ${user.firstName} ${user.lastName} from the event with ID ${eventId}`;
     },
 
-    async updatePassword(email, password) {
-        password = validation.checkPassword(password);
-        const userCollection = await users();
-        const user = await userCollection.findOne({email: email});
-        if (!user) throw "You may have entered the wrong email address or password.";
-        const checkPassword = await bcrypt.compare(
-          password,
-          user.password
-        );
-        if (checkPassword) throw "Cannot be the same password as the original";
-        const hashPassword = await bcrypt.hash(password, 10);
-        const updatedInfo = await userCollection.updateOne(
-          {email: email},
-          {
-            $set: {
-              password: hashPassword,
-            },
-          }
-        );
-        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) {
-          throw `Error: could not update email ${email}`;
-        }
-        return {updatedUser: true, email: email};
-      },
-      
+
+
 
     async putComment(userId, commentId) {
         userId = validation.checkId(userId);

@@ -3,11 +3,6 @@ import authCheck from "../validtionChecker.js";
     document.addEventListener("DOMContentLoaded", function () {
         const eventForm = document.getElementById("event-form");
         const errorHandle = document.getElementById("eventError");
-        let eventNameIn = document.getElementById("eventName");
-        let descriptionIn = document.getElementById("description");
-        let buildingNameIn = document.getElementById("buildingName");
-        let organizerIn = document.getElementById("organizer");
-        let seatCapacityIn = document.getElementById("seatCapacity");
 
         if (eventForm) {
             eventForm.addEventListener("submit", (event) => {
@@ -17,11 +12,11 @@ import authCheck from "../validtionChecker.js";
                 const elements = event.target.elements;
                 errorHandle.hidden = true;
 
-                let eventName = eventNameIn.value;
-                let description = descriptionIn.value;
-                let buildingName = buildingNameIn.value;
-                let organizer = organizerIn.value;
-                let seatCapacity = seatCapacityIn.value;
+                let eventName = document.getElementById("eventName").value;
+                let description = document.getElementById("description").value;
+                let buildingName = document.getElementById("buildingName").value;
+                let organizer = document.getElementById("organizer").value;
+                let seatCapacity = document.getElementById("seatCapacity").value;
 
 
                 try {
@@ -32,7 +27,7 @@ import authCheck from "../validtionChecker.js";
                     seatCapacity = authCheck.checkCapacity(seatCapacity);
                 } catch (e) {
                     document.getElementById("eventName").setAttribute("value", eventName);
-                    document.getElementById("postContent").setAttribute("description", description);
+                    document.getElementById("description").setAttribute("description", description);
                     document.getElementById("buildingName").setAttribute("buildingName", buildingName);
                     document.getElementById("organizer").setAttribute("organizer", organizer);
                     document.getElementById("seatingCapacity").setAttribute("searCapacity", seatCapacity);
@@ -57,21 +52,20 @@ import authCheck from "../validtionChecker.js";
                     }
                 }).then((data) => {
                     if (data) {
-                        if (data.success) {
-                            location.href = "/evnet";
-                            sessionStorage.setItem("user", JSON.stringify(data.data));
-                        }else{
+                        if (!data.success) {
                             document.getElementById("eventName").value = data.eventName;
                             document.getElementById("description").value = data.description;
                             document.getElementById("buildingName").value = data.buildingName;
                             document.getElementById("organizer").value = data.organizer;
-                            document.getElementById("seatCapacity").value = data.seatCapacity;
-                            return handleError(data || "Something went wrong");
+                            document.getElementById("seatingCapacity").value = data.seatingCapacity;
+                            return handleError(data || "Something went wrong.");
                         }
                     }
+                    location.href = "/homepage";
+
                 }).catch((e) => {
-                        alert(e || "Something went wrong.");
-                    });
+                    alert(e || "Something went wrong.");
+                });
             });
         }
         const handleError = (errorMsg) => {

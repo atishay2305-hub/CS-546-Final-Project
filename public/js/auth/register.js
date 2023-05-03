@@ -3,15 +3,8 @@ import authCheck from "../validtionChecker.js";
     document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById("register-Form");
         const errorHandle = document.getElementById("registerError");
-        let firstNameIn = document.getElementById("FN");
-        let lastNameIn = document.getElementById("LN");
-        let userNameIn = document.getElementById("UN");
-        let emailIn = document.getElementById("email");
-        let passwordIn = document.getElementById("password");
-        let confirmPasswordIn = document.getElementById("CP");
-        let DOBIn = document.getElementById("DOB");
-        let roleIn = document.getElementById("role");
-        let departmentIn = document.getElementById("department");
+        const roleSelect  = document.getElementById("role");
+        const authInput = document.getElementById("auth-input");
         if (registerForm) {
             registerForm.addEventListener("submit", (event) => {
                 event.stopPropagation();
@@ -20,15 +13,15 @@ import authCheck from "../validtionChecker.js";
                 const elements = event.target.elements;
                 errorHandle.hidden = true;
 
-                let firstName = firstNameIn.value;
-                let lastName = lastNameIn.value;
-                let userName = userNameIn.value;
-                let email = emailIn.value;
-                let password = passwordIn.value;
-                let confirmPassword = confirmPasswordIn.value;
-                let DOB = DOBIn.value;
-                let role = roleIn.value;
-                let department = departmentIn.value;
+                let firstName = document.getElementById("FN").value;
+                let lastName = document.getElementById("LN").value;
+                let userName = document.getElementById("UN").value;
+                let email = document.getElementById("email").value;
+                let password = document.getElementById("password").value;
+                let confirmPassword = document.getElementById("CP").value;
+                let DOB = document.getElementById("DOB").value;
+                let role = roleSelect.value;
+                let department = document.getElementById("department").value;
                 let authentication = "";
 
                 try {
@@ -79,34 +72,40 @@ import authCheck from "../validtionChecker.js";
                         authentication: authentication
                     }),
                 }).then((response) => {
-                    if(!response.ok){
+                    if (!response.ok) {
                         return response.json();
                     }
-                    }).then((data) => {
-                        if (data) {
-                            if (data.success) {
-                                location.href = "/login";
-                                sessionStorage.setItem("user", JSON.stringify(data.data));
-                            }else{
-                                document.getElementById("FN").value = data.firstName;
-                                document.getElementById("LN").value = data.lastName;
-                                document.getElementById("UN").value = data.userName;
-                                document.getElementById("email").value = data.email;
-                                document.getElementById("password").value = data.password;
-                                document.getElementById("DOB").value = data.DOB;
-                                document.getElementById("role").value = data.role;
-                                document.getElementById("department").value = data.department;
-                                document.getElementById("authentication").value = data.authentication;
-                                return handleError(data || "Something went wrong");
-                            }
+                }).then((data) => {
+                    if (data) {
+                        if (!data.success) {
+                            document.getElementById("FN").value = data.firstName;
+                            document.getElementById("LN").value = data.lastName;
+                            document.getElementById("UN").value = data.userName;
+                            document.getElementById("email").value = data.email;
+                            document.getElementById("password").value = data.password;
+                            document.getElementById("DOB").value = data.DOB;
+                            document.getElementById("role").value = data.role;
+                            document.getElementById("department").value = data.department;
+                            document.getElementById("authentication").value = data.authentication;
+                            return handleError(data || "Something went wrong");
                         }
-
-                    })
-                    .catch((e) => {
+                    }
+                    location.href = "/login";
+                }).catch((e) => {
                         alert(e || "Something went wrong.");
                     });
             });
         }
+
+        roleSelect.addEventListener("change", () => {
+            const selectedValue = roleSelect.value;
+            if(selectedValue === 'admin'){
+                authInput.style.display = 'block';
+            }else{
+                authInput.style.display = 'none';
+            }
+        });
+
         const handleError = (errorMsg) => {
             errorHandle.hidden = false;
             errorHandle.innerHTML = errorMsg;
