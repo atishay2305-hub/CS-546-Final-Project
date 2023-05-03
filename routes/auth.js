@@ -367,6 +367,9 @@ const eventUploadImage = eventUpload.single("postImage");
 
   router.route('/events/capacity/:id').post(async (req, res) => {
     let id = req.params.id; // fix the id variable assignment
+    // TODO: Get user ID from session
+    const userId = req.session.userId;
+
     const {seatingCapacity,attendance} = req.body;
     try{
         let newSeatingCapacity = seatingCapacity;
@@ -381,7 +384,8 @@ const eventUploadImage = eventUpload.single("postImage");
         
         const result = await eventsData.updateCapacity(
             id, // pass the correct id variable
-            newSeatingCapacity
+            newSeatingCapacity,
+            userId
         );
         return res.render('events', {newEvent: result});
     }catch (e){
