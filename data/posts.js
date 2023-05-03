@@ -29,6 +29,9 @@ let exportedMethods = {
           imagePath = 'images/default.jpg';
         }
       
+        if(!req){
+            throw "Error"
+        }
         let post = {
           category: category,
           content: postedContent,
@@ -131,20 +134,21 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(post.userId.toString())});
-        console.log(user);
-        console.log("hello macha!!",user.postIDs);
+        // console.log(user);
+        // console.log("hello macha!!",user.postIDs);
         let postIdList = user.postIDs.map(post => post.toString());
-        console.log(postIdList);
-        if (user.isAdmin === undefined || !user.isAdmin){
-            if(!postIdList.includes(id)){
-                throw "Only administrators or the poster can delete posts.";
-            }
-        }
+        // console.log(postIdList);
+        // if (user.isAdmin === undefined || !user.isAdmin){
+        //     if(!postIdList.includes(id)){
+        //         throw "Only administrators or the poster can delete posts.";
+        //     }
+        // }
         const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
         if (removePost.deletedCount === 0) {
             throw `Could not delete band with id of ${id}`;
         }
         await userData.removePost(post.userId.toString(), id);
+    
         return {
             eventId: id,
             deleted: true
@@ -216,7 +220,7 @@ let exportedMethods = {
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(postId)});
         if (!post) throw `Error: ${post} not found`;
-        console.log(post) 
+        // console.log(post) 
         let commentIdList = post.commentIds;
         commentIdList.push(new ObjectId(commentId));
         const updatedInfo = await postCollection.updateOne(

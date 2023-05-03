@@ -41,7 +41,7 @@ try {
     // console.log(emailAddressInput)
     // console.log(passwordInput)
     const sessionUser = await userData.checkUser(emailAddressInput, passwordInput);
-    console.log(sessionUser);
+    // console.log(sessionUser);
     req.session.userId = sessionUser.userId;
     console.log('Welcome',req.session.userId);
 
@@ -62,27 +62,40 @@ router.route('/register').post(async(req,res)=>{
     try{
         // removed dept
         let firstName = xss(req.body.firstName);
+        console.log("65")
         let lastName = xss(req.body.lastName);
+        console.log("66")
         let userName = xss(req.body.userName);
+        console.log("67")
         let email = xss(req.body.email);
+        console.log("68")
         let password = xss(req.body.password);
+        console.log("69")
         let DOB = xss(req.body.DOB);
+        console.log("70")
         let role = xss(req.body.role);
+        console.log("71")
         let department = xss(req.body.department);
+        console.log("72")
         let user;
+        console.log("73")
         if(role === 'admin'){
+            console.log("74")
             let authentication = xss(req.body.authentication);
+            console.log("75")
             user = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department, authentication);
         }else{
+            console.log("76")
             user  = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department);
         }
         const date = validation.getDate();
         //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
         //console.log(user);
         //const {sessionUser} = await userData.;
-        console.log(user);
+        // console.log(user);
         if(user.insertedUser)
         {
+            console.log("98")
             return res.redirect('/login');
         }
         // req.session.userId = sessionUser.userId;
@@ -92,7 +105,7 @@ router.route('/register').post(async(req,res)=>{
       
         //return res.json(newuser);
     }catch(e){
-        console.log(e);
+        // console.log(e);
         return res.redirect('/register');
     }
 });
@@ -111,32 +124,24 @@ router.route('/homepage').get(async(req,res)=>{
 
     const userId = req.session.userId;
     console.log(userId);
-
     // console.log(userId)
-    //const email = req.session.email;    
+    //const email = req.session.email;
     //useremail from session and will just keep it
     //const user = await userData.getUserByID(userId);
     //const postList = await userData.getPostList(user.email);
-
-  
     //user info from ID
-    //getpost list if true 
+    //getpost list if true
     const userName = req.session.userName;
     console.log(userName)
-
     //const postList = await postData.getAllPosts();
-// getpost by userId--> all the post by userID[]. should have delete createDate(5) and 
+// getpost by userId--> all the post by userID[]. should have delete createDate(5) and
     // for (let x of postList){
     //     let resId = x?.userId;
-       
     //     //console.log(resId);
-        
     //     let resString= resId.toString();
-
     //     const user = await userData.getUserByID(resString);
     //     x.name =user.userName;
     //     //console.log(user.userName);
-   
     //     //console.log(x.userName);
     //     if(resString === userId){
     //         x.editable =true;
@@ -147,8 +152,7 @@ router.route('/homepage').get(async(req,res)=>{
     //     }
     // }
     const postList = await postData.getPostByUserIdTop(userId);
-
-      // const listOfPosts = [{category: "education", content: "Anime"}] 
+      // const listOfPosts = [{category: "education", content: "Anime"}]
     // posts: postList
     return res.render('homepage',{userId:userId,userName:userName,posts:postList});
 
@@ -157,7 +161,7 @@ router.route('/homepage').get(async(req,res)=>{
 
 router.route('/profile').get(async(req,res)=> {
     const id = req.session.userId;
-    console.log(id);
+    // console.log(id);
     const user = await userData.getUserByID(id);
     return res.render('profile',{user:user});
 });
@@ -209,11 +213,11 @@ const storage = multer.diskStorage({
     })
     .post(uploadImage, async(req,res)=>{
       const id = req.session.userId;
-      console.log(id);
+    //   console.log(id);
       const userName = req.session.userName;
   
       const{postCategory,postContent} = req.body;
-      console.log(postContent);
+    //   console.log(postContent);
   
       try{
           let imagePath = '';
@@ -228,9 +232,9 @@ const storage = multer.diskStorage({
           console.log(user);
           console.log(post);
           console.log("The post is posted");
-          return res.redirect('/posts');
+          return res.redirect('/homepage');
       }catch(e){
-          console.log(e)
+        //   console.log(e)
           return res.render('posts',{Error:e});
       }
   });
@@ -361,6 +365,32 @@ const eventUploadImage = eventUpload.single("postImage");
     }
   });
 
+  router.route('/events/capacity/:id').post(async (req, res) => {
+    let id = req.params.id; // fix the id variable assignment
+    const {seatingCapacity,attendance} = req.body;
+    try{
+        let newSeatingCapacity = seatingCapacity;
+        if(typeof newSeatingCapacity === 'string') {
+          newSeatingCapacity = Number(newSeatingCapacity);
+        }
+        if(attendance === 'attend') {
+          newSeatingCapacity = newSeatingCapacity - 1;
+        } else if(attendance === 'cancel') {
+          newSeatingCapacity = newSeatingCapacity + 1;
+        }
+        
+        const result = await eventsData.updateCapacity(
+            id, // pass the correct id variable
+            newSeatingCapacity
+        );
+        return res.render('events', {newEvent: result});
+    }catch (e){
+        console.log(e);
+        return res.status(400).json({error: e});
+    }
+});
+
+
 router.route('/error').get(async (req, res) => {
     //code here for GET
     return res.render('error', {error: "Something"});
@@ -378,17 +408,15 @@ router.route('/posts/:id').delete(async(req,res)=>{
     const commentCollection = await comments();
     const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
     console.log(post);
-
     if(post.length !== 0){
         const responsePost = await commentData.removeCommentByPost(req.params.id);
-        console.log("hi",responsePost.deleted);    
+        console.log("hi",responsePost.deleted);
     }
     const response = await postData.removeById(req.params.id);
     console.log("hi",response.deleted);
     //const user = await userData.removePost()
     //const postList = await postData.getAllPosts();
     //res.status(200).send(response);
-
     //res.send(response);
     return res.sendStatus(200);
 }catch(e){
@@ -591,9 +619,9 @@ router
   .route('/posts/:postId/allComments')
   .get(async (req, res) => {
     const postId = req.params.postId;
-    console.log(postId);
+    // console.log(postId);
     const comment = await commentData.getPostCommentById(postId)
-    console.log(comment);
+    // console.log(comment);
     return res.render('allComments', {comment: comment});
   });
 

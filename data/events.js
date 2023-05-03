@@ -195,7 +195,7 @@ let exportedMethods = {
             throw "Could not update record with that ID.";
         }
         return await this.getAllEvents();
-    }
+    },
 
     async putComment(eventId, commentId) {
         eventId = validation.checkId(eventId);
