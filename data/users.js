@@ -59,6 +59,7 @@ let exportedMethods = {
             user.role = 'admin';
             user.authentication = true;
         }else{
+            //user.eventIDs = [];
             user.postIDs = [];
             user.role = 'user';
             user.authentication = authentication;
@@ -83,6 +84,7 @@ let exportedMethods = {
      */
 
     async checkUser(email, password) {
+        
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         // const userId = checkExist._id.toString();
@@ -326,7 +328,7 @@ let exportedMethods = {
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         let eventIdList = user.eventIDs;
-        eventIdList.push(eventId);
+        eventIdList.push(new ObjectId(eventId));
         const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(userId)},
             {$set: {eventIDs: eventIdList}}
@@ -341,12 +343,12 @@ let exportedMethods = {
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `User with that ID${userId} not found`; //check password as well
-        let eventIdList = user.eventIDs;
+        let eventIdList = user.eventIDs.map(event=>event.toString());
         if (eventIdList.includes(eventId)) {
-            eventIdList = eventId.filter(elem => elem !== eventId);
+            eventIdList = eventIdList.filter(elem => elem !== eventId);
             const updatedInfo = await userCollection.updateOne(
                 {_id: new ObjectId(userId)},
-                {$set: {eventIDs: eventIdList}}
+                {$set: {eventIDs: eventIdList.map(id=>new ObjectId(id))}}
             );
             if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove event with that ID${userId}`;
             return true;

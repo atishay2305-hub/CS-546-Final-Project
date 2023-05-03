@@ -5,12 +5,15 @@ import moment from 'moment';
 import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
+import eventsData from '../data/events.js'
 import validation from '../validationchecker.js';
 //import { requireAuth } from '../app.js';
 import multer from "multer";
 import path from "path";
 
 import xss from 'xss';
+import { comments, users } from '../config/mongoCollections.js';
+import { ObjectId } from 'mongodb';
 const router = Router();
 
 router.route('/').get(async(req,res)=>{
@@ -40,7 +43,11 @@ try {
     const sessionUser = await userData.checkUser(emailAddressInput, passwordInput);
     // console.log(sessionUser);
     req.session.userId = sessionUser.userId;
+    console.log('Welcome',req.session.userId);
+
     req.session.userName = sessionUser.userName;
+    console.log('welcome abc',req.session.userName);
+
     return res.redirect('/homepage');
 } catch (e) {
     return res.redirect('/login');
@@ -100,6 +107,8 @@ router.route('/register').post(async(req,res)=>{
 // }), 
 
 router.route('/homepage').get(async(req,res)=>{
+
+
     const userId = req.session.userId;
     // console.log(userId);
 
@@ -113,25 +122,22 @@ router.route('/homepage').get(async(req,res)=>{
     //user info from ID
     //getpost list if true 
     const userName = req.session.userName;
-    // console.log(userName)
-    // console.log(userName);
-    //console.log(postList);
-    const postList = await postData.getAllPosts();
-    // console.log(postList);
+    console.log(userName)
 
-    //console.log(postList);
-    for (let x of postList){
-        let resId = x?.userId;
+    //const postList = await postData.getAllPosts();
+// getpost by userId--> all the post by userID[]. should have delete createDate(5) and 
+    // for (let x of postList){
+    //     let resId = x?.userId;
        
-        // console.log(resId);
+        console.log(resId);
         
         let resString= resId.toString();
 
         const user = await userData.getUserByID(resString);
         x.name =user.userName;
-        // console.log(user.userName);
-        // console.log(resString);
-        // console.log(x.userName);
+        console.log(user.userName);
+        console.log(resString);
+        console.log(x.userName);
         if(resString === userId){
             x.editable =true;
             x.deletable = true;
@@ -173,7 +179,32 @@ const storage = multer.diskStorage({
   
   router.route('/posts')
     .get(async(req, res)=>{
-      return res.render('posts');
+    
+    const userId = req.session.userId;
+
+    const postList = await postData.getAllPosts();
+    for (let x of postList){
+        let resId = x?.userId;
+       
+        //console.log(resId);
+        
+        let resString= resId.toString();
+
+        const user = await userData.getUserByID(resString);
+        x.name =user.userName;
+        //console.log(user.userName);
+   
+        //console.log(x.userName);
+        if(resString === userId){
+            x.editable =true;
+            x.deletable = true;
+        }else{
+            x.editable = false;
+            x.deletable = false;
+        }
+    }
+
+      return res.render('posts',{posts:postList});
     })
     .post(uploadImage, async(req,res)=>{
       const id = req.session.userId;
@@ -193,16 +224,141 @@ const storage = multer.diskStorage({
   
           const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
           const user  = await userData.putPost(id,post._id);
-        //   console.log(user);
-        //   console.log(post);
-        //   console.log("The post is posted");
+          console.log(user);
+          console.log(post);
+          console.log("The post is posted");
           return res.redirect('/homepage');
       }catch(e){
         //   console.log(e)
           return res.render('posts',{Error:e});
       }
   });
+
+  router.route('/events').get(async (req, res) => {
+    try {
+      
+    const userId = req.session.userId;
+    if (!userId) {
+        throw new Error('User ID not found in session');
+    }
+      
+      //const userCollection = await users();
+      const user = await userData.getUserByID(userId);
+      console.log('The user is ',user);
+
+      if(!user){
+          throw new Error('No user found');
+      }
   
+      console.log("hello bro!!",userId);
+      
+  
+      const events = await eventsData.getAllEvents();
+      let isAdmin;
+      if(user.role === 'admin'){
+        isAdmin = true;
+        for (const x of events){
+            x.editable =true;
+            x.deletable = true;
+        }
+      }
+
+
+    //   for (let x of events){
+
+    //     let resId = x?.userId;        
+    //     let resString= resId.toString();
+
+    //     const user = await userData.getUserByID(resString);
+    //     x.name =user.userName;
+    //     //console.log(user.userName);
+    //     //console.log(resString);
+    //     //console.log(x.userName);
+    //     if(resString === userId){
+    //         x.editable =true;
+    //         x.deletable = true;
+    //     }else{
+    //         x.editable = false;
+    //         x.deletable = false;
+    //     }
+    // }
+
+  
+
+      return res.render('events', {newEvent: events, isAdmin:isAdmin});
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: error });
+    }
+  });
+
+
+  const eventStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, "./public/images");
+    },
+    filename: function (req, file, cb) {
+  
+      const timestamp = new Date().getTime();
+      const randomString = Math.random().toString(36).slice(2);
+      const ext = path.extname(file.originalname);
+      const filename = `${timestamp}-${randomString}${ext}`;
+      cb(null, filename);
+    },
+  });
+
+
+  const eventUpload = multer({ storage: eventStorage });
+const eventUploadImage = eventUpload.single("postImage");
+
+
+
+
+  router.route('/events').post(eventUploadImage, async (req, res) => {
+
+    const userId = req.session.userId;
+    console.log(userId);
+    try{
+        let imagePath = '';
+        if (req.file) {
+          imagePath = req.file.path.replace('public', '');
+        } else {
+          imagePath = 'images/default.jpg';
+        }
+      const {eventName, description, buildingName, organizer, seatingCapacity} = req.body;
+      const newEvent = await eventsData.createEvent(eventName, description, buildingName, organizer, seatingCapacity, imagePath, req);
+      console.log(newEvent);
+      return res.redirect('/events');
+    //   const gettingAllEvents = await eventsData.getAllEvents();
+
+    //   for (let x of gettingAllEvents){
+
+    //     let resId = x?.userId;        
+    //     let resString= resId.toString();
+
+    //     const user = await userData.getUserByID(resString);
+    //     x.name =user.userName;
+
+    //     //console.log(user.userName);
+    //     //console.log(resString);
+    //     //console.log(x.userName);
+        
+    //     if(resString === userId){
+    //         x.editable =true;
+    //         x.deletable = true;
+    //     }else{
+    //         x.editable = false;
+    //         x.deletable = false;
+    //     }
+    // }
+
+      return res.status(200).render('events', {newEvent: gettingAllEvents});
+    }
+    catch (error) {
+      console.log(error);
+      return res.status(500).json({error: error});
+    }
+  });
 
 router.route('/error').get(async (req, res) => {
     //code here for GET
@@ -211,7 +367,7 @@ router.route('/error').get(async (req, res) => {
 
 
 router.route('/posts/:id').delete(async(req,res)=>{
-    // console.log(req.params.id);
+    console.log(req.params.id);
     
     const response = await postData.removeById(req.params.id);
     // console.log("hi",response.deleted);
@@ -221,6 +377,9 @@ router.route('/posts/:id').delete(async(req,res)=>{
 
     //res.send(response);
     return res.sendStatus(200);
+}catch(e){
+    console.log(e);
+}
 });
 
 router.route('/posts/:id/comment').post(async(req,res)=>{
@@ -231,7 +390,7 @@ router.route('/posts/:id/comment').post(async(req,res)=>{
         // console.log(postId);
         // console.log(commentText);
         const comment = await commentData.createPostComment(userId,postId,commentText);
-        // console.log(comment);
+        console.log(comment);
         const post = await postData.putComment(postId,comment.commentId);
         // console.log(post);
         // console.log('The comment is added');
@@ -240,7 +399,68 @@ router.route('/posts/:id/comment').post(async(req,res)=>{
         return e;
         // console.log(e);
     }
-}),
+});
+
+
+router.route('/events/:id').delete(async(req,res)=>{
+    //console.log(req.params.id);
+    try{
+        const user = await userData.getUserByID(req.session.userId);
+    if(!user){
+        throw 'cannot find user';
+    }
+    console.log(user);
+    if (user.role !== 'admin') throw "Only administrators can delete events.";
+
+
+    const commentCollection = await comments();
+    const event = await commentCollection.find({eventId:new ObjectId(req.params.id)}).toArray();
+    console.log(event);
+    if(event.length!==0){
+        const response = await commentData.removeCommentByEvent(req.params.id);
+        console.log("hi",response.deleted);
+    }
+    if(!event){
+        throw "No events found!!"
+    }
+
+
+
+    const responseEvent = await eventsData.removeEventById(req.params.id);
+    console.log(responseEvent);
+    
+
+    console.log("hi",responseEvent.deleted);
+
+    return res.sendStatus(200);
+
+    }catch(e){
+        console.log(e);
+    }
+    
+
+    //res.send(response);
+    
+});
+
+
+router.route('/events/:id/comment').post(async(req,res)=>{
+    try{
+        const userId = req.session.userId;
+        const eventId = req.params.id;
+        const{commentText} =req.body;
+        // console.log(postId);
+        // console.log(commentText);
+        const comment = await commentData.createComment(userId,eventId,null,commentText,"event");
+        console.log(comment);
+        const post = await eventsData.putComment(eventId,comment.commentId);
+        // console.log(post);
+        console.log('The comment is added');
+        return res.sendStatus(200);
+    }catch(e){
+        console.log(e);
+    }
+});
 
 // router.route('/logout')
 //   .get(async (req, res) => {
@@ -363,5 +583,16 @@ router
     // console.log(comment);
     return res.render('allComments', {comment: comment});
   });
+
+  router
+  .route('/events/:eventId/allComments')
+  .get(async (req, res) => {
+    const eventId = req.params.eventId;
+    console.log(eventId);
+    const comment = await commentData.getEventCommentById(eventId)
+    console.log(comment);
+    return res.render('allComments', {comment: comment});
+  });
+ 
 
 export default router;
