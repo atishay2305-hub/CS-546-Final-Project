@@ -1,34 +1,86 @@
-// import express from "express";
-// import Router from "express";
-// import eventsData from "../data/events.js";
-// import validation from "../validationchecker.js";
-// import { events } from "../config/mongoCollections.js";
-// import multer from "multer";
-// import path from "path";
-// const router = Router();
+import express from "express";
+import Router from "express";
+import eventsData from "../data/events.js";
+import validation from "../validationchecker.js";
+import { events } from "../config/mongoCollections.js";
+import multer from "multer";
+const router = Router();
 
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "./public/images");
-//   },
-//   filename: function (req, file, cb) {
-//     const timestamp = new Date().getTime();
-//     const randomString = Math.random().toString(36).slice(2);
-//     const ext = path.extname(file.originalname);
-//     const filename = `${timestamp}-${randomString}${ext}`;
-//     cb(null, filename);
-//   },
-// });
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./public/images");
+  },
+  filename: function (req, file, cb) {
+    const timestamp = new Date().getTime();
+    const randomString = Math.random().toString(36).slice(2);
+    const ext = path.extname(file.originalname);
+    const filename = `${timestamp}-${randomString}${ext}`;
+    cb(null, filename);
+  },
+});
 
-// const upload = multer({ storage: storage });
-// const uploadImage = upload.single("postImage");
+const upload = multer({ storage: storage });
+const uploadImage = upload.single("postImage");
+
+
+router.route('/events')
+.get(async (req, res) => {
+  try {
+    const events = await eventsData.getAllEvents();
+    return res.render('events', {events: events});
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+})
+  .post(uploadImage, async (req, res) => {
+    // const event = req.body;
+    // try {
+    //   // event.eventName = validation.checkString(event.eventName, "eventName");
+    //   // event.description = validation.checkString(event.description, "description");
+    //   // event.buildingName = validation.checkString(event.buildingName, "buildingName");
+    //   // event.organizer = validation.checkString(event.organizer, "organizer");
+    //   // event.seatingCapacity = validation.checkSeating(event.seatingCapacity, "seatingCapacity");
+    //   // event.userId = validation.checkString(event.eventName, "userId");
+    // } catch(error){
+    //   return res.status(400).render('events', {error: error});
+    // }
+    try{
+      // try{
+      //   let imagePath = '';
+      //   if (req.file) {
+      //     imagePath = req.file.path.replace('public', '');
+      //   } else {
+      //     imagePath = 'images/default.jpg';
+      //   }
+      const {eventName, description, buildingName, organizer, seatingCapacity, userId} = req.body;
+      const newEvent = await eventsData.createEvent(userId, eventName, description, buildingName, organizer, seatingCapacity, image);
+      const gettingAllEvents = await eventsData.getAllEvents();
+      return res.status(200).render('events', {newEvent: gettingAllEvents});
+    }
+    catch (error) {
+      return res.status(500).json({error: error});
+    }
+  })
+
+  router.route('/events/:id').delete(async(req,res)=>{
+    console.log(req.params.id);
+    
+    const response = await eventsData.removeById(req.params.id);
+    // console.log("hi",response.deleted);
+    //const user = await userData.removePost()
+    //const postList = await postData.getAllPosts();
+    //res.status(200).send(response);
+
+    //res.send(response);
+    return res.sendStatus(200);
+});
 
 // router.route('/new').get(async (req, res) => {
 
 //   res.render('newEvent', {});
 // });
 
-// router.route('/capacity/:id').post(async (req, res) => {
+// router.route('events/capacity/:id').post(async (req, res) => {
 //         let id = req.params.id; // fix the id variable assignment
 //         const {seatingCapacity,attendance} = req.body;
 //         try{

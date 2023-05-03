@@ -36,4 +36,32 @@ const passwordResetByEmail = async ({id, email}, res) => {
     }
 }
 
+const registrationConfirmByEmail = async ({id, email}, res) => {
+    try{
+        const url = `http://localhost:3000/event/registratoin/${id}`;
+        const mailOptions = {
+            from: "stevenseventboard@gmail.com",
+            to: email || "stevenseventboard@gmail.com",
+            subject: "Confirm your registration",
+            html: `<p>Click <a href="${url}">here</a> to confirm event registration.</p>`
+        }
+        const result = await transporter.sendMail(mailOptions);
+        if(result) {
+            return res.redirect('/homepage');
+
+        }else{
+            return res.json({
+                success: true,
+                message: "Link was sent to your email"
+            })
+        }
+    }catch (e){
+        return res.status(500).json({
+            success: false,
+            message: "Some error occurred, try again later"
+        })
+    }
+}
+
+
 export {passwordResetByEmail}

@@ -47,7 +47,6 @@ let exportedMethods = {
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
           throw "Could not add post";
         }
-      
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
         return insertInfo;
