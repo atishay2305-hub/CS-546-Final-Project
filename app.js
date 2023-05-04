@@ -101,13 +101,14 @@ app.use('/register', (req, res, next) => {
         return res.redirect('/login');
     }
     next();
-=======
-const isLoggedIn = (req, res, next) => {
-  if (!req.session.user) {
-    return res.redirect('/login');
-  }
-  next();
-};
+  });
+
+// const isLoggedIn = (req, res, next) => {
+//   if (!req.session.user) {
+//     return res.redirect('/login');
+//   }
+//   next();
+// };
 
 app.use('/posts', isLoggedIn);
 app.use('/events', isLoggedIn);
