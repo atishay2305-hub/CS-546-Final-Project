@@ -34,15 +34,13 @@ import authCheck from "../validtionChecker.js";
                     }
                 }).then((data) => {
                     if (data) {
-                        if (data.success) {
-                            sessionStorage.setItem("user", JSON.stringify(data.data));
-                            location.herf = '/login';
-                        } else {
+                        if (!data.success) {
                             document.getElementById("email").value = data.email;
                             document.getElementById("password").value = data.password;
                             return handleError(data || "Something went wrong.");
                         }
                     }
+                    location.href = "/login";
                 }).catch((e) => {
                     alert(e || "Something went wrong.");
                 });

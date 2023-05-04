@@ -47,7 +47,7 @@ let exportedMethods = {
             date: validation.getDate(),
             buildingName: buildingName,
             organizer: organizer,
-            attendees: {},
+            attendees:[],
             seatingCapacity: seatingCapacity,
             image: imagePath,
             commentIds: [],
@@ -180,15 +180,28 @@ let exportedMethods = {
 
     async updateCapacity(
         id,
-        seatingCapacity
+        seatingCapacity,
+        userId
     ) {
         id = validation.checkId(id);
+        userId = validation.checkId(userId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id:new ObjectId(userId)});
+        console.log(user)
+        if(!user){
+            throw "No user Found!!"
+        }
+        console.log(user.userName)
         seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
+        console.log(checkEventExist)
+        let attendees = checkEventExist.attendees
+        console.log(attendees)
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
         let evenData = {
-            seatingCapacity: seatingCapacity
+            seatingCapacity: seatingCapacity,
+            attendees:attendees.push(user.userName)
         }
         let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
         if (!event.acknowledged || event.matchedCount !== 1) {
