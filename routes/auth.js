@@ -1,8 +1,4 @@
 import {Router} from 'express';
-import moment from 'moment';
-//import {userData} from '../data/index.js';
-//import { userData } from '../data/index.js';
-import commentData from '../data/comments.js';
 import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
@@ -85,30 +81,6 @@ router
         }
     })
 
-
-// router.post('/login', async (req, res) => {
-//     try {
-//         let {emailAddressInput, passwordInput} = req.body;
-//         // console.log(emailAddressInput)
-//         // console.log(passwordInput)
-//         emailAddressInput = validation.checkEmail(emailAddressInput);
-//         passwordInput = validation.checkPassword(passwordInput);
-//         // console.log(emailAddressInput)
-//         // console.log(passwordInput)
-//         const sessionUser = await userData.checkUser(emailAddressInput, passwordInput);
-//         // console.log(sessionUser);
-//         req.session.userId = sessionUser.userId;
-//         console.log('Welcome', req.session.userId);
-
-//         req.session.userName = sessionUser.userName;
-//         console.log('welcome abc', req.session.userName);
-
-//         return res.redirect('/homepage');
-//     } catch (e) {
-//         return res.redirect('/login');
-//     }
-// });
-
 router.route('/register').get(async(req,res)=>{
     return res.status(200).render('register',{title:"Register Page"});
 });
@@ -178,7 +150,7 @@ router.route('/homepage').get(async(req,res)=>{
 
 
     const userId = req.session.userId;
-    console.log(userId);
+    // console.log(userId);
     // console.log(userId)
     //const email = req.session.email;
     //useremail from session and will just keep it
@@ -187,7 +159,7 @@ router.route('/homepage').get(async(req,res)=>{
     //user info from ID
     //getpost list if true
     const userName = req.session.userName;
-    console.log(userName)
+    // console.log(userName)
     // console.log(userName);
     //console.log(postList);
     const postList = await postData.getAllPosts();
@@ -197,15 +169,15 @@ router.route('/homepage').get(async(req,res)=>{
     for (let x of postList) {
         let resId = x?.userId;
 
-        console.log(resId);
+        // console.log(resId);
 
         let resString = resId.toString();
 
         const user = await userData.getUserByID(resString);
         x.name = user.userName;
-        console.log(user.userName);
-        console.log(resString);
-        console.log(x.userName);
+        // console.log(user.userName);
+        // console.log(resString);
+        // console.log(x.userName);
         if (resString === userId) {
             x.editable = true;
             x.deletable = true;
@@ -234,16 +206,45 @@ router.route('/profile').get(async(req,res)=> {
 });
 
 
+// router.route('/posts')
+//     .get(async (req, res) => {
+//         const posts = await postData.getAllPosts();
+//         return res.render('posts', {posts: posts});
+//     })
+//     .post(uploadImage, async (req, res) => {
+//         const id = req.session.userId;
+//         console.log(id);
+//         const userName = req.session.userName;
+
+//         // const {category, postContent} = req.body;
+//         // console.log(category)
+//         // console.log(postContent);
+
+//         try {
+//             let imagePath = '';
+//             if (req.file) {
+//                 imagePath = req.file.path.replace('public', '');
+//             } else {
+//                 imagePath = 'images/default.jpg';
+//             }
+
+//             const post = await postData.createPost(category, imagePath, postContent, id, req);
+//             const user = await userData.putPost(id, post._id);
+//             return res.redirect('/homepage');
+//         } catch (e) {
+//             console.log(e)
+//             return res.render('posts', {Error: e});
+//         }
+//     });
 router.route('/posts')
     .get(async (req, res) => {
-
-        return res.render('posts');
+        let posts = await postData.getAllPosts();
+        return res.render('posts', {posts: posts});
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.userId;
         console.log(id);
         const userName = req.session.userName;
-
         let category = xss(req.body.category);
         let postContent = xss(req.body.postContent);
         category = validation.checkCategory(category);
@@ -257,13 +258,13 @@ router.route('/posts')
             } else {
                 imagePath = 'images/default.jpg';
             }
-
             if(category === 'lost&found'){
                 address = xss(req.body.address);
                 address = validation.checkAddress(address);
             }
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
+            console.log("The post is posted");
             return res.redirect('/homepage');
         } catch (e) {
             return res.status(400).json({
@@ -275,12 +276,75 @@ router.route('/posts')
         }
     });
 
+
+
+    router
+    .route('posts/:category')
+    .get(async (req, res) => {
+        try {
+            let category = req.params.category;
+            category = validationchecker.checkCategory(category);
+            let postList = await postData.getAllPosts({category: category});
+            res.render('post-list', {category, posts: postList});
+        } catch (e) {
+            return res.status(500).sendFile(path.resolve("/public/static/notfound.h tml"));
+        }
+    })
+
+    router.route('/posts/:id').delete(async (req, res) => {
+        console.log(req.params.id);
+        try{
+            const user = await userData.getUserByID(req.session.userId);
+            if(!user){
+                throw 'cannot find user';
+            }
+            //console.log(user);
+            const commentCollection = await comments();
+            const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
+            console.log(post);
+            if(post.length !== 0){
+                const responsePost = await commentData.removeCommentByPost(req.params.id);
+                console.log("hi",responsePost.deleted);
+            }
+            const response = await postData.removeById(req.params.id);
+            console.log("hi", response.deleted);
+            //const user = await userData.removePost()
+            //const postList = await postData.getAllPosts();
+            //res.status(200).send(response);
+            //res.send(response);
+            return res.sendStatus(200);
+        } catch(e
+            )
+        {
+            console.log(e);
+        }
+    });
+    
+    router.route('/posts/:id/comment').post(async (req, res) => {
+        try {
+            const userId = req.session.userId;
+            const postId = req.params.id;
+            const {commentText} = req.body;
+            // console.log(postId);
+            // console.log(commentText);
+            const comment = await commentData.createComment(userId, null, postId, commentText, "post");
+            console.log(comment);
+            const post = await postData.putComment(postId, comment.commentId);
+            // console.log(post);
+            console.log('The comment is added');
+            return res.sendStatus(200);
+        } catch (e) {
+            console.log(e);
+        }
+    });
+
+
 router.route('/events').get(async (req, res) => {
     try {
 
         const userId = req.session.userId;
         if (!userId) {
-            throw new Error('User ID not found in session');
+            throw ('User ID not found in session');
         }
 
         //const userCollection = await users();
@@ -418,52 +482,7 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 });
 
 
-router.route('/posts/:id').delete(async (req, res) => {
-    console.log(req.params.id);
-    try{
-        const user = await userData.getUserByID(req.session.userId);
-        if(!user){
-            throw 'cannot find user';
-        }
-        //console.log(user);
-        const commentCollection = await comments();
-        const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
-        console.log(post);
-        if(post.length !== 0){
-            const responsePost = await commentData.removeCommentByPost(req.params.id);
-            console.log("hi",responsePost.deleted);
-        }
-        const response = await postData.removeById(req.params.id);
-        console.log("hi", response.deleted);
-        //const user = await userData.removePost()
-        //const postList = await postData.getAllPosts();
-        //res.status(200).send(response);
-        //res.send(response);
-        return res.sendStatus(200);
-    } catch(e
-        )
-    {
-        console.log(e);
-    }
-});
 
-router.route('/posts/:id/comment').post(async (req, res) => {
-    try {
-        const userId = req.session.userId;
-        const postId = req.params.id;
-        const {commentText} = req.body;
-        // console.log(postId);
-        // console.log(commentText);
-        const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-        console.log(comment);
-        const post = await postData.putComment(postId, comment.commentId);
-        // console.log(post);
-        console.log('The comment is added');
-        return res.sendStatus(200);
-    } catch (e) {
-        console.log(e);
-    }
-});
 
 
 router.route('/events/:id').delete(async(req,res)=>{
@@ -685,73 +704,6 @@ router.route('/profile').get(async (req, res) => {
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user});
 });
-
-
-
-
-router.route('/posts')
-    .get(async (req, res) => {
-        return res.render('posts');
-    })
-    .post(uploadImage, async (req, res) => {
-        const id = req.session.userId;
-        console.log(id);
-        const userName = req.session.userName;
-
-        const {postCategory, postContent} = req.body;
-        console.log(postContent);
-
-        try {
-            let imagePath = '';
-            if (req.file) {
-                imagePath = req.file.path.replace('public', '');
-            } else {
-                imagePath = 'images/default.jpg';
-            }
-
-            const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
-            const user = await userData.putPost(id, post._id);
-            console.log(user);
-            console.log(post);
-            console.log("The post is posted");
-            return res.redirect('/homepage');
-        } catch (e) {
-            console.log(e)
-            return res.render('posts', {Error: e});
-        }
-    });
-
-
-router.route('/posts/:id/comment').post(async (req, res) => {
-    try {
-        const userId = req.session.userId;
-        const postId = req.params.id;
-        const {commentText} = req.body;
-        // console.log(postId);
-        // console.log(commentText);
-        const comment = await commentData.createPostComment(userId, postId, commentText);
-        console.log(comment);
-        const post = await postData.putComment(postId, comment.commentId);
-        // console.log(post);
-        console.log('The comment is added');
-        return res.sendStatus(200);
-    } catch (e) {
-        console.log(e);
-    }
-});
-
-router
-    .route('posts/:category')
-    .get(async (req, res) => {
-        try {
-            let category = req.params.category;
-            category = validationchecker.checkCategory(category);
-            let postList = await postData.getAllPosts({category: category});
-            res.render('post-list', {category, posts: postList});
-        } catch (e) {
-            return res.status(500).sendFile(path.resolve("/public/static/notfound.h tml"));
-        }
-    })
 
 router.route('/increaseLikes')
     .post(async (req, res) => {
