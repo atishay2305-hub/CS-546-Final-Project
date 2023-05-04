@@ -197,7 +197,12 @@ let exportedMethods = {
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
         console.log(checkEventExist)
         let attendees = checkEventExist.attendees
-        console.log(attendees)
+        console.log(attendees);
+        if(Object.keys(attendees).length===0) {
+            attendees=[];
+            console.log("attendees arry");
+        }
+        
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
         let evenData = {
             seatingCapacity: seatingCapacity,

@@ -26,6 +26,7 @@ const uploadImage = upload.single("postImage");
 router.route('/events')
 .get(async (req, res) => {
   try {
+
     const events = await eventsData.getAllEvents();
     return res.render('events', {events: events});
   } catch (error) {
@@ -74,6 +75,42 @@ router.route('/events')
     //res.send(response);
     return res.sendStatus(200);
 });
+router.route('/capacity/:id').post(async (req, res) => {
+  const id = req.params.id; // fix the id variable assignment
+  const {seatingCapacity,attendance} = req.body;
+  let attenddone;
+  try{
+      let newSeatingCapacity = seatingCapacity;
+      
+      if(typeof newSeatingCapacity === 'string') {
+        newSeatingCapacity = Number(newSeatingCapacity);
+      }
+      if(attendance === 'attend') {
+        newSeatingCapacity = newSeatingCapacity - 1;
+        attenddone = 'done';
+      } else if(attendance === 'cancel') {
+        newSeatingCapacity = newSeatingCapacity + 1;
+      }
+      console.log(req.session);
+      var result = await eventsData.updateCapacity(
+          id, // pass the correct id variable
+          newSeatingCapacity,
+          // req.session.userId
+          "644832c015500e1f645fcfed"
+      );
+      result.forEach((node) => {
+        node._id = node._id.toString();
+        if(node._id === id) {
+          node.attenddone = attenddone;
+        }
+      });
+      return res.render('events', {newEvent: result});
+  }catch (e){
+      console.log(e);
+      return res.status(400).json({error: e});
+  }
+});
+
 
 
 // router

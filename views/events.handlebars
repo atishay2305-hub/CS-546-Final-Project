@@ -80,11 +80,17 @@
     <p>{{newEvent.seatingCapacity}}</p><br>
 
 
-    {{#each newEvent}}
+    {{#each events}}
         <h2>Event Name: {{eventName}}</h2><br>
         <p>Description: {{description}}</p><br>
         <p>Building Name: {{buildingName}}</p><br>
         <p>Seating Capacity{{seatingCapacity}}</p><br>
+        <form method="POST" action="/capacity/{{_id}}" id="allevents-form">
+<input type="hidden" id="seatingCapacity" name="seatingCapacity" value="{{seatingCapacity}}">
+<input type="hidden" name="formsub" id="formsub_{{_id}}" value="{{attenddone}}">
+<button type="submit" id="attbtn_{{_id}}" name="attendance" value="attend">Attend</button>
+<button type="submit" id="cancel" name="attendance" value="cancel">Cancel</button>
+</form>
     {{/each}}
 
     <h1>Upload Image</h1>
