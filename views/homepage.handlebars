@@ -1,7 +1,3 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
-
-
 {{#each posts}}
     <div class="post-container">
         <h2>{{content}}</h2>
@@ -19,6 +15,7 @@
                 <p>{{text}}</p>
                 <p>Posted by: {{author}}</p>
                 <p>Posted at: {{created_Date}}</p>
+
                 </div>
         {{/each}}<br>
             <form class="comment-form" id="comment-form-{{_id}}" action="/posts/{{_id}}/comment" method="POST">
@@ -126,4 +123,5 @@ document.querySelectorAll('.dislike-btn').forEach(btn => {
 
 </script>
 <link rel="stylesheet" href="/public/css/homepage.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
