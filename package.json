@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "node app.js",
-    "start": "node app.js"
+    "start": "node seedUsers.js"
   },
   "keywords": [],
   "author": "",

@@ -125,14 +125,16 @@ let exportedMethods = {
         };
     },
 
+
     async searchEvent(searchTerm) {
         const eventCollection = await events();
         const searchRegex = new RegExp(searchTerm, 'i');
-        const allEvents = await eventCollection.find({ eventName: searchRegex }).toArray();
+        const allEvents = await eventCollection.find({
+          $or: [{ eventName: searchRegex },{ category: searchRegex },{ buildingName: searchRegex },{ organizer: searchRegex }]}).toArray();
         return allEvents;
       },
       
-
+      
     async updateEvent(
         id,
         userId,

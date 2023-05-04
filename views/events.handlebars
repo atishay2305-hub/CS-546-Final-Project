@@ -1,8 +1,4 @@
-{{!-- {{#each events}}
-  <h2>{{eventName}}</h2>
-  <p>{{description}}</p>
-{{/each}} --}}
-{{!-- <div class="event-card"> --}}
+{{#if isAdmin}}
 <div class="container center">
     <h1 id="event-header">Create Events</h1>
     <form method="POST" action="/events">
@@ -72,10 +68,15 @@
         <button type="submit" class="registerbtn">Create Event</button>
     </form>
 </div>
+    <h1>Upload Image</h1>
+    <input type="file" name="postImage" id="postImage">
+    <button type="submit">Add Post</button>
+{{/if}}
 
 <div class="eventPost-container">
     <h2>{{newEvent.eventName}}</h2><br>
     <p>{{newEvent.description}}</p><br>
+    <img>{{newEvent.image}}</img>
     <p>{{newEvent.buildingName}}</p><br>
     <p>{{newEvent.seatingCapacity}}</p><br>
 
@@ -93,9 +94,7 @@
 </form>
     {{/each}}
 
-    <h1>Upload Image</h1>
-    <input type="file" name="postImage" id="postImage">
-    <button type="submit">Add Post</button>
+
 </div>
 
 <link rel="stylesheet" href="/public/css/events.css">

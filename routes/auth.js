@@ -770,5 +770,18 @@ router
         return res.render('allComments', {comment: comment});
     });
 
+router
+  .route('/search')
+  .get(async (req, res) => {
+    try {
+      const searchTerm = req.query.query;
+      const searchResults = await eventsData.searchEvent(searchTerm);
+      res.render('searchResults', { results: searchResults });
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
+  
 export default router;
