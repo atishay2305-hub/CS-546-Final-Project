@@ -188,7 +188,7 @@ let exportedMethods = {
         userId = validation.checkId(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id:new ObjectId(userId)});
-        let likes,dislikes;
+       
         if(!user){
             throw "No user Found!!"
         }
@@ -197,7 +197,7 @@ let exportedMethods = {
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
         
-        
+        let likes=checkEventExist.likes,dislikes=checkEventExist.dislikes;
             if(reaction=="like"){
                 if(checkEventExist.likes){
                 likes=checkEventExist.likes+1;
@@ -206,8 +206,6 @@ let exportedMethods = {
         else{
             likes=1;
         }
-    }else{
-        dislikes=0;
     }
         
             if(reaction=="dislike"){
