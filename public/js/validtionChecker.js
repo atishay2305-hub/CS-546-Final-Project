@@ -63,6 +63,7 @@ const authCheck = {
         const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
         const [_, year, month, day] = DOB.match(dateRegex);
+
       
         const currentDate = new Date();
       
@@ -81,6 +82,7 @@ const authCheck = {
         return DOB;
       },
       
+
     checkRole(role) {
         if (!role) throw  "Role is not provided";
         if (typeof role !== "string" || role.trim().length === 0) throw "Role is not a valid type";
@@ -114,6 +116,7 @@ const authCheck = {
         }
     },
 
+
     checkCategory(category) {
         if (!category) throw "Category is not provided";
         if (typeof category !== 'string' || category.trim().length === 0) throw "Category is not a valid type";
@@ -122,6 +125,7 @@ const authCheck = {
         if (allowCategories.includes(category)) {
             return category;
         } else {
+
             throw "Category must select from the list"
         }
     },

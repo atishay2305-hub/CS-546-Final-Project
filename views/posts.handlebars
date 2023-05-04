@@ -29,11 +29,13 @@
         <div class="inf" id="address-input" style="display:none;">
             <div class="sec-1">
                 <label for="address">Location:</label>
+
             </div>
             <div class="sec-2">
                 <input type="text" name="address" id="address" placeholder="Address, City, State, Zip" value="{{address}}">
                 <button  type="submit" id="showOnMapBtn">Show on Map</button>
                 <div id="map"></div>
+
             </div>
         </div>
         <div class="inf">
@@ -47,6 +49,7 @@
         </div>
         <button type="submit" class="postBtn" id="addPostBtn">Add Post</button>
         <ul class="error" id="postError" hidden></ul>
+
     </form>
     {{#each posts}}
         <div class="post-container">
@@ -78,6 +81,7 @@
         {{/if}}
     </div>
 {{/each}}
+
 <script src="/public/js/post/map.js"></script>
 <script src="/public/js/post/posts.js" type="module"></script>
 <link rel="stylesheet" href="/public/css/posts.css">

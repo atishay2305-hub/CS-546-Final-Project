@@ -21,6 +21,8 @@ let exportedMethods = {
         if(user.role === 'admin'){
             throw "You are unable to create post";
         }
+
+
         let post = {
             category: category,
             content: postedContent,
@@ -31,13 +33,16 @@ let exportedMethods = {
             created_Date: validation.getDate(),
             likes: 0,
             dislikes: 0,
+
             commentIds: []
+
         };
         const postCollection = await posts();
         let insertInfo = await postCollection.insertOne(post);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
             throw "Could not add post";
         }
+
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
         return insertInfo;
