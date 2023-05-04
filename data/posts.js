@@ -7,45 +7,36 @@ import path from "path";
 
 
 let exportedMethods = {
-    async createPost(category, image, postedContent, userName, req) {
-        console.log("12")
+    async createPost(category, image, postedContent, userName, address) {
         category = validation.checkCategory(category, "category");
-        console.log(category)
+        postedContent = validation.checkPhrases(postedContent);
         // postedContent = validation.checkPhrases(postedContent, "PostedContent");
-        const userId = validation.checkId(userName);
+        userName = validation.checkName(userName);
         const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        const user = await userCollection.findOne({userName: userName});
+        let userId = user._id;
         if (!user) {
-          throw `The user does not exist with that Id &{id}`;
+            throw `The user does not exist with that Id &{id}`;
         }
-        if (user.isAdmin) {
-          throw "Post can only be created by users."
-        }
-      
-        let imagePath = '';
-        if (req.file) {
-          imagePath = req.file.path.replace('public', '');
-        } else {
-          imagePath = 'images/default.jpg';
-        }
-      
-        if(!req){
-            throw "Error"
+        if(user.role === 'admin'){
+            throw "You are unable to create post";
         }
         let post = {
-          category: category,
-          content: postedContent,
-          image: imagePath,
-          userId: user._id,
-          created_Date: validation.getDate(),
-          likes: 0,
-          dislikes: 0,
-          commentIds: []
+            category: category,
+            content: postedContent,
+            image: image,
+            userId: userId,
+            userName: userName,
+            address: address,
+            created_Date: validation.getDate(),
+            likes: 0,
+            dislikes: 0,
+            commentIds: []
         };
         const postCollection = await posts();
         let insertInfo = await postCollection.insertOne(post);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-          throw "Could not add post";
+            throw "Could not add post";
         }
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);

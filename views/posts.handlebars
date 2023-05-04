@@ -57,9 +57,10 @@
             <p>Category: {{category}}</p>
             <p>Created by: {{userName}}</p>
             <p>Created at: {{created_Date}}</p>
-            {{#if (checkCategory category)}}
-                <p>Address: {{address}}</p>
-            {{/if}}
+            {{!-- {{#if (checkCategory category)}} --}}
+            {{#if addressCheck}}
+            <p>Address: {{address}}</p>
+            {{/if}} 
             <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
             <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button><br>
             <button onClick="commentPopup({{_id}})">View Comments</button>

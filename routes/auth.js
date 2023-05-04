@@ -150,8 +150,6 @@ router.route('/homepage').get(async(req,res)=>{
 
 
     const userId = req.session.userId;
-    // console.log(userId);
-    // console.log(userId)
     //const email = req.session.email;
     //useremail from session and will just keep it
     //const user = await userData.getUserByID(userId);
@@ -175,9 +173,10 @@ router.route('/homepage').get(async(req,res)=>{
 
         const user = await userData.getUserByID(resString);
         x.name = user.userName;
-        // console.log(user.userName);
-        // console.log(resString);
-        // console.log(x.userName);
+        if(x.category === 'lost&found'){
+            x.addressCheck = true;
+        }
+
         if (resString === userId) {
             x.editable = true;
             x.deletable = true;
@@ -249,7 +248,7 @@ router.route('/posts')
         let postContent = xss(req.body.postContent);
         category = validation.checkCategory(category);
         postContent = validation.checkPhrases(postContent);
-        console.log(postContent);
+        // console.log(postContent);
         let address = "";
         try {
             let imagePath;
@@ -264,7 +263,7 @@ router.route('/posts')
             }
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
-            console.log("The post is posted");
+            // console.log("The post is posted");
             return res.redirect('/homepage');
         } catch (e) {
             return res.status(400).json({
@@ -388,8 +387,9 @@ router.route('/events').get(async (req, res) => {
         //     }
         // }
 
-
+        
         return res.render('events', {newEvent: events, isAdmin: isAdmin});
+
     } catch (error) {
         console.log(error);
         res.status(500).json({error: error});

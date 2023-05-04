@@ -22,7 +22,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const uploadImage = upload.single("postImage");
 
-
 router.route('/events')
 .get(async (req, res) => {
   try {
@@ -32,6 +31,7 @@ router.route('/events')
     res.status(500).json({ error: error });
   }
 })
+
   .post(uploadImage, async (req, res) => {
     // const event = req.body;
     // try {

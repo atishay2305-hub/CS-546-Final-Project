@@ -60,10 +60,6 @@ const isLoggedIn = (req, res, next) => {
 app.use('/posts', isLoggedIn);
 app.use('/events', isLoggedIn);
 app.use('/profile', isLoggedIn);
-app.get('/events', (req, res) => {
-  return res.render('events')
-});
-
 app.use('/homepage', isLoggedIn);
 app.use('/logout', isLoggedIn);
 

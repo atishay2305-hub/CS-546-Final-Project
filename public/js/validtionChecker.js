@@ -114,14 +114,14 @@ const authCheck = {
         }
     },
 
-    checkCategory(category){
+    checkCategory(category) {
         if (!category) throw "Category is not provided";
         if (typeof category !== 'string' || category.trim().length === 0) throw "Category is not a valid type";
         category = category.trim().toLowerCase();
-        const allowCategories = ["education", "sports", "entertainment", "lost&found"];
-        if(allowCategories.includes(category)){
+        const allowCategories = ["education", "sports", "entertainment", "lost&found"]
+        if (allowCategories.includes(category)) {
             return category;
-        }else{
+        } else {
             throw "Category must select from the list"
         }
     },
