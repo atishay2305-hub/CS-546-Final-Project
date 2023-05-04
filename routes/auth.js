@@ -381,6 +381,7 @@ router.route('/events').get(async (req, res) => {
 
         const events = await eventsData.getAllEvents();
         let isAdmin;
+       
         if (user.role === 'admin') {
             isAdmin = true;
             for (const x of events) {
@@ -528,6 +529,7 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 
 router.route('/events/:id').delete(async (req, res) => {
     //console.log(req.params.id);
+    console.log("entered delete event route");
     try {
         const user = await userData.getUserByID(req.session.userId);
         if (!user) {
