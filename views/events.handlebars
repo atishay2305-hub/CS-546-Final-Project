@@ -99,15 +99,17 @@
         <img id="image-preview" src="{{image}}" alt="Event image">
         <p>Description: {{description}}</p><br>
         <p>Building Name: {{buildingName}}</p><br>
-        <p>Seating Capacity{{seatingCapacity}}</p><br>
+        <p>Seating Capacity: {{seatingCapacity}}</p><br>
+        <p>Likes: {{likes}}</p>
+        <p>Dislikes: {{dislikes}}</p>
         <form method="POST" action="/events/capacity/{{_id}}" id="allevents-form">
-<input type="hidden" id="seatingCapacity" name="seatingCapacity" value="{{seatingCapacity}}">
-<input type="hidden" name="formsub" id="formsub_{{_id}}" value="{{attenddone}}">
-<button type="submit" id="attbtn_{{_id}}" name="attendance" value="attend">Attend</button>
-<button type="submit" id="cancel" name="attendance" value="cancel">Cancel</button>
-<button type="submit"  name="reaction" value="like">Like</button>
-<button type="submit"  name="reaction" value="dislike">DisLike</button>
-</form>
+             <input type="hidden" id="seatingCapacity" name="seatingCapacity" value="{{seatingCapacity}}">
+            <input type="hidden" name="formsub" id="formsub_{{_id}}" value="{{attenddone}}">
+            <button type="submit" id="attbtn_{{_id}}" name="attendance" value="attend">Attend</button>
+            <button type="submit" id="cancel" name="attendance" value="cancel">Cancel</button>
+            <button type="submit"  name="reaction" value="like">Like</button>
+            <button type="submit"  name="reaction" value="dislike">DisLike</button>
+        </form>
 
  {{#if ../isAdmin}}
 
