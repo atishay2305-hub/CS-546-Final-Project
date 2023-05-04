@@ -181,33 +181,61 @@ let exportedMethods = {
     async updateCapacity(
         id,
         seatingCapacity,
-        userId
+        userId,
+        reaction
     ) {
         id = validation.checkId(id);
         userId = validation.checkId(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id:new ObjectId(userId)});
-        console.log(user)
+        let likes,dislikes;
         if(!user){
             throw "No user Found!!"
         }
-        console.log(user.userName)
+      
         seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
-        console.log(checkEventExist)
+        
+        
+            if(reaction=="like"){
+                if(checkEventExist.likes){
+                likes=checkEventExist.likes+1;
+            }
+            
+        else{
+            likes=1;
+        }
+    }else{
+        dislikes=0;
+    }
+        
+            if(reaction=="dislike"){
+                if(checkEventExist.dislikes){
+                dislikes=checkEventExist.dislikes+1;
+            }
+            
+        else{
+            dislikes=1;
+        }
+    }
         let attendees = checkEventExist.attendees
-        console.log(attendees);
+       
         if(Object.keys(attendees).length===0) {
             attendees=[];
-            console.log("attendees arry");
+           
         }
         
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
+        console.log(user.userName);
+        attendees.push(user.userName)
         let evenData = {
             seatingCapacity: seatingCapacity,
-            attendees:attendees.push(user.userName)
+            likes: likes,
+            dislikes: dislikes,
+            attendees:attendees
         }
+        console.log(evenData);
         let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
         if (!event.acknowledged || event.matchedCount !== 1) {
             throw "Could not update record with that ID.";
