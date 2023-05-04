@@ -4,13 +4,13 @@ import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
 import multer from "multer";
 import path from "path";
-//import { pseudoRandomBytes } from "crypto";
 
 
 let exportedMethods = {
     async createPost(category, image, postedContent, userName, req) {
-
-        category = validation.checkLegitName(category, "category");
+        console.log("12")
+        category = validation.checkCategory(category, "category");
+        console.log(category)
         // postedContent = validation.checkPhrases(postedContent, "PostedContent");
         const userId = validation.checkId(userName);
         const userCollection = await users();

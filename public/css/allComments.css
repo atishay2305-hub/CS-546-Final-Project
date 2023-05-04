@@ -1,0 +1,31 @@
+.comments-heading {
+    margin-top: 50px;
+}
+
+#aa {
+    margin-top: 60px;
+    align-items: center;
+}
+
+.comments-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.comment-box {
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.comment-box h2 {
+    margin-top: 0;
+}
