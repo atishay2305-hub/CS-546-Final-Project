@@ -403,6 +403,7 @@ router.route('/events/capacity/:id').post(async (req, res) => {
     let id = req.params.id; // fix the id variable assignment
     const {seatingCapacity, attendance} = req.body;
     try {
+
         let newSeatingCapacity = seatingCapacity;
         if (typeof newSeatingCapacity === 'string') {
             newSeatingCapacity = Number(newSeatingCapacity);
@@ -415,7 +416,8 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 
         const result = await eventsData.updateCapacity(
             id, // pass the correct id variable
-            newSeatingCapacity
+            newSeatingCapacity,
+            userId
         );
         return res.render('events', {newEvent: result});
     } catch (e) {
