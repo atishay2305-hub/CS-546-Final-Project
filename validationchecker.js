@@ -85,14 +85,23 @@ const exportedMethods = {
         const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
         const [_, year, month, day] = DOB.match(dateRegex);
-
+      
         const currentDate = new Date();
-
+      
         if (DOB > currentDate) {
-            throw "Date of birth must be in the past";
+          throw "Date of birth must be in the past";
         }
+      
+        const minAge = 13;
+        const minBirthYear = currentDate.getFullYear() - minAge;
+        const birthYear = parseInt(year, 10);
+      
+        if (birthYear > minBirthYear) {
+          throw `You must be at least ${minAge} years old to register`;
+        }
+      
         return DOB;
-    },
+      },
 
     checkRole(role) {
         if (!role) throw  "Role is not provided";
