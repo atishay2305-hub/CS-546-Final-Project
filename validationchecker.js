@@ -79,30 +79,64 @@ const exportedMethods = {
         return phrase;
     },
 
+    // checkDOB(DOB) {
+    //     if (!DOB) throw "DOB not provided";
+    //     if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB";
+    //     const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+    //     if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
+    //     const [_, year, month, day] = DOB.match(dateRegex);
+
+    //     const currentDate = new Date().toISOString().slice(0, 10);
+
+    //     if (DOB > currentDate) {
+    //       throw "Date of birth must be in the past";
+    //     }
+    
+    //     const minAge = 13;
+    //     const minBirthYear = currentDate.getFullYear() - minAge;
+    //     const birthYear = parseInt(year, 10);
+    
+    //     const maxBirthYear = 1900;
+    //     if (birthYear < maxBirthYear) {
+    //       throw `Invalid year of birth. Please provide a year after ${maxBirthYear}`;
+    //     }
+    
+    //     if (birthYear > minBirthYear) {
+    //       throw `You must be at least ${minAge} years old to register`;
+    //     }
+    //     return DOB;
+    // },
+
     checkDOB(DOB) {
-        if (!DOB) throw `DOB not provided`;
+        if (!DOB) throw "DOB not provided";
         if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB";
         const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
         const [_, year, month, day] = DOB.match(dateRegex);
-      
+    
         const currentDate = new Date();
-      
-        if (DOB > currentDate) {
+    
+        if (DOB > currentDate.toISOString().slice(0, 10)) {
           throw "Date of birth must be in the past";
         }
-      
+    
         const minAge = 13;
         const minBirthYear = currentDate.getFullYear() - minAge;
         const birthYear = parseInt(year, 10);
-      
+    
+        const maxBirthYear = 1900;
+        if (birthYear < maxBirthYear) {
+          throw `Invalid year of birth. Please provide a year after ${maxBirthYear}`;
+        }
+    
         if (birthYear > minBirthYear) {
           throw `You must be at least ${minAge} years old to register`;
         }
-      
+    
         return DOB;
-      },
-
+    },
+    
+    
     checkRole(role) {
         if (!role) throw  "Role is not provided";
         if (typeof role !== "string" || role.trim().length === 0) throw "Role is not a valid type";
@@ -216,21 +250,22 @@ const exportedMethods = {
         }
     },
 
-    checkAddress(address){
-        if(!address) throw "Address is not provided";
+    checkAddress(address) {
+        if (!address) throw "Address is not provided";
         const addressRegex = /^\s*(\S+(\s+\S+)*)\s*,\s*(\S+(\s+\S+)*)\s*,\s*(\S+)\s*,\s*(\d{5})\s*$/;
         const match = address.match(addressRegex)
-        if(match){
+        if (match) {
             const address = match[1].trim().toLowerCase();
             const city = match[3].trim().toLowerCase();
             const state = match[5].trim().toLowerCase();
             const zip = match[6];
 
             return `${address}, ${city}, ${state}, ${zip}`;
-        }else{
+        } else {
             throw "Invalid address format. Please provide address, city, state, and ZIP code separated by commas";
         }
     }
+
 }
 
 

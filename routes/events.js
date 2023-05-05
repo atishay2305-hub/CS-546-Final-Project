@@ -1,10 +1,10 @@
-// import express from "express";
-// import Router from "express";
-// import eventsData from "../data/events.js";
-// import validation from "../validationchecker.js";
-// import { events } from "../config/mongoCollections.js";
-// import multer from "multer";
-// const router = Router();
+import express from "express";
+import Router from "express";
+import eventsData from "../data/events.js";
+import validation from "../validationchecker.js";
+import { events } from "../config/mongoCollections.js";
+import multer from "multer";
+const router = Router();
 
 // const storage = multer.diskStorage({
 //   destination: function (req, file, cb) {
@@ -29,8 +29,7 @@
 
   router.route('/events/:id').delete(async(req,res)=>{
     
-    const response = await eventsData.removeById(req.params.id);
-    // console.log("hi",response.deleted);
+    const response = await eventsData.removeEventById(req.params.id);
     //const user = await userData.removePost()
     //const postList = await postData.getAllPosts();
     //res.status(200).send(response);
@@ -57,8 +56,6 @@ router.route('/capacity/:id').post(async (req, res) => {
       var result = await eventsData.updateCapacity(
           id, // pass the correct id variable
           newSeatingCapacity,
-          // req.session.userId
-          "644832c015500e1f645fcfed"
       );
       result.forEach((node) => {
         node._id = node._id.toString();
@@ -146,7 +143,7 @@ router.route('/capacity/:id').post(async (req, res) => {
 //       var result = await eventsData.updateCapacity(
 //           id, // pass the correct id variable
 //           newSeatingCapacity,
-//           // req.session.userId
+//     
 //           "644832c015500e1f645fcfed"
 //       );
 //       result.forEach((node) => {
@@ -236,4 +233,4 @@ router.route('/capacity/:id').post(async (req, res) => {
 // // });
 
 
-// export default router;
+export default router;

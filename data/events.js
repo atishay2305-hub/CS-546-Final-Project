@@ -46,7 +46,7 @@ let exportedMethods = {
             date: validation.getDate(),
             buildingName: buildingName,
             organizer: organizer,
-            attendees:[],
+            attendees: {},
             seatingCapacity: seatingCapacity,
             image: imagePath,
             commentIds: [],
@@ -179,60 +179,17 @@ let exportedMethods = {
 
     async updateCapacity(
         id,
-        seatingCapacity,
-        userId,
-        reaction
+        seatingCapacity
     ) {
         id = validation.checkId(id);
-        userId = validation.checkId(userId);
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id:new ObjectId(userId)});
-
-       
-        if(!user){
-            throw "No user Found!!"
-        }
-      
         seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
-        
-        let likes=checkEventExist.likes,dislikes=checkEventExist.dislikes;
-            if(reaction=="like"){
-                if(checkEventExist.likes){
-                likes=checkEventExist.likes+1;
-            }
-            
-        else{
-            likes=1;
-        }
-    }
-        
-            if(reaction=="dislike"){
-                if(checkEventExist.dislikes){
-                dislikes=checkEventExist.dislikes+1;
-            }
-            
-        else{
-            dislikes=1;
-        }
-    }
-        let attendees = checkEventExist.attendees
-       
-        if(Object.keys(attendees).length===0) {
-            attendees=[];
-           
-
-        }
-        
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
         console.log(user.userName);
         attendees.push(user.userName)
         let evenData = {
-            seatingCapacity: seatingCapacity,
-            likes: likes,
-            dislikes: dislikes,
-            attendees:attendees
+            seatingCapacity: seatingCapacity
         }
         console.log(evenData);
         let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});

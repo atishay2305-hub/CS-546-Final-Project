@@ -9,9 +9,8 @@ let exportedMethods = {
     async createDiscussion(category, description,userId) {
 
         category = validation.checkLegitName(category, "category");
-        // postedContent = validation.checkPhrases(postedContent, "PostedContent");
-
-        //const userId = validation.checkId(userId);
+        description = validation.checkPhrases(description, "Description");
+        // const userId = validation.checkId(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) {
@@ -98,6 +97,19 @@ let exportedMethods = {
         };
 
     },
+    
+    async searchDiscussion(searchTerm) {
+        const discussionCollection = await discussion();
+        const searchRegex = new RegExp(searchTerm, 'i');
+        const allDiscussions = await discussionCollection.find({
+          $or: [
+            { category: searchRegex },
+            { description: searchRegex }
+          ]
+        }).toArray();
+        return allDiscussions;
+      },
+
     async updateDiscussion(id,userId,message){
         
         id = await validation.checkId(id);

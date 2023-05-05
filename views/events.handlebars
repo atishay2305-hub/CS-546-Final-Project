@@ -1,11 +1,4 @@
-
-{{!-- {{#each events}}
-  <h2>{{eventName}}</h2>
-  <p>{{description}}</p>
-{{/each}} --}}
-{{!-- <div class="event-card"> --}}
-   
-    {{#if isAdmin}}
+{{#if isAdmin}}
 <div class="container center">
     <h1 id="event-header">Create Events</h1>
    <form method="POST" action="/events" enctype="multipart/form-data">
@@ -72,7 +65,7 @@
     <input type="file" name="postImage" id="postImage">
     </div>
     </div>
-    <button type="submit">Add Post</button>
+    {{!-- <button type="submit">Add Post</button> --}}
         <button type="submit" class="registerbtn">Create Event</button>
         
     </form>
@@ -301,3 +294,5 @@ document.querySelectorAll('.comment-form').forEach(form => {
     reader.readAsDataURL(file);
   });
 </script>
+
+<link rel="stylesheet" href="/public/css/event.css">

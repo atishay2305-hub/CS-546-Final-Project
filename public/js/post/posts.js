@@ -55,11 +55,11 @@ import authCheck from "../validtionChecker.js";
                                 document.getElementById("postCategory").value = data.category;
                                 document.getElementById("postContent").value = data.postContent;
                                 document.getElementById("address").value = data.address;
-                                return handleError(data || "Something went wrong.");
+                                return handleError(data.message || "Something went wrong.");
                             }
                         }
 
-                        location.href = "/homepage";
+                        location.href = "/posts";
                     })
                     .catch((e) => {
                         alert(e || "Something went wrong.");

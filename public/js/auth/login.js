@@ -9,7 +9,6 @@ $(document).ready(function () {
             event.stopImmediatePropagation();
             event.preventDefault();
 
-            const elements = event.target.elements;
             let accessDenied = false;
             errorHandle.hide();
 
