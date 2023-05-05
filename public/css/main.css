@@ -13,6 +13,14 @@ min-height: 100vh;
   margin: auto;
 } */
 
+body {
+  font-family: monospace;
+  /* background-image: url('../background_img/background-img.jpg'); */
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+
 header {
   border-bottom: 1px solid #be3144;
 }
@@ -235,4 +243,4 @@ a {
 }
 
 #map { height: 180px; }
- */
+ 

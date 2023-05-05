@@ -164,49 +164,10 @@ router.route('/homepage').get(async (req, res) => {
     });
 
 });
-// router.route('/homepage').get(async (req, res) => {
-//
-//
-//     const userId = req.session.userId;
-//     console.log(userId);
-//     // console.log(userId)
-//     //const email = req.session.email;
-//     //useremail from session and will just keep it
-//     //const user = await userData.getUserByID(userId);
-//     //const postList = await userData.getPostList(user.email);
-//     //user info from ID
-//     //getpost list if true
-//     const userName = req.session.userName;
-//     console.log(userName)
-//     //const postList = await postData.getAllPosts();
-// // getpost by userId--> all the post by userID[]. should have delete createDate(5) and
-//     // for (let x of postList){
-//     //     let resId = x?.userId;
-//     //     //console.log(resId);
-//     //     let resString= resId.toString();
-//     //     const user = await userData.getUserByID(resString);
-//     //     x.name =user.userName;
-//     //     //console.log(user.userName);
-//     //     //console.log(x.userName);
-//     //     if(resString === userId){
-//     //         x.editable =true;
-//     //         x.deletable = true;
-//     //     }else{
-//     //         x.editable = false;
-//     //         x.deletable = false;
-//     //     }
-//     // }
-//     const postList = await postData.getPostByUserId(userId);
-//     // const listOfPosts = [{category: "education", content: "Anime"}]
-//     // posts: postList
-//     return res.render('homepage', {userId: userId, userName: userName, posts: postList});
-//
-// });
 
 
 router.route('/profile').get(async(req,res)=> {
     const id = req.session.userId;
-    // console.log(id);
     const user = await userData.getUserByID(id);
     return res.render('profile',{user:user});
 });
@@ -235,13 +196,11 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.userId;
-        // console.log(id);
         const userName = req.session.userName;
         let category = xss(req.body.category);
         let postContent = xss(req.body.postContent);
         category = validation.checkCategory(category);
         postContent = validation.checkPhrases(postContent);
-        // console.log(postContent);
         let address = "";
         try {
             let imagePath;
@@ -284,22 +243,18 @@ router.route('/posts')
     })
 
     router.route('/posts/:id').delete(async (req, res) => {
-        // console.log(req.params.id);
         try{
             const user = await userData.getUserByID(req.session.userId);
             if(!user){
                 throw 'cannot find user';
             }
-            //console.log(user);
             const commentCollection = await comments();
             const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
-            // console.log(post);
             if(post.length !== 0){
                 const responsePost = await commentData.removeCommentByPost(req.params.id);
                 console.log("hi",responsePost.deleted);
             }
             const response = await postData.removeById(req.params.id);
-            // console.log("hi", response.deleted);
             //const user = await userData.removePost()
             //const postList = await postData.getAllPosts();
             //res.status(200).send(response);
@@ -316,13 +271,8 @@ router.route('/posts')
             const userId = req.session.userId;
             const postId = req.params.id;
             const {commentText} = req.body;
-            // console.log(postId);
-            // console.log(commentText);
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-            // console.log(comment);
             const post = await postData.putComment(postId, comment.commentId);
-            // console.log(post);
-            // console.log('The comment is added');
             return res.sendStatus(200);
         } catch (e) {
             return res.status(404).json({ error: 'Resource not found' });
@@ -578,28 +528,6 @@ router.route('/events/:id/comment').post(async (req, res) => {
     }
 });
 
-// router.route('/logout')
-//   .get(async (req, res) => {
-//     if (req.cookies.AuthCookie) {
-//       res.clearCookie('AuthCookie');
-//     }
-//     res.redirect('/');
-//   });
-
-// router.route('/add-comment').post(async(req,res)=>{
-
-//     const userId = req.session.userId;
-//     const{postId,commentText} =req.body;
-//     console.log(postId);
-//     console.log(commentText);
-//     const comment = await commentData.createPostComment(userId, postId, commentText);
-//     const post = await postData.putComment(postId,comment.commentId);
-//     // console.log(comment);
-//     //userId, postID,commentText ->> 4 things _id
-//     //await commentData.c
-
-// });
-
 
 router.route('/putAttendee').post(async (req, res) => {
     const userId = req.session.userId;
@@ -787,10 +715,6 @@ router
                 });
             }
         }
-
-
-
-        console.log(discuss);
         
         return res.render('discuss',{newDiscussion: discuss });
     
@@ -802,8 +726,6 @@ router
         const {category,description} = req.body;
     
         const discuss = await discussData.createDiscussion(category,description,userId);
-        console.log(discuss);
-        console.log("discussion created!!");
         return res.redirect('/discuss');
         //return res.status(200).render('discuss', { newDiscussion: discuss });
     
@@ -825,7 +747,6 @@ router
         const userCollection = await users();
         //const usersMap = new Map();
         
-        // get user names for each reply and add to map
         for (let reply of replies) {
 
           //if (!usersMap.has(reply.userId.toString())) {
