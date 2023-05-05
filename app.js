@@ -62,14 +62,9 @@ const isLoggedIn = (req, res, next) => {
 app.use('/posts', isLoggedIn);
 app.use('/events', isLoggedIn);
 app.use('/profile', isLoggedIn);
-app.get('/events', (req, res) => {
-    return res.render('events')
-});
-
 app.use('/homepage', isLoggedIn);
+app.use('/discuss', isLoggedIn);
 app.use('/logout', isLoggedIn);
-
-
 app.use('/protected', isLoggedIn);
 
 app.use('/login', (req, res, next) => {
@@ -98,6 +93,7 @@ app.use('/logout', (req, res) => {
     req.session.destroy();
     return res.render('logout');
 });
+  
 
 configRoutes(app);
 
@@ -107,6 +103,11 @@ app.use((req, res, next) => {
     res.setHeader("Expires", "0");
     next();
 });
+
+app.use('*', (req, res) => {
+    res.status(404).json({error: 'Route Not found'});
+});
+
 
 app.listen(3000, () => {
     console.log("We've now got a server!");

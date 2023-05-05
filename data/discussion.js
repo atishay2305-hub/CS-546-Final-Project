@@ -5,33 +5,35 @@ import {userData } from "./index.js";
 
 
 let exportedMethods = {
-    async createDiscussion(category, topic, discussion, userName, req) {
+
+    async createDiscussion(category, description,userId) {
+
         category = validation.checkLegitName(category, "category");
-        // postedContent = validation.checkPhrases(postedContent, "PostedContent");
-        const userId = validation.checkId(userName);
+        // description = validation.checkPhrases(description, "Description");
+
+        //const userId = validation.checkId(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) {
-            throw `The user does not exist with that Id &{id}`;
+          throw `The user does not exist with that Id &{id}`;
         }
         if (user.isAdmin) {
-            throw "Discussion can only be created by users."
+          throw "Discussion can only be created by users."
         }
-
+      
         let discuss = {
-            category: category,
-            topic: topic,
-            discussion: discussion,
-            userId: userId,
-            created_Date: validation.getDate(),
-            commentIds: {}
+          category: category,
+          description: description,
+          userId: user._id,
+          created_Date: validation.getDate(),
+          replyId:[]
         };
         const discussionCollection = await discussion();
         let insertInfo = await discussionCollection.insertOne(discuss);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-            throw "Could not add discussion.";
+          throw "Could not add discussion.";
         }
-
+      
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
         return insertInfo;
@@ -50,7 +52,7 @@ let exportedMethods = {
 
     async getDiscussionById(id) {
         id = await validation.checkId(id);
-        const discussionCollection = await posts();
+        const discussionCollection = await discussion();
         const discuss = await discussionCollection.findOne({_id: new ObjectId(id)});
         if (discuss === null) {
             throw `No discussion was found with that ID ${id}`;
@@ -79,7 +81,6 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(discuss.userId)});
-        //console.log(user.postID);
         if (user.isAdmin === undefined || !user.isAdmin) {
             if(!user.postIDs.includes(id)){
                 throw "Only administrators or the poster can delete the discussion.";
@@ -96,9 +97,45 @@ let exportedMethods = {
             deleted: true
         };
 
+    },
+    async updateDiscussion(id,userId,message){
+        
+        id = await validation.checkId(id);
+        userId = await validation.checkId(userId);
+
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id:new ObjectId(userId)});
+        console.log(user);
+        if(!user){
+            console.log('No user found!!');
+        }
+        
+        const discussCollection = await discussion();
+        const discuss = await discussCollection.findOne({_id:new ObjectId(id)});
+        if(!discuss){
+            throw "No discussion found!!"
+        }
+        const reply ={
+            _id:new ObjectId(),
+            userId:user._id,
+            message:message
+        };
+        //discussion.replyId.push(reply);
+        const discussUpdate = await discussCollection.updateOne({_id:new ObjectId(id)},{$push:{replyId:reply}});
+        if(discussUpdate.modifiedCount === 0){
+            throw new Error("unable to add reply to discussion");
+        }
+          const discussAfterUpdate = await discussCollection.findOne({_id:new ObjectId(id)});
+
+          if(!discussAfterUpdate){
+            throw new Error('Not able to update after adding albums');
+          }
+
+        return discussAfterUpdate;
+
     }
 };
-//express session,handlebars
+
 export default exportedMethods;
 
 

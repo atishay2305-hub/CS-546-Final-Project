@@ -3,6 +3,7 @@ import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
 import eventsData from '../data/events.js'
+import discussData from '../data/discussion.js';
 import validation from '../validationchecker.js';
 import multer from "multer";
 import path from "path";
@@ -153,9 +154,8 @@ router
 
 router.route('/homepage').get(async (req, res) => {
     const userId = req.session.userId;
-    console.log(userId);
 
-    // console.log(userId)
+
     //const email = req.session.email;
     //useremail from session and will just keep it
     //const user = await userData.getUserByID(userId);
@@ -164,7 +164,7 @@ router.route('/homepage').get(async (req, res) => {
     //user info from ID
     //getpost list if true
     const userName = req.session.userName;
-    console.log(userName)
+    // console.log(userName)
     // console.log(userName);
     //console.log(postList);
     const postList = await postData.getAllPosts();
@@ -174,15 +174,16 @@ router.route('/homepage').get(async (req, res) => {
     for (let x of postList) {
         let resId = x?.userId;
 
-        console.log(resId);
+        // console.log(resId);
 
         let resString = resId.toString();
 
         const user = await userData.getUserByID(resString);
         x.name = user.userName;
-        console.log(user.userName);
-        console.log(resString);
-        console.log(x.userName);
+        if(x.category === 'lost&found'){
+            x.addressCheck = true;
+        }
+
         if (resString === userId) {
             x.editable = true;
             x.deletable = true;
@@ -240,6 +241,15 @@ router.route('/homepage').get(async (req, res) => {
 //
 // });
 
+
+router.route('/profile').get(async(req,res)=> {
+    const id = req.session.userId;
+    // console.log(id);
+    const user = await userData.getUserByID(id);
+    return res.render('profile',{user:user});
+});
+
+
 router.route('/posts')
     .get(async (req, res) => {
         // Retrieve posts and comments
@@ -271,7 +281,6 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.userId;
-        console.log(id);
         const userName = req.session.userName;
         const role = req.session.role;
         if (role === 'admin') {
@@ -293,7 +302,7 @@ router.route('/posts')
                 imagePath = 'images/default.jpg';
             }
 
-            if (category === 'lost&found') {
+            if(category === 'lost&found'){
                 address = xss(req.body.address);
                 address = validation.checkAddress(address);
             }
@@ -301,7 +310,7 @@ router.route('/posts')
             const user = await userData.putPost(id, post._id);
 
             console.log("The post is posted");
-            return res.redirect('/posts');
+            return res.redirect('/homepage');
         } catch (e) {
             return res.status(400).json({
                 success: false,
@@ -324,22 +333,22 @@ router.route('/events').get(async (req, res) => {
 
         const userId = req.session.userId;
         if (!userId) {
-            throw new Error('User ID not found in session');
+            throw ('User ID not found in session');
         }
 
         //const userCollection = await users();
         const user = await userData.getUserByID(userId);
-        console.log('The user is ', user);
 
         if (!user) {
             throw new Error('No user found');
         }
 
-        console.log("hello bro!!", userId);
 
 
         const events = await eventsData.getAllEvents();
+        console.log("hiiiii",events);
         let isAdmin;
+       
         if (user.role === 'admin') {
             isAdmin = true;
             for (const x of events) {
@@ -368,10 +377,10 @@ router.route('/events').get(async (req, res) => {
         //     }
         // }
 
-
+        
         return res.render('events', {newEvent: events, isAdmin: isAdmin});
+
     } catch (error) {
-        console.log(error);
         res.status(500).json({error: error});
     }
 });
@@ -380,7 +389,6 @@ router.route('/events').get(async (req, res) => {
 router.route('/events').post(eventUploadImage, async (req, res) => {
 
     const userId = req.session.userId;
-    console.log(userId);
     try {
         let imagePath = '';
         if (req.file) {
@@ -390,7 +398,6 @@ router.route('/events').post(eventUploadImage, async (req, res) => {
         }
         const {eventName, description, buildingName, organizer, seatingCapacity} = req.body;
         const newEvent = await eventsData.createEvent(eventName, description, buildingName, organizer, seatingCapacity, imagePath, req);
-        console.log(newEvent);
         return res.redirect('/events');
         //   const gettingAllEvents = await eventsData.getAllEvents();
 
@@ -415,9 +422,8 @@ router.route('/events').post(eventUploadImage, async (req, res) => {
         //     }
         // }
 
-        return res.status(200).render('events', {newEvent: gettingAllEvents});
+        //return res.status(200).render('events', {newEvent: gettingAllEvents});
     } catch (error) {
-        console.log(error);
         return res.status(500).json({error: error});
     }
 });
@@ -437,7 +443,8 @@ router
 
 router.route('/events/capacity/:id').post(async (req, res) => {
     let id = req.params.id; // fix the id variable assignment
-    const {seatingCapacity, attendance} = req.body;
+    const {seatingCapacity, attendance,reaction} = req.body;
+    const userId = req.session.userId;
     try {
         let newSeatingCapacity = seatingCapacity;
         if (typeof newSeatingCapacity === 'string') {
@@ -455,7 +462,6 @@ router.route('/events/capacity/:id').post(async (req, res) => {
         );
         return res.render('events', {newEvent: result});
     } catch (e) {
-        console.log(e);
         return res.status(400).json({error: e});
     }
 });
@@ -489,7 +495,8 @@ router.route('/posts/:id').delete(async (req, res) => {
     }
 });
 
-router.route('/posts/:id/comment').post(async (req, res) => {
+router.route('/events/:id') 
+ .get(async (req, res) => {
     try {
         const userId = req.session.userId;
         const postId = req.params.id;
@@ -503,25 +510,22 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         console.log('The comment is added');
         return res.redirect('/posts');
     } catch (e) {
-        console.log(e);
+        return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
     }
-});
-
-
-router.route('/events/:id').delete(async (req, res) => {
+})
+.delete(async (req, res) => {
     //console.log(req.params.id);
+    console.log("entered delete event route");
     try {
         const user = await userData.getUserByID(req.session.userId);
         if (!user) {
             throw 'cannot find user';
         }
-        console.log(user);
         if (user.role !== 'admin') throw "Only administrators can delete events.";
 
 
         const commentCollection = await comments();
         const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
-        console.log(event);
         if (event.length !== 0) {
             const response = await commentData.removeCommentByEvent(req.params.id);
             console.log("hi", response.deleted);
@@ -532,7 +536,6 @@ router.route('/events/:id').delete(async (req, res) => {
 
 
         const responseEvent = await eventsData.removeEventById(req.params.id);
-        console.log(responseEvent);
 
 
         console.log("hi", responseEvent.deleted);
@@ -540,13 +543,37 @@ router.route('/events/:id').delete(async (req, res) => {
         return res.sendStatus(200);
 
     } catch (e) {
-        console.log(e);
+        return res.status(404).json({ error: 'Resource not found' });
     }
 
 
     //res.send(response);
 
-});
+})
+.put(async (req, res) => {
+      let id = req.params.id; // fix the id variable assignment
+      let updatedData = req.body;
+      if(!updatedData || Object.keys(updatedData).length === 0){ // fix the condition to check for empty object
+          return res.status(400).json({error: `There are no fields in the request body`});
+      }
+      
+     
+      try{
+          const result = await eventsData.updateEvent(
+              id, // pass the correct id variable
+              userId,
+              updatedData.eventName,
+              updatedData.description,
+              updatedData.buildingName,
+              updatedData.organizer,
+              updatedData.seatingCapacity,
+             
+          );
+          res.status(200).json(result);
+      }catch (e){
+          return res.status(400).json({error: e});
+      }
+    });
 
 
 router.route('/events/:id/comment').post(async (req, res) => {
@@ -557,37 +584,12 @@ router.route('/events/:id/comment').post(async (req, res) => {
         // console.log(postId);
         // console.log(commentText);
         const comment = await commentData.createComment(userId, eventId, null, commentText, "event");
-        console.log(comment);
         const post = await eventsData.putComment(eventId, comment.commentId);
-        // console.log(post);
-        console.log('The comment is added');
         return res.sendStatus(200);
     } catch (e) {
-        console.log(e);
+        return res.status(404).json({ error: 'Resource not found' });
     }
 });
-
-// router.route('/logout')
-//   .get(async (req, res) => {
-//     if (req.cookies.AuthCookie) {
-//       res.clearCookie('AuthCookie');
-//     }
-//     res.redirect('/');
-//   });
-
-// router.route('/add-comment').post(async(req,res)=>{
-
-//     const userId = req.session.userId;
-//     const{postId,commentText} =req.body;
-//     console.log(postId);
-//     console.log(commentText);
-//     const comment = await commentData.createPostComment(userId, postId, commentText);
-//     const post = await postData.putComment(postId,comment.commentId);
-//     // console.log(comment);
-//     //userId, postID,commentText ->> 4 things _id
-//     //await commentData.c
-
-// });
 
 
 router.route('/putAttendee').post(async (req, res) => {
@@ -660,7 +662,6 @@ router
 
 router.route('/profile').get(async (req, res) => {
     const id = req.session.userId;
-    console.log(id);
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user});
 });
@@ -682,10 +683,13 @@ router
                 parsedValue.disliked = false;
                 localStorage.setItem(storageKey, JSON.stringify(parsedValue));
             }
-            return res.json({ likes: result.likes, dislikes: result.dislikes });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Server error' });
+
+            const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
+            const user = await userData.putPost(id, post._id);
+            return res.redirect('/homepage');
+        } catch (e) {
+            console.log(e)
+            return res.render('posts', {Error: e});
         }
     });
 
@@ -711,6 +715,21 @@ router
             console.error(error);
             res.status(500).json({ error: 'Server error' });
         }
+    })
+
+router.route('/increaseLikes')
+    .post(async (req, res) => {
+        const postId = req.body.postId;
+        const updatedPost = await postData.increaseLikes(postId);
+        return res.json(updatedPost);
+    });
+
+
+router.route('/increaseDislikes')
+    .post(async (req, res) => {
+        const postId = req.body.postId;
+        const updatedPost = await postData.increaseDislikes(postId);
+        return res.json(updatedPost);
     });
 
 
@@ -718,9 +737,7 @@ router
     .route('/posts/:postId/allComments')
     .get(async (req, res) => {
         const postId = req.params.postId;
-        console.log(postId);
         const comment = await commentData.getPostCommentById(postId)
-        console.log(comment);
         return res.render('allComments', {comment: comment});
     });
 
@@ -728,11 +745,87 @@ router
     .route('/events/:eventId/allComments')
     .get(async (req, res) => {
         const eventId = req.params.eventId;
-        console.log(eventId);
         const comment = await commentData.getEventCommentById(eventId)
-        console.log(comment);
         return res.render('allComments', {comment: comment});
     });
 
 
+router
+  .route('/search')
+  .get(async (req, res) => {
+    try {
+      const searchTerm = req.query.query;
+      const searchResults = await eventsData.searchEvent(searchTerm);
+      res.render('searchResults', { results: searchResults });
+    } catch (e) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+    router.route('/discuss').get(async (req,res)=>{
+        //const userId = req.session.userId;
+        const userCollection = await users();
+    
+        const discuss = await discussData.getAllDiscussions();
+        for (let x of discuss){
+            const user = await userCollection.findOne({_id:x.userId});
+            x.userName = user.userName;
+            x.result=[];
+            for (let y of x.replyId){
+                const user = await userCollection.findOne({_id:y.userId});
+                x.result.push({
+                    userName:user.userName,
+                    message:y.message
+                });
+            }
+        }
+        
+        return res.render('discuss',{newDiscussion: discuss });
+    
+      });
+    
+      router.route('/discuss').post(async(req,res)=>{
+    
+        const userId = req.session.userId;
+        const {category,description} = req.body;
+    
+        const discuss = await discussData.createDiscussion(category,description,userId);
+        return res.redirect('/discuss');
+        //return res.status(200).render('discuss', { newDiscussion: discuss });
+    
+      });
+    
+    router.route('/discussions/:id/replies').post(async(req,res)=>{
+
+        const userId = req.session.userId;
+        const id = req.params.id;
+        const{ message } = req.body;
+        const discuss = await discussData.updateDiscussion(id,userId,message);
+        return res.sendStatus(200);
+    });
+
+    router.route('/discussions/:id/replies').get(async (req, res) => {
+        const id = req.params.id;
+        const discuss = await discussData.getDiscussionById(id);
+        const replies = discuss.replyId;
+        const userCollection = await users();
+        //const usersMap = new Map();
+        
+        for (let reply of replies) {
+
+          //if (!usersMap.has(reply.userId.toString())) {
+
+            const user = await userCollection.findOne({_id: reply.userId});
+            reply.userName = user.userName;
+            //usersMap.set(reply.userId.toString(), user);
+          //}
+        
+        }
+        console.log(replies);
+      
+        return res.render('allReplies',{replies:replies});
+      });
+
+
+  
 export default router;

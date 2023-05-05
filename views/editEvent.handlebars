@@ -1,0 +1,80 @@
+
+<div class="container center">
+    <h1 id="event-header">Edit Events</h1>
+   <form method="POST" action="/events" enctype="multipart/form-data">
+        <div class="inf">
+            <div class="sec-1">
+                <label for="eventName">Event Name</label>
+                <div class="sec-2">
+                    <input id="eventName" type="text" name="eventName" value="{{event.eventName}}">
+                </div>
+            </div>
+        </div>
+        <div class="inf">
+            <div class="sec-1">
+                <label for="description">Description</label>
+
+                <div class="sec-2">
+                    <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="inf">
+            <div class="sec-1">
+                <label for="buildingName">Select Building Location:</label>
+                <div class="sec-2">
+                    <select id="buildingName" name="buildingName">
+                        <option value=""></option>
+                    </select>
+
+                    <script>
+                        const allowedLocation = [
+                            "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
+                            "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
+                            "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
+                            "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
+                            "alexander house", "colonial house"
+                        ];
+
+                        const selectElement = document.getElementById("buildingName");
+
+                        allowedLocation.forEach((location) => {
+                            const option = document.createElement("option");
+                            option.text = location;
+                            option.value = location;
+                            selectElement.appendChild(option);
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        <div class="inf">
+            <div class="sec-1">
+                <label for="organizer">Organizer</label>
+                <div class="sec-2">
+                    <input id="organizer" type="text" name="organizer">
+                </div>
+            </div>
+        </div>
+        <div class="inf">
+            <div class="sec-1">
+                <label for="seatingCapacity">Seating Capacity</label>
+                <div class="sec-2">
+                    <input id="seatingCapacity" type="number" name="seatingCapacity">
+                </div>
+            </div>
+        </div>
+         <div class="inf">
+            <div class="sec-1">
+        <label>Upload Image</label>
+         <div class="sec-2">
+    <input type="file" name="postImage" id="postImage">
+    </div>
+    </div>
+    <button type="submit">Add Post</button>
+        <button type="submit" class="registerbtn">Edit Event</button>
+        
+    </form>
+   
+</div>

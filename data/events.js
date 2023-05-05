@@ -2,7 +2,6 @@ import {events, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {commentData, userData} from "./index.js";
-//import commentData  from "./comments.js";
 
 let exportedMethods = {
     async createEvent(
@@ -61,7 +60,6 @@ let exportedMethods = {
         const eventCollection = await events();
         const insertInfo = await eventCollection.insertOne(event);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event";
-        console.log(insertInfo);
 
         // if (userId) {
         //     await userData.putEvent(userId, insertInfo.insertedId.toString());
@@ -80,7 +78,6 @@ let exportedMethods = {
     
     async getEventByID(id) {
         id = validation.checkId(id);
-        // console.log(events());
         const eventCollection = await events();
         const event = eventCollection.findOne({_id: new ObjectId(id)});
         if (event === null) throw "No event with that id";
@@ -125,10 +122,12 @@ let exportedMethods = {
         };
     },
 
+
     async searchEvent(searchTerm) {
         const eventCollection = await events();
         const searchRegex = new RegExp(searchTerm, 'i');
-        const allEvents = await eventCollection.find({ eventName: searchRegex }).toArray();
+        const allEvents = await eventCollection.find({
+          $or: [{ eventName: searchRegex },{ category: searchRegex },{ buildingName: searchRegex },{ organizer: searchRegex }]}).toArray();
         return allEvents;
       },
       
@@ -141,7 +140,7 @@ let exportedMethods = {
         buildingName,
         organizer,
         seatingCapacity,
-        image
+        //image
     ) {
         id = validation.checkId(id);
         userId = validation.checkId(userId);
@@ -150,26 +149,26 @@ let exportedMethods = {
         buildingName = validation.checkLocation(buildingName, "Building Name");
         organizer = validation.checkName(organizer, "Organizer");
         seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
-        let path = "";
-        if (!image || image.trim().length === 0) {
-            path = "public/images/default.png";
-        } else {
-            path = validation.createImage(image);
-        }
+        // let path = "";
+        // if (!image || image.trim().length === 0) {
+        //     path = "public/images/default.png";
+        // } else {
+        //     path = validation.createImage(image);
+        // }
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)})
-        if (user.isAdmin === undefined || !user.isAdmin) throw "Only administrators can update events."
+        if (user.role !== "admin" ) throw "Only administrators can update events."
         let evenData = {
             eventName: eventName,
             description: description,
-            date: validation.getDate(),
+            // date: validation.getDate(),
             buildingName: buildingName,
             organizer: organizer,
             seatingCapacity: seatingCapacity,
-            image: path
+            // image: path
         }
         let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
         if (!event.acknowledged || event.matchedCount !== 1) {
@@ -187,9 +186,12 @@ let exportedMethods = {
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
+        console.log(user.userName);
+        attendees.push(user.userName)
         let evenData = {
             seatingCapacity: seatingCapacity
         }
+        console.log(evenData);
         let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
         if (!event.acknowledged || event.matchedCount !== 1) {
             throw "Could not update record with that ID.";
@@ -203,7 +205,7 @@ let exportedMethods = {
         const eventCollection = await events();
         const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Error: ${event} not found`;
-        console.log(event) 
+        // console.log(event) 
         let commentIdList = event.commentIds;
         commentIdList.push(new ObjectId(commentId));
         const updatedInfo = await eventCollection.updateOne(
