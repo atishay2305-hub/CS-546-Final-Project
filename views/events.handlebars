@@ -80,7 +80,7 @@
     </div>
     <button type="submit">Add Post</button>
         <button type="submit" class="registerbtn">Create Event</button>
-         {{!-- <button class="delete-btn" onClick="deleteEvent('{{_id}}')" data-event-id="{{_id}}">Delete</button> --}}
+        
     </form>
    
 </div>
@@ -112,6 +112,7 @@
         </form>
 
  {{#if ../isAdmin}}
+     <a href="/events/{{_id}}">Edit </a>
 
       <button class="delete-btn" onClick="deleteEvent('{{_id}}')" data-event-id="{{_id}}">Delete</button>
    
