@@ -282,7 +282,7 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
-        const userName = req.session.userName;
+        const userName = req.session.user.userName;
         const role = req.session.user.role;
         if (role === 'admin') {
             return res.status(401).json({
@@ -813,8 +813,16 @@ router
 
     router.route('/discuss').get(async (req,res)=>{
         const userCollection = await users();
+        const dbQuery = {}
+        if(req.query?.category && req.query.category !== 'All'){
+            dbQuery.category = req.query.category
+        }
+
+        if(req.query?.search){
+            dbQuery.description = {$regex: req.query.search, $options: "i"}
+        }
     
-        const discuss = await discussData.getAllDiscussions();
+        const discuss = await discussData.getAllDiscussions(dbQuery);
         for (let x of discuss){
             const user = await userCollection.findOne({_id:x.userId});
             x.userName = user.userName;
