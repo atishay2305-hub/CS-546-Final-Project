@@ -85,7 +85,6 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         // const userId = checkExist._id.toString();
-        // req.session.userId = userId;
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (!checkExist) throw "You may have entered the wrong email address or password.";

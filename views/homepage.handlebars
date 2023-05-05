@@ -7,13 +7,16 @@
 {{#each posts}}
     <div class="post-container">
         <h2>{{content}}</h2>
+        {{!-- <img id="img-home" src="{{image}}" alt="Post image"> --}}
         <img id="img-home" src="{{image}}" alt="Post image">
         <p>Category: {{category}}</p>
         <p>Created by: {{name}}</p>
         <p>Created at: {{created_Date}}</p>
         <p>Address: {{address}}</p>
-        <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
-        <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
+        {{!-- <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
+        <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button> --}}
+        <button type="submit" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
+        <button type="submit" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
         <div class="comments-container">
             <h3>Comments:</h3>
             {{#each comments}}

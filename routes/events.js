@@ -143,7 +143,7 @@ router.route('/capacity/:id').post(async (req, res) => {
 //       var result = await eventsData.updateCapacity(
 //           id, // pass the correct id variable
 //           newSeatingCapacity,
-//           // req.session.userId
+//     
 //           "644832c015500e1f645fcfed"
 //       );
 //       result.forEach((node) => {

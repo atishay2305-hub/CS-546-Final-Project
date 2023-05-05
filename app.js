@@ -21,6 +21,7 @@ app.use('/public', staticDir);
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
 import eventsRoutes from './routes/events.js';
+import { title } from "process";
 
 app.use('/', eventsRoutes);
 
@@ -53,9 +54,10 @@ app.use(session({
 
 
 const isLoggedIn = (req, res, next) => {
-    if (!req.session.userId) {
+    if (!req.session.user) {
         return res.redirect('/login');
     }
+    
     next();
 };
 
@@ -65,7 +67,7 @@ app.use('/profile', isLoggedIn);
 app.use('/homepage', isLoggedIn);
 app.use('/discuss', isLoggedIn);
 app.use('/logout', isLoggedIn);
-app.use('/search', isLoggedIn);
+app.use('/search', isLoggedIn)
 app.use('/searchResults', isLoggedIn);
 app.use('/allComments', isLoggedIn);
 app.use('/discussionResults', isLoggedIn);
@@ -73,8 +75,9 @@ app.use('/protected', isLoggedIn);
 
 app.use('/login', (req, res, next) => {
     if (req.method === 'GET') {
-        if (req.session.userId) {
-            return res.redirect('/homepage')
+        if (req.session.user) {
+            console.log("here")
+            return res.redirect('/something')
         } else {
             return res.render('login');
         }
@@ -83,7 +86,7 @@ app.use('/login', (req, res, next) => {
 });
 
 app.use('/register', (req, res, next) => {
-    if (req.session.userId) {
+    if (req.session.user) {
         return res.redirect('/login');
     }
     next();
@@ -91,11 +94,11 @@ app.use('/register', (req, res, next) => {
 
 // Route for logging out
 app.use('/logout', (req, res) => {
-    if (!req.session.userId) {
-        return res.render('login');
+    if (!req.session.user) {
+        return res.render('login', {title: 'Login'});
     }
     req.session.destroy();
-    return res.render('logout');
+    return res.render('logout', {title: 'logout'});
 });
   
 

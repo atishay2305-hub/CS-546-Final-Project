@@ -22,7 +22,7 @@ const router = express.Router();
 
 router.route('/discussion')
     .get(async (req, res) => {
-        return res.status(200).render('discuss');
+        return res.status(200).render('discuss', 'Discussions');
     })
     .post(async (req, res) => {
         const { category, topic, discussion, userName } = req.body;
