@@ -81,6 +81,7 @@ app.use('/posts', isLoggedIn);
 app.use('/events', isLoggedIn);
 app.use('/profile', isLoggedIn);
 app.use('/homepage', isLoggedIn);
+app.use('/discuss', isLoggedIn);
 app.use('/logout', isLoggedIn);
 app.use('/protected', isLoggedIn);
 

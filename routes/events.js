@@ -1,10 +1,10 @@
-// import express from "express";
-// import Router from "express";
-// import eventsData from "../data/events.js";
-// import validation from "../validationchecker.js";
-// import { events } from "../config/mongoCollections.js";
-// import multer from "multer";
-// const router = Router();
+import express from "express";
+import Router from "express";
+import eventsData from "../data/events.js";
+import validation from "../validationchecker.js";
+import { events } from "../config/mongoCollections.js";
+import multer from "multer";
+const router = Router();
 
 // const storage = multer.diskStorage({
 //   destination: function (req, file, cb) {
@@ -236,4 +236,4 @@ router.route('/capacity/:id').post(async (req, res) => {
 // // });
 
 
-// export default router;
+export default router;

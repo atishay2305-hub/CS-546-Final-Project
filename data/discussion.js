@@ -9,7 +9,7 @@ let exportedMethods = {
     async createDiscussion(category, description,userId) {
 
         category = validation.checkLegitName(category, "category");
-        // postedContent = validation.checkPhrases(postedContent, "PostedContent");
+        // description = validation.checkPhrases(description, "Description");
 
         //const userId = validation.checkId(userId);
         const userCollection = await users();
