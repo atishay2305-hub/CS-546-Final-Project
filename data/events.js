@@ -2,7 +2,6 @@ import {events, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {commentData, userData} from "./index.js";
-//import commentData  from "./comments.js";
 
 let exportedMethods = {
     async createEvent(
@@ -47,7 +46,7 @@ let exportedMethods = {
             date: validation.getDate(),
             buildingName: buildingName,
             organizer: organizer,
-            attendees:[],
+            attendees: {},
             seatingCapacity: seatingCapacity,
             image: imagePath,
             commentIds: [],
@@ -61,7 +60,6 @@ let exportedMethods = {
         const eventCollection = await events();
         const insertInfo = await eventCollection.insertOne(event);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event";
-        console.log(insertInfo);
 
         // if (userId) {
         //     await userData.putEvent(userId, insertInfo.insertedId.toString());
@@ -80,7 +78,6 @@ let exportedMethods = {
     
     async getEventByID(id) {
         id = validation.checkId(id);
-        // console.log(events());
         const eventCollection = await events();
         const event = eventCollection.findOne({_id: new ObjectId(id)});
         if (event === null) throw "No event with that id";
@@ -125,10 +122,12 @@ let exportedMethods = {
         };
     },
 
+
     async searchEvent(searchTerm) {
         const eventCollection = await events();
         const searchRegex = new RegExp(searchTerm, 'i');
-        const allEvents = await eventCollection.find({ eventName: searchRegex }).toArray();
+        const allEvents = await eventCollection.find({
+          $or: [{ eventName: searchRegex },{ category: searchRegex },{ buildingName: searchRegex },{ organizer: searchRegex }]}).toArray();
         return allEvents;
       },
       
@@ -180,58 +179,17 @@ let exportedMethods = {
 
     async updateCapacity(
         id,
-        seatingCapacity,
-        userId,
-        reaction
+        seatingCapacity
     ) {
         id = validation.checkId(id);
-        userId = validation.checkId(userId);
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id:new ObjectId(userId)});
-       
-        if(!user){
-            throw "No user Found!!"
-        }
-      
         seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
-        
-        let likes=checkEventExist.likes,dislikes=checkEventExist.dislikes;
-            if(reaction=="like"){
-                if(checkEventExist.likes){
-                likes=checkEventExist.likes+1;
-            }
-            
-        else{
-            likes=1;
-        }
-    }
-        
-            if(reaction=="dislike"){
-                if(checkEventExist.dislikes){
-                dislikes=checkEventExist.dislikes+1;
-            }
-            
-        else{
-            dislikes=1;
-        }
-    }
-        let attendees = checkEventExist.attendees
-       
-        if(Object.keys(attendees).length===0) {
-            attendees=[];
-           
-        }
-        
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
         console.log(user.userName);
         attendees.push(user.userName)
         let evenData = {
-            seatingCapacity: seatingCapacity,
-            likes: likes,
-            dislikes: dislikes,
-            attendees:attendees
+            seatingCapacity: seatingCapacity
         }
         console.log(evenData);
         let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
@@ -247,7 +205,7 @@ let exportedMethods = {
         const eventCollection = await events();
         const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Error: ${event} not found`;
-        console.log(event) 
+        // console.log(event) 
         let commentIdList = event.commentIds;
         commentIdList.push(new ObjectId(commentId));
         const updatedInfo = await eventCollection.updateOne(

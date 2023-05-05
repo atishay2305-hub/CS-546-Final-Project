@@ -37,7 +37,7 @@ import authCheck from "../validtionChecker.js";
                         if (!data.success) {
                             document.getElementById("email").value = data.email;
                             document.getElementById("password").value = data.password;
-                            return handleError(data || "Something went wrong.");
+                            return handleError(data.message || "Something went wrong.");
                         }
                     }
                     location.href = "/login";

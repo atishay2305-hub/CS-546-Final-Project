@@ -1,12 +1,12 @@
 import usersData from "./data/users.js";
 
-// try {
-//     let creatingUser = await usersData.updateUser("Atishay", "Jain", "atishay23", "ajainz20@stevens.edu", "Test@1234#", "1999-05-23", "user", "computer science")
-//     console.log(creatingUser)
+try {
+    let creatingUser = await usersData.createUser("Atishay", "Jain", "atishay23", "ajainz20@stevens.edu", "Test@1234#", "1999-05-23", "user", "computer science")
+    console.log(creatingUser)
     
-// } catch(error){
-//     console.log(error)
-// }
+} catch(error){
+    console.log(error)
+}
 
 // try {
 //     let creatingUser = await usersData.createUser("Atishay", "Jain", "atishay234", "ajain706@stevens.edu", "Test@1234#", "1999-05-23", "user", "computer science")

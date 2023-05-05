@@ -33,9 +33,7 @@ let exportedMethods = {
             created_Date: validation.getDate(),
             likes: 0,
             dislikes: 0,
-
             commentIds: []
-
         };
         const postCollection = await posts();
         let insertInfo = await postCollection.insertOne(post);
@@ -71,7 +69,7 @@ let exportedMethods = {
     },
 
     async getPostByUserId(userId) {
-        id = await validation.checkId(userId);
+        userId = await validation.checkId(userId);
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(userId)});
         if (post === null) {
@@ -85,7 +83,6 @@ let exportedMethods = {
         const id = await validation.checkId(userId);
         const postCollection = await posts();
         const postList = await postCollection.find({userId:new ObjectId(userId)}).sort({created_Date: -1}).limit(5).toArray();
-        console.log(postList);
         for(let x of postList){
             x.deletable = true;
         }
@@ -93,33 +90,6 @@ let exportedMethods = {
 
     },
 
-    // async removeById(id) {
-    //     id = await validation.checkId(id);
-    //     const postCollection = await posts();
-    //     const post = await postCollection.findOne({_id: new ObjectId(id)});
-    //     if (post === null) {
-    //         throw `No post found with that Id ${id}`;
-    //     }
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
-    //     //console.log(user.postID);
-    //     if (user.isAdmin === undefined || !user.isAdmin) {
-    //         if(!user.postIDs.includes(id)){
-    //             throw "Only administrators or the poster can delete posts.";
-    //         } 
-    //     }
-
-    //     const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
-    //     if (removePost.deletedCount === 0) {
-    //         throw `Could not delete post with id of ${id}`;
-    //     }
-    //     await userData.removePost(post.userId.toString(), id);
-    //     return {
-    //         postId: id,
-    //         deleted: true
-    //     };
-
-    // },
     async removeById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
@@ -129,8 +99,6 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(post.userId.toString())});
-        // console.log(user);
-        // console.log("hello macha!!",user.postIDs);
         let postIdList = user.postIDs.map(post => post.toString());
         // console.log(postIdList);
         // if (user.isAdmin === undefined || !user.isAdmin){
@@ -224,10 +192,75 @@ let exportedMethods = {
         );
         if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${postId}`;
         return true;
+        },
+
+        async updateDisLikes(postId, liked, disliked){
+            postId = validation.checkId(postId);
+            const postCollection = await posts();
+            const post = await postCollection.findOne({_id: new ObjectId(postId)});
+
+            if(!post) `Error: ${post} not found`;
+            if (!liked && !disliked) {
+                if (post.dislikes > 0) {
+                    post.dislikes--;
+                } else if (post.likes > 0) {
+                    post.likes--;
+                }
+            } else {
+                if (disliked) {
+                    if (liked && post.likes > 0) {
+                        post.likes--;
+                    }
+                    post.dislikes++;
+                } else {
+                    post.dislikes--;
+                }
+            }
+
+
+            const updatedInfo = await postCollection.updateOne(
+                {_id: new ObjectId(postId)},
+                { $set: { likes: post.likes, dislikes: post.dislikes}}
+            );
+            if (updatedInfo.modifiedCount === 0) {
+                throw `Error: Failed to update likes and dislikes for post ${postId}`;
+            }
+            return {likes: post.likes, dislikes: post.dislikes};
+        },
+
+    async updateLikes(postId, liked, disliked){
+        postId = validation.checkId(postId);
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(postId)});
+        if(!post) `Error: ${post} not found`;
+        if (!liked && !disliked) {
+            if (post.likes > 0) {
+                post.likes--;
+            } else if (post.dislikes > 0) {
+                post.dislikes--;
+            }
+        } else {
+            if (liked) {
+                if (disliked && post.dislikes > 0) {
+                    post.dislikes--;
+                }
+                post.likes++;
+            } else {
+                post.likes--;
+            }
         }
 
+        const updatedInfo = await postCollection.updateOne(
+            {_id: new ObjectId(postId)},
+            { $set: { likes: post.likes, dislikes: post.dislikes }}
+        );
+        if (updatedInfo.modifiedCount === 0) {
+            throw  `Error: Failed to update likes and dislikes for post ${postId}`;
+        }
+        return {likes: post.likes, dislikes: post.dislikes};
+    }
 };
-//express session,handlebars
+
 export default exportedMethods;
 
 

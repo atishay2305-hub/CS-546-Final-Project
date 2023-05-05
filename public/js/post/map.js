@@ -83,8 +83,3 @@ function showAddressOnMap() {
 
     return false;
 }
-
-function commentPopup(postId){
-    let popup = document.getElementById("comments-popup-" + postId);
-    popup.classList.toggle("show");
-}

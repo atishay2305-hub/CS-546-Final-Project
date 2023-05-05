@@ -18,8 +18,7 @@ let exportedMethods = {
     const comment = {
       _id: new ObjectId(),
       userId: user._id,
-      //postId,
-      // userName,
+      userName: user.userName,
       contents,
       created_Date: validation.getDate(),
     };
@@ -105,7 +104,6 @@ let exportedMethods = {
       throw `No comment with that id ${commentId}`;
     }
     const user = userData.getUserByUserName(comment.userName);
-    console.log(user);
     // TODO: IT can return the user who commented that comment whose comment ID is provided.
     // but we return that comment
     return comment;
@@ -174,14 +172,11 @@ let exportedMethods = {
     // if(!post) throw `No  post with that id ${postId}`;
     const commentCollection = await comments();
     const userCollection = await users();
-    console.log(eventId);
     const commentList = await commentCollection
       .find({ eventId: new ObjectId(eventId) })
       .toArray();
-    console.log(commentList);
     for (let x of commentList) {
       const user = await userCollection.findOne({ _id: x.userId });
-      console.log(user);
       x.userName = user.userName;
     }
     return commentList;
@@ -194,17 +189,12 @@ let exportedMethods = {
     // if(!post) throw `No  post with that id ${postId}`;
     const commentCollection = await comments();
     const userCollection = await users();
-    console.log(postId);
-    const commentList = await commentCollection
-      .find({ postId: new ObjectId(postId) })
-      .toArray();
-    console.log(commentList);
-    for (let x of commentList) {
-      const user = await userCollection.findOne({ _id: x.userId });
-      console.log(user);
-      x.userName = user.userName;
-    }
-    return commentList;
+    return await commentCollection
+      .find({ postId: new ObjectId(postId)}).toArray();
+    // for (let x of commentList) {
+    //   const user = await userCollection.findOne({ _id: x.userId });
+    //   x.userName = user.userName;
+    // }
     // return comments;
   },
 
@@ -215,13 +205,12 @@ let exportedMethods = {
       const commentList = await commentCollection.deleteMany({
         eventId: new ObjectId(eventId),
       });
-      console.log(commentList);
       if (commentList.deletedCount === 0) {
         throw "cannot delete comments for this event";
       }
       return { deleted: true };
     } catch (e) {
-      console.log(e);
+      return res.status(404).json({ error: 'Resource not found' });
     }
   },
 
@@ -232,13 +221,12 @@ let exportedMethods = {
       const commentList = await commentCollection.deleteMany({
         postId: new ObjectId(postId),
       });
-      console.log(commentList);
       if (commentList.deletedCount === 0) {
         throw "cannot delete comments for this event";
       }
       return { deleted: true };
     } catch (e) {
-      console.log(e);
+      return res.status(404).json({ error: 'Resource not found' });
     }
   },
 };

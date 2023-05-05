@@ -1,10 +1,10 @@
-// import express from "express";
-// import Router from "express";
-// import eventsData from "../data/events.js";
-// import validation from "../validationchecker.js";
-// import { events } from "../config/mongoCollections.js";
-// import multer from "multer";
-// const router = Router();
+import express from "express";
+import Router from "express";
+import eventsData from "../data/events.js";
+import validation from "../validationchecker.js";
+import { events } from "../config/mongoCollections.js";
+import multer from "multer";
+const router = Router();
 
 // const storage = multer.diskStorage({
 //   destination: function (req, file, cb) {
@@ -26,13 +26,61 @@
 // .get(async (req, res) => {
 //   try {
 
+
+  router.route('/events/:id').delete(async(req,res)=>{
+    
+    const response = await eventsData.removeEventById(req.params.id);
+    //const user = await userData.removePost()
+    //const postList = await postData.getAllPosts();
+    //res.status(200).send(response);
+
+    //res.send(response);
+    return res.sendStatus(200);
+});
+router.route('/capacity/:id').post(async (req, res) => {
+  const id = req.params.id; // fix the id variable assignment
+  const {seatingCapacity,attendance} = req.body;
+  let attenddone;
+  try{
+      let newSeatingCapacity = seatingCapacity;
+      
+      if(typeof newSeatingCapacity === 'string') {
+        newSeatingCapacity = Number(newSeatingCapacity);
+      }
+      if(attendance === 'attend') {
+        newSeatingCapacity = newSeatingCapacity - 1;
+        attenddone = 'done';
+      } else if(attendance === 'cancel') {
+        newSeatingCapacity = newSeatingCapacity + 1;
+      }
+      var result = await eventsData.updateCapacity(
+          id, // pass the correct id variable
+          newSeatingCapacity,
+      );
+      result.forEach((node) => {
+        node._id = node._id.toString();
+        if(node._id === id) {
+          node.attenddone = attenddone;
+        }
+      });
+      return res.render('events', {newEvent: result});
+  }catch (e){
+      return res.status(400).json({error: e});
+  }
+});
+
+
+// router.route('/events')
+// .get(async (req, res) => {
+//   try {
+
+
 //     const events = await eventsData.getAllEvents();
 //     return res.render('events', {events: events});
 //   } catch (error) {
 //     res.status(500).json({ error: error });
 //   }
 // })
-
 //   .post(uploadImage, async (req, res) => {
 //     // const event = req.body;
 //     // try {
@@ -185,4 +233,4 @@
 // // });
 
 
-// export default router;
+export default router;

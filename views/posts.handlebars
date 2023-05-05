@@ -1,9 +1,8 @@
 <body>
-    
-<div class="container">
-    <br>
-    <h1 class="login">Posts</h1>
-    <form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
+{{#if (if_eq role "user")}}
+<form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
+    <div class="container center">
+        <h1 class="title">Posts</h1>
         <div class="inf">
             <div class="sec-1">
                 <label for="postCategory">Post Category:</label>
@@ -29,13 +28,12 @@
         <div class="inf" id="address-input" style="display:none;">
             <div class="sec-1">
                 <label for="address">Location:</label>
-
-            </div>
-            <div class="sec-2">
-                <input type="text" name="address" id="address" placeholder="Address, City, State, Zip" value="{{address}}">
-                <button  type="submit" id="showOnMapBtn">Show on Map</button>
-                <div id="map"></div>
-
+                <div class="sec-2">
+                    <input type="text" name="address" id="address" placeholder="Address, City, State, Zip"
+                           value="{{address}}">
+                    <button type="submit" id="showOnMapBtn">Show on Map</button>
+                    <div id="map"></div>
+                </div>
             </div>
         </div>
         <div class="inf">
@@ -49,40 +47,93 @@
         </div>
         <button type="submit" class="postBtn" id="addPostBtn">Add Post</button>
         <ul class="error" id="postError" hidden></ul>
+    </div>
+</form>
+<br>
+{{/if}}
 
-    </form>
+<div id="posts-container">
+
     {{#each posts}}
         <div class="post-container">
             <h2>{{content}}</h2>
-            {{#if image}}
-                <img id="img-home" src="{{image}}" alt="Post image">
-            {{/if}}
+            <img id="img-home" src="{{image}}" alt="Post image">
             <p>Category: {{category}}</p>
             <p>Created by: {{userName}}</p>
-            <p>Created at: {{created_Date}}</p>
-            {{!-- {{#if (checkCategory category)}} --}}
-            {{#if addressCheck}}
-            <p>Address: {{address}}</p>
-            {{/if}} 
-            <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
-            <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button><br>
-            <button onClick="commentPopup({{_id}})">View Comments</button>
-            <div class="comments-popup" id="comments-popup-{{_id}}">
-                {{#each comments}}
-                    <div class="comment-container">
-                        <p>{{text}}</p>
-                        <p>Posted by: {{author}}</p>
-                        <p>Posted at: {{created_Date}}</p>
-                    </div>
+            {{#if (if_eq category "lost&found")}}
+                <p>Address: {{address}}</p>
+            {{/if}}
+            <p class="create_date" data-created_Date="{{created_Date}}">Created at: {{created_Date}}</p>
+            <button class="like-btn" onclick="toggleLike('{{this._id}}', this)">
+                <ion-icon name="thumbs-up"></ion-icon>
+                <span class="like-count" data-likes="{{this.likes}}">{{this.likes}}</span>
+            </button>
+            <button class="dislike-btn" onclick="toggleDislike('{{this._id}}', this)">
+                <ion-icon name="thumbs-down"></ion-icon>
+                <span class="dislike-count">{{this.dislikes}}</span>
+            </button>
+            <hr>
+            <div id="comments-{{this._id}}" class="comments-container" style="display: none;">
+                <form class="comment-form" id="comment-form-{{this._id}}" action="/posts/{{this._id}}/comment" method="POST">
+                    <input type="hidden" name="postId" value="{{this._id}}">
+                    <label for="comment-text-{{this._id}}">Add a Comment:</label>
+                    <input type="text" name="commentText" id="comment-text-{{this._id}}">
+                    <input type="submit" value="Submit">
+                </form>
+                {{#each ../ comments}}
+                    {{#if (if_eq @key ../_id)}}
+                        {{#each this}}
+                            {{#each this}}
+                                <div class="comment">
+                                    <p>Comment: {{contents}} /User Name: {{userName}} - Created
+                                        Date: {{created_Date}}</p>
+                                </div>
+                                <hr>
+                            {{/each}}
+                        {{/each}}
+                    {{/if}}
                 {{/each}}
             </div>
-        {{#if deletable}}
-            <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
-        {{/if}}
-    </div>
-{{/each}}
+            <button class="comment-btn" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
+                <ion-icon name="chatbox-ellipses"></ion-icon>
+            </button>
 
+            {{#if deletable}}
+                <button class="delete-btn" onclick="deletePost('{{_id}}')">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            {{/if}}
+        </div>
+    {{/each}}
+
+
+</div>
+
+<div id="posts-container">
+    <div class="sort-container">
+        <label for="sortCriteria">Sort By:</label>
+        <select id="sortCriteria" onchange="sortPosts(this.value)">
+            <option value=""> </option>
+            <option value="a-z">A-Z</option>
+            <option value="created_date">Created Date</option>
+            <option value="most_likes">Most Likes</option>
+        </select>
+    </div>
+</div>
+
+<script src="/public/js/post/sort.js"></script>
 <script src="/public/js/post/map.js"></script>
+<script src="/public/js/post/comments.js" ></script>
+<script src="/public/js/post/like&dislike.js"></script>
 <script src="/public/js/post/posts.js" type="module"></script>
 <link rel="stylesheet" href="/public/css/posts.css">
+
 </body>
+
+
+
+
+
+
+
+

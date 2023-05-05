@@ -1,10 +1,4 @@
-{{!-- {{#each events}}
-  <h2>{{eventName}}</h2>
-  <p>{{description}}</p>
-{{/each}} --}}
-{{!-- <div class="event-card"> --}}
-   
-    {{#if isAdmin}}
+{{#if isAdmin}}
 <div class="container center">
     <h1 id="event-header">Create Events</h1>
    <form method="POST" action="/events" enctype="multipart/form-data">
@@ -16,61 +10,54 @@
                 </div>
             </div>
         </div>
-        <div class="inf">
-            <div class="sec-1">
-                <label for="description">Description</label>
+      </div>
+      <div class="inf">
+        <div class="sec-1">
 
-                <div class="sec-2">
-                    <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
-                </div>
-            </div>
+          <label for="description">Description</label>
         </div>
-        <div class="inf">
-            <div class="sec-1">
-                <label for="buildingName">Select Building Location:</label>
-                <div class="sec-2">
-                    <select id="buildingName" name="buildingName">
-                        <option value=""></option>
-                    </select>
+        <div class="sec-2">
+          <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
+        </div>
+      </div>
+      <div class="inf">
+        <div class="sec-1">
+          <label for="buildingName">Select Building Location:</label>
+        </div>
+      </div>
+      <div class="sec-2">
+        <select id="buildingName" name="buildingName"><br>
+          <option value=""></option>
+        </select>
+      </div>
 
-                    <script>
-                        const allowedLocation = [
-                            "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
-                            "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
-                            "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
-                            "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
-                            "alexander house", "colonial house"
-                        ];
+      <script>
+        const allowedLocation = [
+          "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
+          "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
+          "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
+          "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
+          "alexander house", "colonial house"
+        ];
 
-                        const selectElement = document.getElementById("buildingName");
+        const selectElement = document.getElementById("buildingName");
 
-                        allowedLocation.forEach((location) => {
-                            const option = document.createElement("option");
-                            option.text = location;
-                            option.value = location;
-                            selectElement.appendChild(option);
-                        });
-                    </script>
-                </div>
-            </div>
+        allowedLocation.forEach((location) => {
+          const option = document.createElement("option");
+          option.text = location;
+          option.value = location;
+          selectElement.appendChild(option);
+        });
+      </script>
+      <div class="inf">
+        <div class="sec-1">
+          <label for="organizer">Organizer</label>
+        </div>
+        <div class="sec-2">
+          <input id="organizer" type="text" name="organizer">
         </div>
 
-        <div class="inf">
-            <div class="sec-1">
-                <label for="organizer">Organizer</label>
-                <div class="sec-2">
-                    <input id="organizer" type="text" name="organizer">
-                </div>
-            </div>
-        </div>
-        <div class="inf">
-            <div class="sec-1">
-                <label for="seatingCapacity">Seating Capacity</label>
-                <div class="sec-2">
-                    <input id="seatingCapacity" type="number" name="seatingCapacity">
-                </div>
-            </div>
-        </div>
+
          <div class="inf">
             <div class="sec-1">
         <label>Upload Image</label>
@@ -78,17 +65,19 @@
     <input type="file" name="postImage" id="postImage">
     </div>
     </div>
-    <button type="submit">Add Post</button>
+    {{!-- <button type="submit">Add Post</button> --}}
         <button type="submit" class="registerbtn">Create Event</button>
         
     </form>
    
 </div>
+
 {{/if}}
 
 <div class="eventPost-container">
     <h2>{{newEvent.eventName}}</h2><br>
     <p>{{newEvent.description}}</p><br>
+    <img>{{newEvent.image}}</img>
     <p>{{newEvent.buildingName}}</p><br>
     <p>{{newEvent.seatingCapacity}}</p><br>
 
@@ -159,7 +148,151 @@
 
 </script>
 
-    
+
 </div>
 
-<link rel="stylesheet" href="/public/css/events.css">
+
+
+{{!-- {{#each newEvent}}
+<img id="img-home" src="{{image}}" alt="Event image">
+<h2>Event Name: {{eventName}}</h2><br>
+<p>Description: {{description}}</p><br>
+<p>Building Name: {{buildingName}}</p><br>
+<p>Seating Capacity{{seatingCapacity}}</p><br>
+{{/each}} --}}
+
+
+
+
+{{#each newEvent}}
+    <div class="event-container">
+        <h2>{{eventName}}</h2>
+        <img id="img-home" src="{{image}}" alt="Event image">
+
+        <p>Description: {{description}}</p>
+        <p>Building Name: {{buildingName}}</p>
+        <p>Seating Capacity{{seatingCapacity}}</p>
+        
+        <p>Created by: {{organizer}}</p>
+        {{!-- <p>Created at: {{created_Date}}</p> --}}
+
+        <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
+        <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
+                  
+        <div class="comments-container">
+            <h3>Comments:</h3>
+            {{!-- {{#each comments}}
+                <div class="comment-container">
+                <p>{{text}}</p>
+                <p>Posted by: {{author}}</p>
+                <p>Posted at: {{created_Date}}</p>
+                </div>
+        {{/each}}<br> --}}
+            <form class="comment-form" id="comment-form-{{_id}}" action="/events/{{_id}}/comment" method="POST">
+                <input type="hidden" name="eventId" value="{{_id}}">
+                <label for="comment-text-{{_id}}">Add a Comment:</label>
+                <input type="text" name="commentText" id="comment-text-{{_id}}">
+                <input type="submit" value="Submit">
+            </form>
+            <a href="/events/{{_id}}/allComments" id="view-comments">View Comments</a>
+        </div>
+        {{#if deletable}}
+            <button class="delete-btn" onClick ="deleteEvent('{{_id}}')" data-event-id="{{_id}}">Delete</button>
+        {{/if}}
+    </div>
+{{/each}}
+
+<script>
+
+function myFunction(x) {
+  x.classList.toggle("fa-thumbs-down");
+}
+
+function deleteEvent(id) {
+  fetch(`/events/${id}`, {
+    method: "delete",
+    headers: {
+      Accept: 'application/json, text/plain, */*',
+      "Content-type": 'application/json'
+    },
+  })
+  .then(response => {
+  if (response.ok) {
+    alert('event deleted successfully');
+    window.location.href = '/events';
+  } else {
+    throw new Error('Network response was not ok');
+  }
+})
+  .catch(error => {
+    alert(error.message || "Something went wrong.");
+  })
+  .then(() => {
+    console.log('This will run after either success or failure');
+  });
+}
+
+document.querySelectorAll('.comment-form').forEach(form => {
+      form.addEventListener('submit', function(event){
+          event.preventDefault();
+          const commentText = this.querySelector('input[name="commentText"]').value;
+          const eventId = this.querySelector('input[name="eventId"]').value;
+          fetch(`/events/${eventId}/comment`, {
+              method: "post",
+              body: JSON.stringify({commentText: commentText}),
+              headers: {
+                  "Content-Type": "application/json"
+              }
+          })
+          .then(response => {
+              if (response.ok) {
+                  alert('Comment added successfully');
+                  window.location.href = `/events`;
+              } else {
+                  throw new Error('Network response was not ok');
+              }
+          })
+          .catch(error => {
+              alert(error.message || "Something went wrong.");
+          })
+          .then(() => {
+              console.log('This will run after either success or failure');
+          });
+      });
+  });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<p id="error-message">{{Error}}</p>
+
+<img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+
+<script>
+  const postImageInput = document.getElementById("postImage");
+  const imagePreview = document.getElementById("image-preview");
+
+  postImageInput.addEventListener("change", function () {
+    const file = this.files[0];
+    const reader = new FileReader();
+
+    reader.addEventListener("load", function () {
+      imagePreview.src = reader.result;
+      imagePreview.style.display = "block";
+    });
+
+    reader.readAsDataURL(file);
+  });
+</script>
+
+<link rel="stylesheet" href="/public/css/event.css">

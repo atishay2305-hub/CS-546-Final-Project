@@ -7,7 +7,7 @@
         <div class="inf">
             <div class="inf">
                 <label for="role">Category: </label>
-                <select name="postCategory" id="postCategory" required>
+                <select name="postCategory" id="postCategory">
                     <option value="education">Education</option>
                     <option value="sports">sports</option>
                     <option value="entertainment">Entertainment</option>
@@ -16,7 +16,7 @@
 
             <div class="textContainer">
                 <label for="postContent">Post Content: </label>
-                <textarea name="postContent" rows="6" maxlength="300" id="postContent" content="{{postContent}}" required></textarea><br>
+                <textarea name="postContent" rows="6" maxlength="300" id="postContent" content="{{postContent}}"></textarea><br>
             </div>
             <button type="submit" value="Submit" class="post">Add Post</button>
             <ul id="create-postError" class="error"  hidden></ul>>
