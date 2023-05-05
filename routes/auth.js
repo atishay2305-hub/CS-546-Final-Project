@@ -83,7 +83,6 @@ router.route('/register').get(async (req, res) => {
             //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
             //console.log(user);
             //const {sessionUser} = await userData.;
-            console.log(user);
             if (user.insertedUser) {
                 return res.redirect('/login');
             }
@@ -227,36 +226,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage});
 const uploadImage = upload.single("postImage");
 
-// router.route('/posts')
-//     .get(async (req, res) => {
-//         const posts = await postData.getAllPosts();
-//         return res.render('posts', {posts: posts});
-//     })
-//     .post(uploadImage, async (req, res) => {
-//         const id = req.session.userId;
-//         console.log(id);
-//         const userName = req.session.userName;
 
-//         // const {category, postContent} = req.body;
-//         // console.log(category)
-//         // console.log(postContent);
-
-//         try {
-//             let imagePath = '';
-//             if (req.file) {
-//                 imagePath = req.file.path.replace('public', '');
-//             } else {
-//                 imagePath = 'images/default.jpg';
-//             }
-
-//             const post = await postData.createPost(category, imagePath, postContent, id, req);
-//             const user = await userData.putPost(id, post._id);
-//             return res.redirect('/homepage');
-//         } catch (e) {
-//             console.log(e)
-//             return res.render('posts', {Error: e});
-//         }
-//     });
 router.route('/posts')
     .get(async (req, res) => {
         let posts = await postData.getAllPosts();
@@ -264,7 +234,7 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.userId;
-        console.log(id);
+        // console.log(id);
         const userName = req.session.userName;
         let category = xss(req.body.category);
         let postContent = xss(req.body.postContent);
@@ -313,7 +283,7 @@ router.route('/posts')
     })
 
     router.route('/posts/:id').delete(async (req, res) => {
-        console.log(req.params.id);
+        // console.log(req.params.id);
         try{
             const user = await userData.getUserByID(req.session.userId);
             if(!user){
@@ -322,22 +292,21 @@ router.route('/posts')
             //console.log(user);
             const commentCollection = await comments();
             const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
-            console.log(post);
+            // console.log(post);
             if(post.length !== 0){
                 const responsePost = await commentData.removeCommentByPost(req.params.id);
                 console.log("hi",responsePost.deleted);
             }
             const response = await postData.removeById(req.params.id);
-            console.log("hi", response.deleted);
+            // console.log("hi", response.deleted);
             //const user = await userData.removePost()
             //const postList = await postData.getAllPosts();
             //res.status(200).send(response);
             //res.send(response);
             return res.sendStatus(200);
-        } catch(e
-            )
+        } catch(e)
         {
-            console.log(e);
+            return res.status(404).json({ error: 'Resource not found' });
         }
     });
     
@@ -349,13 +318,13 @@ router.route('/posts')
             // console.log(postId);
             // console.log(commentText);
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-            console.log(comment);
+            // console.log(comment);
             const post = await postData.putComment(postId, comment.commentId);
             // console.log(post);
-            console.log('The comment is added');
+            // console.log('The comment is added');
             return res.sendStatus(200);
         } catch (e) {
-            console.log(e);
+            return res.status(404).json({ error: 'Resource not found' });
         }
     });
 
@@ -370,13 +339,11 @@ router.route('/events').get(async (req, res) => {
 
         //const userCollection = await users();
         const user = await userData.getUserByID(userId);
-        console.log('The user is ', user);
 
         if (!user) {
             throw new Error('No user found');
         }
 
-        console.log("hello bro!!", userId);
 
 
         const events = await eventsData.getAllEvents();
@@ -413,7 +380,6 @@ router.route('/events').get(async (req, res) => {
         return res.render('events', {newEvent: events, isAdmin: isAdmin});
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({error: error});
     }
 });
@@ -438,7 +404,6 @@ const eventUploadImage = eventUpload.single("postImage");
 router.route('/events').post(eventUploadImage, async (req, res) => {
 
     const userId = req.session.userId;
-    console.log(userId);
     try {
         let imagePath = '';
         if (req.file) {
@@ -448,7 +413,6 @@ router.route('/events').post(eventUploadImage, async (req, res) => {
         }
         const {eventName, description, buildingName, organizer, seatingCapacity} = req.body;
         const newEvent = await eventsData.createEvent(eventName, description, buildingName, organizer, seatingCapacity, imagePath, req);
-        console.log(newEvent);
         return res.redirect('/events');
         //   const gettingAllEvents = await eventsData.getAllEvents();
 
@@ -475,7 +439,6 @@ router.route('/events').post(eventUploadImage, async (req, res) => {
 
         return res.status(200).render('events', {newEvent: gettingAllEvents});
     } catch (error) {
-        console.log(error);
         return res.status(500).json({error: error});
     }
 });
@@ -515,7 +478,6 @@ router.route('/events/capacity/:id').post(async (req, res) => {
         );
         return res.render('events', {newEvent: result});
     } catch (e) {
-        console.log(e);
         return res.status(400).json({error: e});
     }
 });
@@ -531,13 +493,11 @@ router.route('/events/:id').delete(async (req, res) => {
         if (!user) {
             throw 'cannot find user';
         }
-        console.log(user);
         if (user.role !== 'admin') throw "Only administrators can delete events.";
 
 
         const commentCollection = await comments();
         const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
-        console.log(event);
         if (event.length !== 0) {
             const response = await commentData.removeCommentByEvent(req.params.id);
             console.log("hi", response.deleted);
@@ -548,7 +508,6 @@ router.route('/events/:id').delete(async (req, res) => {
 
 
         const responseEvent = await eventsData.removeEventById(req.params.id);
-        console.log(responseEvent);
 
 
         console.log("hi", responseEvent.deleted);
@@ -556,7 +515,7 @@ router.route('/events/:id').delete(async (req, res) => {
         return res.sendStatus(200);
 
     } catch (e) {
-        console.log(e);
+        return res.status(404).json({ error: 'Resource not found' });
     }
 
 
@@ -573,13 +532,10 @@ router.route('/events/:id/comment').post(async (req, res) => {
         // console.log(postId);
         // console.log(commentText);
         const comment = await commentData.createComment(userId, eventId, null, commentText, "event");
-        console.log(comment);
         const post = await eventsData.putComment(eventId, comment.commentId);
-        // console.log(post);
-        console.log('The comment is added');
         return res.sendStatus(200);
     } catch (e) {
-        console.log(e);
+        return res.status(404).json({ error: 'Resource not found' });
     }
 });
 
@@ -677,7 +633,6 @@ router
 
 router.route('/profile').get(async (req, res) => {
     const id = req.session.userId;
-    console.log(id);
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user});
 });
@@ -690,11 +645,9 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.userId;
-        console.log(id);
         const userName = req.session.userName;
 
         const {postCategory, postContent} = req.body;
-        console.log(postContent);
 
         try {
             let imagePath = '';
@@ -708,7 +661,6 @@ router.route('/posts')
             const user = await userData.putPost(id, post._id);
             return res.redirect('/homepage');
         } catch (e) {
-            console.log(e)
             return res.render('posts', {Error: e});
         }
     });
@@ -754,9 +706,7 @@ router
     .route('/posts/:postId/allComments')
     .get(async (req, res) => {
         const postId = req.params.postId;
-        console.log(postId);
         const comment = await commentData.getPostCommentById(postId)
-        console.log(comment);
         return res.render('allComments', {comment: comment});
     });
 
@@ -764,9 +714,7 @@ router
     .route('/events/:eventId/allComments')
     .get(async (req, res) => {
         const eventId = req.params.eventId;
-        console.log(eventId);
         const comment = await commentData.getEventCommentById(eventId)
-        console.log(comment);
         return res.render('allComments', {comment: comment});
     });
 
@@ -778,7 +726,6 @@ router
       const searchResults = await eventsData.searchEvent(searchTerm);
       res.render('searchResults', { results: searchResults });
     } catch (e) {
-      console.log(e);
       res.status(500).json({ error: 'Internal server error' });
     }
   });

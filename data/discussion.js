@@ -79,7 +79,6 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(discuss.userId)});
-        //console.log(user.postID);
         if (user.isAdmin === undefined || !user.isAdmin) {
             if(!user.postIDs.includes(id)){
                 throw "Only administrators or the poster can delete the discussion.";
@@ -98,7 +97,7 @@ let exportedMethods = {
 
     }
 };
-//express session,handlebars
+
 export default exportedMethods;
 
 

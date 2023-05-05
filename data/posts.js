@@ -85,7 +85,6 @@ let exportedMethods = {
         const id = await validation.checkId(userId);
         const postCollection = await posts();
         const postList = await postCollection.find({userId:new ObjectId(userId)}).sort({created_Date: -1}).limit(5).toArray();
-        console.log(postList);
         for(let x of postList){
             x.deletable = true;
         }
@@ -93,33 +92,6 @@ let exportedMethods = {
 
     },
 
-    // async removeById(id) {
-    //     id = await validation.checkId(id);
-    //     const postCollection = await posts();
-    //     const post = await postCollection.findOne({_id: new ObjectId(id)});
-    //     if (post === null) {
-    //         throw `No post found with that Id ${id}`;
-    //     }
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
-    //     //console.log(user.postID);
-    //     if (user.isAdmin === undefined || !user.isAdmin) {
-    //         if(!user.postIDs.includes(id)){
-    //             throw "Only administrators or the poster can delete posts.";
-    //         } 
-    //     }
-
-    //     const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
-    //     if (removePost.deletedCount === 0) {
-    //         throw `Could not delete post with id of ${id}`;
-    //     }
-    //     await userData.removePost(post.userId.toString(), id);
-    //     return {
-    //         postId: id,
-    //         deleted: true
-    //     };
-
-    // },
     async removeById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
@@ -129,8 +101,6 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(post.userId.toString())});
-        // console.log(user);
-        // console.log("hello macha!!",user.postIDs);
         let postIdList = user.postIDs.map(post => post.toString());
         // console.log(postIdList);
         // if (user.isAdmin === undefined || !user.isAdmin){
@@ -227,7 +197,7 @@ let exportedMethods = {
         }
 
 };
-//express session,handlebars
+
 export default exportedMethods;
 
 

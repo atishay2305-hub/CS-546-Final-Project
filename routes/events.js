@@ -64,7 +64,6 @@ router.route('/events')
   })
 
   router.route('/events/:id').delete(async(req,res)=>{
-    console.log(req.params.id);
     
     const response = await eventsData.removeById(req.params.id);
     // console.log("hi",response.deleted);
@@ -91,7 +90,6 @@ router.route('/capacity/:id').post(async (req, res) => {
       } else if(attendance === 'cancel') {
         newSeatingCapacity = newSeatingCapacity + 1;
       }
-      console.log(req.session);
       var result = await eventsData.updateCapacity(
           id, // pass the correct id variable
           newSeatingCapacity,
@@ -106,7 +104,6 @@ router.route('/capacity/:id').post(async (req, res) => {
       });
       return res.render('events', {newEvent: result});
   }catch (e){
-      console.log(e);
       return res.status(400).json({error: e});
   }
 });

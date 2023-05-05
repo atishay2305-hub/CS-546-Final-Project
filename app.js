@@ -97,14 +97,6 @@ app.use('/register', (req, res, next) => {
     next();
   });
 
-app.use('/posts', isLoggedIn);
-app.use('/events', isLoggedIn);
-app.use('/profile', isLoggedIn);
-app.use('/homepage', isLoggedIn);
-app.use('/logout', isLoggedIn);
-
-app.use('/protected', isLoggedIn);
-
 
 app.use('/logout', (req, res) => {
     if (!req.session.userId) {
@@ -114,6 +106,7 @@ app.use('/logout', (req, res) => {
     return res.render('logout');
 
 });
+  
 
 configRoutes(app);
 
@@ -124,7 +117,13 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use('*', (req, res) => {
+    res.status(404).json({error: 'Route Not found'});
+});
+
+
 app.listen(3000, () => {
     console.log("We've now got a server!");
     console.log('Your routes will be running on http://localhost:3000');
 });
+

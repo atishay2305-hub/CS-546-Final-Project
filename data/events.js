@@ -2,7 +2,6 @@ import {events, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {commentData, userData} from "./index.js";
-//import commentData  from "./comments.js";
 
 let exportedMethods = {
     async createEvent(
@@ -61,7 +60,6 @@ let exportedMethods = {
         const eventCollection = await events();
         const insertInfo = await eventCollection.insertOne(event);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event";
-        console.log(insertInfo);
 
         // if (userId) {
         //     await userData.putEvent(userId, insertInfo.insertedId.toString());
@@ -80,7 +78,6 @@ let exportedMethods = {
     
     async getEventByID(id) {
         id = validation.checkId(id);
-        // console.log(events());
         const eventCollection = await events();
         const event = eventCollection.findOne({_id: new ObjectId(id)});
         if (event === null) throw "No event with that id";
@@ -134,7 +131,7 @@ let exportedMethods = {
         return allEvents;
       },
       
-      
+
     async updateEvent(
         id,
         userId,
@@ -189,20 +186,19 @@ let exportedMethods = {
         userId = validation.checkId(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id:new ObjectId(userId)});
-        console.log(user)
+        // console.log(user)
         if(!user){
             throw "No user Found!!"
         }
-        console.log(user.userName)
+        // console.log(user.userName)
         seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
-        console.log(checkEventExist)
+        // console.log(checkEventExist)
         let attendees = checkEventExist.attendees
-        console.log(attendees);
+        // console.log(attendees);
         if(Object.keys(attendees).length===0) {
             attendees=[];
-            console.log("attendees arry");
         }
         
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
@@ -223,7 +219,7 @@ let exportedMethods = {
         const eventCollection = await events();
         const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Error: ${event} not found`;
-        console.log(event) 
+        // console.log(event) 
         let commentIdList = event.commentIds;
         commentIdList.push(new ObjectId(commentId));
         const updatedInfo = await eventCollection.updateOne(
