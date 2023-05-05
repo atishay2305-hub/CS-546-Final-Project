@@ -21,10 +21,10 @@ app.use('/public', staticDir);
 import multer from "multer";
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
-import eventsRoutes from './routes/events.js';
+//import eventsRoutes from './routes/events.js';
 
 
-app.use('/', eventsRoutes);
+//app.use('/', eventsRoutes);
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
@@ -65,25 +65,25 @@ app.use(session({
 }));
 
 
-const isLoggedIn = (req, res, next) => {
-    if (!req.session.userId) {
-        return res.redirect('/login');
-    }
-    next();
-};
+// const isLoggedIn = (req, res, next) => {
+//     if (!req.session.userId) {
+//         return res.redirect('/login');
+//     }
+//     next();
+// };
 
-app.use('/posts', isLoggedIn);
-app.use('/events', isLoggedIn);
-app.use('/profile', isLoggedIn);
-app.get('/events', (req, res) => {
-    return res.render('events')
-});
+//app.use('/posts', isLoggedIn);
+//app.use('/events', isLoggedIn);
+//app.use('/profile', isLoggedIn);
+// app.get('/events', (req, res) => {
+//     return res.render('events')
+// });
 
-app.use('/homepage', isLoggedIn);
-app.use('/logout', isLoggedIn);
+//app.use('/homepage', isLoggedIn);
+//app.use('/logout', isLoggedIn);
 
 
-app.use('/protected', isLoggedIn);
+//app.use('/protected', isLoggedIn);
 
 app.use('/login', (req, res, next) => {
     if (req.method === 'GET') {
@@ -103,19 +103,19 @@ app.use('/register', (req, res, next) => {
     next();
   });
 
-// const isLoggedIn = (req, res, next) => {
-//   if (!req.session.user) {
-//     return res.redirect('/login');
-//   }
-//   next();
-// };
+const isLoggedIn = (req, res, next) => {
+  if (!req.session.userId) {
+    return res.redirect('/login');
+  }
+  next();
+};
 
 app.use('/posts', isLoggedIn);
 app.use('/events', isLoggedIn);
 app.use('/profile', isLoggedIn);
-app.get('/events', (req, res) => {
-  return res.render('events')
-});
+// app.get('/events', (req, res) => {
+//   return res.render('events')
+// });
 
 app.use('/homepage', isLoggedIn);
 app.use('/logout', isLoggedIn);

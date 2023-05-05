@@ -34,7 +34,7 @@ let exportedMethods = {
             created_Date: validation.getDate(),
             likes: 0,
             dislikes: 0,
-            commentIds: {}
+            commentIds:[]
         };
         const postCollection = await posts();
         let insertInfo = await postCollection.insertOne(post);
