@@ -48,18 +48,18 @@ const eventUpload = multer({storage: eventStorage});
 const eventUploadImage = eventUpload.single("postImage");
 
 
-router.route('/').get(async (req, res) => {
-    if (req.session.userId) {
+router.route('/').get(async (req, res) => { 
+    if (req.session.user) {
         return res.status(200).redirect('/homepage');
     } else {
-        return res.status(200).render('login');
+        return res.status(200).render('login', {title: 'Login'});
     }
 });
 router
     .route('/login')
     .get(async (req, res) => {
         try {
-            return res.render("login");
+            return res.render("login", {title: 'Login'});
         } catch (e) {
             return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
         }
@@ -71,10 +71,11 @@ router
             email = validation.checkEmail(email);
             password = validation.checkPassword(password);
             const sessionUser = await userData.checkUser(email, password);
-            req.session.userId = sessionUser.userId;
-            req.session.userName = sessionUser.userName;
-            req.session.role = sessionUser.role;
+            if(sessionUser){
+              req.session.user = {userName: sessionUser.userName, email: sessionUser.email ,userId: sessionUser.userId, role: sessionUser.role}; 
+            //   res.cookie('AuthCookie', true );
             return res.redirect('/homepage');
+            }
         } catch (e) {
             return res.status(401).json({
                 success: false,
@@ -153,10 +154,10 @@ router
 //     userData.updatePassword(email, )
 
 router.route('/homepage').get(async (req, res) => {
-    const userId = req.session.userId;
+    const userId = req.session.user.userId;
 
 
-    //const email = req.session.email;
+    
     //useremail from session and will just keep it
     //const user = await userData.getUserByID(userId);
     //const postList = await userData.getPostList(user.email);
@@ -199,16 +200,16 @@ router.route('/homepage').get(async (req, res) => {
         userId: userId,
         userName: userName,
         posts: postList,
+        title: 'Homepage'
     });
 
 });
 // router.route('/homepage').get(async (req, res) => {
 //
 //
-//     const userId = req.session.userId;
+//     
 //     console.log(userId);
 //     // console.log(userId)
-//     //const email = req.session.email;
 //     //useremail from session and will just keep it
 //     //const user = await userData.getUserByID(userId);
 //     //const postList = await userData.getPostList(user.email);
@@ -243,8 +244,7 @@ router.route('/homepage').get(async (req, res) => {
 
 
 router.route('/profile').get(async(req,res)=> {
-    const id = req.session.userId;
-    // console.log(id);
+    const id = req.session.user.userId;
     const user = await userData.getUserByID(id);
     return res.render('profile',{user:user});
 });
@@ -277,12 +277,12 @@ router.route('/posts')
         });
 
         // Render the 'posts' template with posts and commentsByPostId
-        return res.render('posts', {role: req.session.role, posts: posts, comments: comments});
+        return res.render('posts', {role: req.session.user.role, posts: posts, comments: comments});
     })
     .post(uploadImage, async (req, res) => {
-        const id = req.session.userId;
+        const id = req.session.user.userId;
         const userName = req.session.userName;
-        const role = req.session.role;
+        const role = req.session.user.role;
         if (role === 'admin') {
             return res.status(401).json({
                 success: false,
@@ -322,7 +322,7 @@ router.route('/posts')
     });
 
 router.route('/profile').get(async (req, res) => {
-    const id = req.session.userId;
+    const id = req.session.user.userId;
     // console.log(id);
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user});
@@ -331,25 +331,24 @@ router.route('/profile').get(async (req, res) => {
 router.route('/events').get(async (req, res) => {
     try {
 
-        const userId = req.session.userId;
+        const userId = req.session.user.userId;
         if (!userId) {
             throw ('User ID not found in session');
         }
 
         //const userCollection = await users();
-        const user = await userData.getUserByID(userId);
+        const userExists = await userData.getUserByID(userId);
 
-        if (!user) {
+        if (!userExists) {
             throw new Error('No user found');
         }
 
 
 
         const events = await eventsData.getAllEvents();
-        console.log("hiiiii",events);
         let isAdmin;
        
-        if (user.role === 'admin') {
+        if (userExists.role === 'admin') {
             isAdmin = true;
             for (const x of events) {
                 x.editable = true;
@@ -388,7 +387,7 @@ router.route('/events').get(async (req, res) => {
 
 router.route('/events').post(eventUploadImage, async (req, res) => {
 
-    const userId = req.session.userId;
+    const user = req.session.user;
     try {
         let imagePath = '';
         if (req.file) {
@@ -444,7 +443,7 @@ router
 router.route('/events/capacity/:id').post(async (req, res) => {
     let id = req.params.id; // fix the id variable assignment
     const {seatingCapacity, attendance,reaction} = req.body;
-    const userId = req.session.userId;
+    const userId = req.session.user.userId;
     try {
         let newSeatingCapacity = seatingCapacity;
         if (typeof newSeatingCapacity === 'string') {
@@ -470,7 +469,7 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 router.route('/posts/:id').delete(async (req, res) => {
     console.log(req.params.id);
     try {
-        const user = await userData.getUserByID(req.session.userId);
+        const user = await userData.getUserByID(req.session.user.userId);
         if (!user) {
             throw 'cannot find user';
         }
@@ -483,7 +482,7 @@ router.route('/posts/:id').delete(async (req, res) => {
             console.log("hi", responsePost.deleted);
         }
         const response = await postData.removeById(req.params.id);
-        console.log("hi", response.deleted);
+        // console.log("hi", response.deleted);
         //const user = await userData.removePost()
         //const postList = await postData.getAllPosts();
         //res.status(200).send(response);
@@ -498,7 +497,7 @@ router.route('/posts/:id').delete(async (req, res) => {
 router.route('/events/:id') 
  .get(async (req, res) => {
     try {
-        const userId = req.session.userId;
+        const userId = req.session.user.userId;
         const postId = req.params.id;
         const {commentText} = req.body;
         // console.log(postId);
@@ -517,7 +516,7 @@ router.route('/events/:id')
     //console.log(req.params.id);
     console.log("entered delete event route");
     try {
-        const user = await userData.getUserByID(req.session.userId);
+        const user = await userData.getUserByID(req.session.user.userId);
         if (!user) {
             throw 'cannot find user';
         }
@@ -578,7 +577,7 @@ router.route('/events/:id')
 
 router.route('/events/:id/comment').post(async (req, res) => {
     try {
-        const userId = req.session.userId;
+        const userId = req.session.user.userId;
         const eventId = req.params.id;
         const {commentText} = req.body;
         // console.log(postId);
@@ -593,7 +592,7 @@ router.route('/events/:id/comment').post(async (req, res) => {
 
 
 router.route('/putAttendee').post(async (req, res) => {
-    const userId = req.session.userId;
+    const userId = req.session.user.userId;
     const eventId = req.body;
     const userCollection = await userData.putAttendee(userId, eventId);
 });
@@ -661,7 +660,7 @@ router
     });
 
 router.route('/profile').get(async (req, res) => {
-    const id = req.session.userId;
+    const id = req.session.user.userId;
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user});
 });
@@ -681,7 +680,7 @@ router
 
 router.route('/posts/:id').delete(async (req, res) => {
     try{
-        const user = await userData.getUserByID(req.session.userId);
+        const user = await userData.getUserByID(req.session.user.userId);
         if(!user){
             throw 'cannot find user';
         }
@@ -705,7 +704,7 @@ router.route('/posts/:id').delete(async (req, res) => {
 
 router.route('/posts/:id/comment').post(async (req, res) => {
     try {
-        const userId = req.session.userId;
+        const userId = req.session.user.userId;
         const postId = req.params.id;
         const {commentText} = req.body;
         const comment = await commentData.createComment(userId, null, postId, commentText, "post");
@@ -812,7 +811,6 @@ router
   });
 
     router.route('/discuss').get(async (req,res)=>{
-        //const userId = req.session.userId;
         const userCollection = await users();
     
         const discuss = await discussData.getAllDiscussions();
@@ -835,7 +833,7 @@ router
     
       router.route('/discuss').post(async(req,res)=>{
     
-        const userId = req.session.userId;
+        const userId = req.session.user.userId;
         const {category,description} = req.body;
     
         const discuss = await discussData.createDiscussion(category,description,userId);
@@ -846,7 +844,7 @@ router
     
     router.route('/discussions/:id/replies').post(async(req,res)=>{
 
-        const userId = req.session.userId;
+        const userId = req.session.user.userId;
         const id = req.params.id;
         const{ message } = req.body;
         const discuss = await discussData.updateDiscussion(id,userId,message);
