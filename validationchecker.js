@@ -79,16 +79,44 @@ const exportedMethods = {
         return phrase;
     },
 
+    // checkDOB(DOB) {
+    //     if (!DOB) throw "DOB not provided";
+    //     if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB";
+    //     const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+    //     if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
+    //     const [_, year, month, day] = DOB.match(dateRegex);
+
+    //     const currentDate = new Date().toISOString().slice(0, 10);
+
+    //     if (DOB > currentDate) {
+    //       throw "Date of birth must be in the past";
+    //     }
+    
+    //     const minAge = 13;
+    //     const minBirthYear = currentDate.getFullYear() - minAge;
+    //     const birthYear = parseInt(year, 10);
+    
+    //     const maxBirthYear = 1900;
+    //     if (birthYear < maxBirthYear) {
+    //       throw `Invalid year of birth. Please provide a year after ${maxBirthYear}`;
+    //     }
+    
+    //     if (birthYear > minBirthYear) {
+    //       throw `You must be at least ${minAge} years old to register`;
+    //     }
+    //     return DOB;
+    // },
+
     checkDOB(DOB) {
         if (!DOB) throw "DOB not provided";
         if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB";
         const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
         const [_, year, month, day] = DOB.match(dateRegex);
-
-        const currentDate = new Date().toISOString().slice(0, 10);
-
-        if (DOB > currentDate) {
+    
+        const currentDate = new Date();
+    
+        if (DOB > currentDate.toISOString().slice(0, 10)) {
           throw "Date of birth must be in the past";
         }
     
@@ -104,8 +132,10 @@ const exportedMethods = {
         if (birthYear > minBirthYear) {
           throw `You must be at least ${minAge} years old to register`;
         }
+    
         return DOB;
     },
+    
     
     checkRole(role) {
         if (!role) throw  "Role is not provided";

@@ -29,8 +29,7 @@ const router = Router();
 
   router.route('/events/:id').delete(async(req,res)=>{
     
-    const response = await eventsData.removeById(req.params.id);
-    // console.log("hi",response.deleted);
+    const response = await eventsData.removeEventById(req.params.id);
     //const user = await userData.removePost()
     //const postList = await postData.getAllPosts();
     //res.status(200).send(response);
@@ -57,8 +56,6 @@ router.route('/capacity/:id').post(async (req, res) => {
       var result = await eventsData.updateCapacity(
           id, // pass the correct id variable
           newSeatingCapacity,
-          // req.session.userId
-          "644832c015500e1f645fcfed"
       );
       result.forEach((node) => {
         node._id = node._id.toString();
