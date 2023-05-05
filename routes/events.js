@@ -22,6 +22,10 @@
 // const upload = multer({ storage: storage });
 // const uploadImage = upload.single("postImage");
 
+// router.route('/events')
+// .get(async (req, res) => {
+//   try {
+
 
 // router.route('/events')
 // .get(async (req, res) => {

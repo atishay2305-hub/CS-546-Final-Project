@@ -4,7 +4,6 @@ import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
 import multer from "multer";
 import path from "path";
-//import { pseudoRandomBytes } from "crypto";
 
 
 let exportedMethods = {
@@ -34,7 +33,9 @@ let exportedMethods = {
             created_Date: validation.getDate(),
             likes: 0,
             dislikes: 0,
+
             commentIds:[]
+
         };
         const postCollection = await posts();
         let insertInfo = await postCollection.insertOne(post);
