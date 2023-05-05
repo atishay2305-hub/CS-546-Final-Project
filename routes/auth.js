@@ -11,6 +11,7 @@ import {passwordResetByEmail} from "../email.js";
 import xss from 'xss';
 import {comments, users, posts} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
+import { title } from 'process';
 
 const router = Router();
 
@@ -246,7 +247,7 @@ router.route('/homepage').get(async (req, res) => {
 router.route('/profile').get(async(req,res)=> {
     const id = req.session.user.userId;
     const user = await userData.getUserByID(id);
-    return res.render('profile',{user:user});
+    return res.render('profile',{user:user, title: 'Profile Page'});
 });
 
 
@@ -277,7 +278,7 @@ router.route('/posts')
         });
 
         // Render the 'posts' template with posts and commentsByPostId
-        return res.render('posts', {role: req.session.user.role, posts: posts, comments: comments});
+        return res.render('posts', {role: req.session.user.role, posts: posts, comments: comments, title: 'Posts'});
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
@@ -325,7 +326,7 @@ router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
     // console.log(id);
     const user = await userData.getUserByID(id);
-    return res.render('profile', {user: user});
+    return res.render('profile', {user: user, title: 'Profile'});
 });
 
 router.route('/events').get(async (req, res) => {
@@ -377,7 +378,7 @@ router.route('/events').get(async (req, res) => {
         // }
 
         
-        return res.render('events', {newEvent: events, isAdmin: isAdmin});
+        return res.render('events', {newEvent: events, isAdmin: isAdmin, title: 'Events'});
 
     } catch (error) {
         res.status(500).json({error: error});
@@ -431,7 +432,7 @@ router
     .route('/events/registration/:id')
     .get(async (req, res) => {
         try {
-            return res.render("eventRegister", {id: req.params.id});
+            return res.render("eventRegister", {id: req.params.id, title: 'Event Register'});
         } catch (e) {
             return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
         }
@@ -459,7 +460,7 @@ router.route('/events/capacity/:id').post(async (req, res) => {
             id, // pass the correct id variable
             newSeatingCapacity
         );
-        return res.render('events', {newEvent: result});
+        return res.render('events', {newEvent: result, title: 'Eveents'});
     } catch (e) {
         return res.status(400).json({error: e});
     }
@@ -607,7 +608,7 @@ router
     .route('/reset-password/:id')
     .get(async (req, res) => {
         try {
-            return res.render('resetPassword', {id: req.params.id})
+            return res.render('resetPassword', {id: req.params.id, title: 'Reset Password'})
         } catch (e) {
             return res.status(404).sendFile(path.resolve("public/static/404.html"));
 
@@ -639,7 +640,7 @@ router
     .route('/forgot-password')
     .get(async (req, res) => {
         try {
-            return res.render("forgotPassword");
+            return res.render("forgotPassword", {title: 'Forgot Password'});
         } catch (e) {
             return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
         }
@@ -786,7 +787,7 @@ router
     .get(async (req, res) => {
         const postId = req.params.postId;
         const comment = await commentData.getPostCommentById(postId)
-        return res.render('allComments', {comment: comment});
+        return res.render('allComments', {comment: comment, title: 'All Comments'});
     });
 
 router
@@ -794,7 +795,7 @@ router
     .get(async (req, res) => {
         const eventId = req.params.eventId;
         const comment = await commentData.getEventCommentById(eventId)
-        return res.render('allComments', {comment: comment});
+        return res.render('allComments', {comment: comment, title: 'All Comments'});
     });
 
 
@@ -804,7 +805,7 @@ router
     try {
       const searchTerm = req.query.query;
       const searchResults = await eventsData.searchEvent(searchTerm);
-      res.render('searchResults', { results: searchResults });
+      res.render('searchResults', { results: searchResults, title: 'Search Results' });
     } catch (e) {
       res.status(500).json({ error: 'Internal server error' });
     }
@@ -827,7 +828,7 @@ router
             }
         }
         
-        return res.render('discuss',{newDiscussion: discuss });
+        return res.render('discuss',{newDiscussion: discuss, title: 'Discussion' });
     
       });
     
@@ -851,27 +852,27 @@ router
         return res.sendStatus(200);
     });
 
-    router.route('/discussions/:id/replies').get(async (req, res) => {
-        const id = req.params.id;
-        const discuss = await discussData.getDiscussionById(id);
-        const replies = discuss.replyId;
-        const userCollection = await users();
-        //const usersMap = new Map();
+    // router.route('/discussions/:id/replies').get(async (req, res) => {
+    //     const id = req.params.id;
+    //     const discuss = await discussData.getDiscussionById(id);
+    //     const replies = discuss.replyId;
+    //     const userCollection = await users();
+    //     //const usersMap = new Map();
         
-        for (let reply of replies) {
+    //     for (let reply of replies) {
 
-          //if (!usersMap.has(reply.userId.toString())) {
+    //       //if (!usersMap.has(reply.userId.toString())) {
 
-            const user = await userCollection.findOne({_id: reply.userId});
-            reply.userName = user.userName;
-            //usersMap.set(reply.userId.toString(), user);
-          //}
+    //         const user = await userCollection.findOne({_id: reply.userId});
+    //         reply.userName = user.userName;
+    //         //usersMap.set(reply.userId.toString(), user);
+    //       //}
         
-        }
-        console.log(replies);
+    //     }
+    //     // console.log(replies);
       
-        return res.render('allReplies',{replies:replies});
-      });
+    //     return res.render('allReplies',{replies:replies});
+    //   });
 
       router.get('/searchDiscussions', async (req, res) => {
         try {
@@ -879,7 +880,7 @@ router
         //   console.log(searchTerm)
           const searchResults = await discussData.searchDiscussion(searchTerm);
         //   console.log(searchResults)
-          res.render('discussionsResults', { results: searchResults });
+          return res.render('discussionsResults', { results: searchResults, title: 'Discussion Results' });
         } catch (e) {
           res.status(500).json({ error: 'Internal server error' });
         }

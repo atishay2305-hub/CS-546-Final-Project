@@ -21,6 +21,7 @@ app.use('/public', staticDir);
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
 import eventsRoutes from './routes/events.js';
+import { title } from "process";
 
 app.use('/', eventsRoutes);
 
@@ -94,10 +95,10 @@ app.use('/register', (req, res, next) => {
 // Route for logging out
 app.use('/logout', (req, res) => {
     if (!req.session.user) {
-        return res.render('login');
+        return res.render('login', {title: 'Login'});
     }
     req.session.destroy();
-    return res.render('logout');
+    return res.render('logout', {title: 'logout'});
 });
   
 
