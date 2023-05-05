@@ -32,10 +32,15 @@ app.engine('handlebars', exphbs.engine({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
 app.use('/public', express.static(__dirname + '/public'));
+
+//app.use('/', eventsRoutes);
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.engine("handlebars", exphbs.engine({defaultLayout: "main"}));
-app.set("view engine", "handlebars");
+
+
+
+
+
 
 const hbs = exphbs.create({
     defaultLayout: 'main',
@@ -123,6 +128,6 @@ app.use('*', (req, res) => {
 
 
 app.listen(3000, () => {
-    console.log("We've now got a server!");
-    console.log('Your routes will be running on http://localhost:3000');
+  console.log("We've now got a server!");
+  console.log('Your routes will be running on http://localhost:3000');
 });
