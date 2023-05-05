@@ -2,6 +2,7 @@ import userRoutes from './users.js';
 import eventsRoute from './events.js';
 import commentRoutes from './comments.js';
 import authRoutes from './auth.js';
+// import profileRoutes from './profile.js'
 
 
 
@@ -10,6 +11,7 @@ const constructorMethod = (app) => {
   app.use('/events', eventsRoute);
   app.use('/comments', commentRoutes);
   app.use('/users', userRoutes);
+  // app.use('/profile', profileRoutes);
 
   app.use('*', (req, res) => {
     res.status(404).render('pageNotFound', {title: '404'});
