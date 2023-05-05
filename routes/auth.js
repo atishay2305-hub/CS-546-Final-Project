@@ -875,6 +875,17 @@ router
         return res.render('allReplies',{replies:replies});
       });
 
+      router.get('/searchDiscussions', async (req, res) => {
+        try {
+          const searchTerm = req.query.query;
+        //   console.log(searchTerm)
+          const searchResults = await discussData.searchDiscussion(searchTerm);
+        //   console.log(searchResults)
+          res.render('discussionsResults', { results: searchResults });
+        } catch (e) {
+          res.status(500).json({ error: 'Internal server error' });
+        }
+      });
 
   
 export default router;

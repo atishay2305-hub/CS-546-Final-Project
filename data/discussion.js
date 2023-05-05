@@ -98,6 +98,19 @@ let exportedMethods = {
         };
 
     },
+    
+    async searchDiscussion(searchTerm) {
+        const discussionCollection = await discussion();
+        const searchRegex = new RegExp(searchTerm, 'i');
+        const allDiscussions = await discussionCollection.find({
+          $or: [
+            { category: searchRegex },
+            { description: searchRegex }
+          ]
+        }).toArray();
+        return allDiscussions;
+      },
+
     async updateDiscussion(id,userId,message){
         
         id = await validation.checkId(id);

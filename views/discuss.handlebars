@@ -1,3 +1,4 @@
+
 <div class="container center">
     <h1 id="event-header">Discuss</h1>
     <form method="POST" action="/discuss">
@@ -55,3 +56,11 @@
 {{/each}}
 <link rel="stylesheet" href="/public/css/discussion.css">
 <script src="../public/js/discuss/discuss.js"></script>
+
+
+<div id="search">
+    <form action="/searchDiscussions" method="GET">
+        <input type="text" name="query" placeholder="Search Discussions Here">
+        <button type="submit">Search</button>
+    </form>
+</div>
