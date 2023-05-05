@@ -18,38 +18,20 @@ app.use('/public', staticDir);
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use('/public', staticDir);
-import multer from "multer";
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
 import eventsRoutes from './routes/events.js';
 
-
 app.use('/', eventsRoutes);
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-
-app.engine('handlebars', exphbs.engine({defaultLayout: 'main'}));
-app.set('view engine', 'handlebars');
-
-app.use('/public', express.static(__dirname + '/public'));
-
-//app.use('/', eventsRoutes);
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-
-
-
-
-
 
 const hbs = exphbs.create({
     defaultLayout: 'main',
     helpers: {
-        checkCategory: function (category){
-            return category === "lost&found";
+        if_eq: function (val1, val2){
+            return val1 === val2;
         }
     }
-})
+});
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
@@ -101,16 +83,15 @@ app.use('/register', (req, res, next) => {
         return res.redirect('/login');
     }
     next();
-  });
+});
 
-
+// Route for logging out
 app.use('/logout', (req, res) => {
     if (!req.session.userId) {
         return res.render('login');
     }
     req.session.destroy();
     return res.render('logout');
-
 });
   
 

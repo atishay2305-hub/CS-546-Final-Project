@@ -58,14 +58,14 @@ const authCheck = {
     },
 
     checkDOB(DOB) {
-        if (!DOB) throw `DOB not provided`;
+        if (!DOB) throw "DOB not provided";
         if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB";
         const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
         const [_, year, month, day] = DOB.match(dateRegex);
-    
-        const currentDate = new Date();
-    
+
+        const currentDate = new Date().toISOString().slice(0, 10);
+
         if (DOB > currentDate) {
           throw "Date of birth must be in the past";
         }

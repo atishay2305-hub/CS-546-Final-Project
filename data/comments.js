@@ -18,8 +18,7 @@ let exportedMethods = {
     const comment = {
       _id: new ObjectId(),
       userId: user._id,
-      //postId,
-      // userName,
+      userName: user.userName,
       contents,
       created_Date: validation.getDate(),
     };
@@ -190,14 +189,12 @@ let exportedMethods = {
     // if(!post) throw `No  post with that id ${postId}`;
     const commentCollection = await comments();
     const userCollection = await users();
-    const commentList = await commentCollection
-      .find({ postId: new ObjectId(postId) })
-      .toArray();
-    for (let x of commentList) {
-      const user = await userCollection.findOne({ _id: x.userId });
-      x.userName = user.userName;
-    }
-    return commentList;
+    return await commentCollection
+      .find({ postId: new ObjectId(postId)}).toArray();
+    // for (let x of commentList) {
+    //   const user = await userCollection.findOne({ _id: x.userId });
+    //   x.userName = user.userName;
+    // }
     // return comments;
   },
 
