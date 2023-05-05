@@ -41,6 +41,8 @@ let exportedMethods = {
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (checkExist) throw "Sign in to this account or enter an email address that isn't already in user.";
+        const checkUserNameExist = await userCollection.findOne({userName: userName});
+        if (checkUserNameExist) throw "User name already exists.";
         let user = {
             firstName: firstName,
             lastName: lastName,
@@ -63,9 +65,6 @@ let exportedMethods = {
             user.role = 'user';
             user.authentication = authentication;
 
-
-            const checkUserNameExist = await userCollection.findOne({userName: userName});
-            if (checkUserNameExist) throw "User name already exists.";
         }
 
         const insertInfo = await userCollection.insertOne(user);
