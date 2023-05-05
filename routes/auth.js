@@ -666,6 +666,55 @@ router.route('/profile').get(async (req, res) => {
     return res.render('profile', {user: user});
 });
 
+router
+.route('posts/:category')
+.get(async (req, res) => {
+    try {
+        let category = req.params.category;
+        category = validationchecker.checkCategory(category);
+        let postList = await postData.getAllPosts({category: category});
+        res.render('post-list', {category, posts: postList});
+    } catch (e) {
+        return res.status(500).sendFile(path.resolve("/public/static/notfound.h tml"));
+    }
+})
+
+router.route('/posts/:id').delete(async (req, res) => {
+    try{
+        const user = await userData.getUserByID(req.session.userId);
+        if(!user){
+            throw 'cannot find user';
+        }
+        const commentCollection = await comments();
+        const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
+        if(post.length !== 0){
+            const responsePost = await commentData.removeCommentByPost(req.params.id);
+            console.log("hi",responsePost.deleted);
+        }
+        const response = await postData.removeById(req.params.id);
+        //const user = await userData.removePost()
+        //const postList = await postData.getAllPosts();
+        //res.status(200).send(response);
+        //res.send(response);
+        return res.sendStatus(200);
+    } catch(e)
+    {
+        return res.status(404).json({ error: 'Resource not found' });
+    }
+});
+
+router.route('/posts/:id/comment').post(async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const postId = req.params.id;
+        const {commentText} = req.body;
+        const comment = await commentData.createComment(userId, null, postId, commentText, "post");
+        const post = await postData.putComment(postId, comment.commentId);
+        return res.redirect('/posts');
+    } catch (e) {
+        return res.status(404).json({ error: 'Resource not found' });
+    }
+});
 
 router
     .route('/posts/:postId/like')
