@@ -2,7 +2,6 @@ import {events, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {commentData, userData} from "./index.js";
-//import commentData  from "./comments.js";
 
 let exportedMethods = {
     async createEvent(
@@ -61,7 +60,6 @@ let exportedMethods = {
         const eventCollection = await events();
         const insertInfo = await eventCollection.insertOne(event);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event";
-        console.log(insertInfo);
 
         // if (userId) {
         //     await userData.putEvent(userId, insertInfo.insertedId.toString());
@@ -80,7 +78,6 @@ let exportedMethods = {
     
     async getEventByID(id) {
         id = validation.checkId(id);
-        // console.log(events());
         const eventCollection = await events();
         const event = eventCollection.findOne({_id: new ObjectId(id)});
         if (event === null) throw "No event with that id";
@@ -125,10 +122,12 @@ let exportedMethods = {
         };
     },
 
+
     async searchEvent(searchTerm) {
         const eventCollection = await events();
         const searchRegex = new RegExp(searchTerm, 'i');
-        const allEvents = await eventCollection.find({ eventName: searchRegex }).toArray();
+        const allEvents = await eventCollection.find({
+          $or: [{ eventName: searchRegex },{ category: searchRegex },{ buildingName: searchRegex },{ organizer: searchRegex }]}).toArray();
         return allEvents;
       },
       
@@ -188,6 +187,7 @@ let exportedMethods = {
         userId = validation.checkId(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id:new ObjectId(userId)});
+
        
         if(!user){
             throw "No user Found!!"
@@ -222,6 +222,7 @@ let exportedMethods = {
         if(Object.keys(attendees).length===0) {
             attendees=[];
            
+
         }
         
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
@@ -247,7 +248,7 @@ let exportedMethods = {
         const eventCollection = await events();
         const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Error: ${event} not found`;
-        console.log(event) 
+        // console.log(event) 
         let commentIdList = event.commentIds;
         commentIdList.push(new ObjectId(commentId));
         const updatedInfo = await eventCollection.updateOne(

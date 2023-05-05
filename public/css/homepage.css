@@ -143,3 +143,40 @@ body {
   color: #f44336;
 }
   
+#search {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 50px;
+}
+
+#search input[type="text"] {
+  width: 300px;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  margin-right: 10px;
+}
+
+#search button[type="submit"] {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#search button[type="submit"]:hover {
+  background-color: #3e8e41;
+}
+
+@media screen and (min-width: 768px) {
+  #search {
+    justify-content: flex-end;
+    margin-top: 50px;
+    margin-right: 20px;
+  }
+}
+

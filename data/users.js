@@ -96,8 +96,7 @@ let exportedMethods = {
         );
         if (!checkPassword) throw "You may have entered the wrong email address or password.";
         const userId = checkExist._id.toString();
-        // console.log(userId);
-        // console.log(checkExist.firstName,checkExist.lastName,checkExist.userName, checkExist._id, checkExist.email, checkExist.role, checkExist.department);
+
         return {
             firstName: checkExist.firstName,
             lastName: checkExist.lastName,
@@ -125,7 +124,7 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         DOB = validation.checkDOB(DOB);
-        // department = validation.checkDepartment(department);
+        department = validation.checkDepartment(department);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
         if (!user) throw "You may have entered the wrong email address or password.";
@@ -381,7 +380,7 @@ let exportedMethods = {
         commentId = validation.checkId(commentId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         let commentIdList = user.commentIDs;
         if (commentIdList.includes(commentId)) {
             commentIdList = commentId.filter(elem => elem !== commentId);

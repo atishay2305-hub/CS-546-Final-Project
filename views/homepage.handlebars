@@ -1,3 +1,9 @@
+<div id="search">
+    <form action="/search" method="GET">
+        <input type="text" name="query" placeholder="Search Events Here">
+        <button type="submit">Search</button>
+    </form>
+</div>
 {{#each posts}}
     <div class="post-container">
         <h2>{{content}}</h2>
@@ -26,13 +32,13 @@
                   <input type="submit" value="Submit">
               </form>
             <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a>
+            
         </div>
         {{#if deletable}}
             <button class="delete-btn" onClick ="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
         {{/if}}
     </div>
 {{/each}}
-
 <script>
 
 function myFunction(x) {
