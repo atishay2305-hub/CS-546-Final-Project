@@ -140,7 +140,7 @@ let exportedMethods = {
         buildingName,
         organizer,
         seatingCapacity,
-        image
+        //image
     ) {
         id = validation.checkId(id);
         userId = validation.checkId(userId);
@@ -149,26 +149,26 @@ let exportedMethods = {
         buildingName = validation.checkLocation(buildingName, "Building Name");
         organizer = validation.checkName(organizer, "Organizer");
         seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
-        let path = "";
-        if (!image || image.trim().length === 0) {
-            path = "public/images/default.png";
-        } else {
-            path = validation.createImage(image);
-        }
+        // let path = "";
+        // if (!image || image.trim().length === 0) {
+        //     path = "public/images/default.png";
+        // } else {
+        //     path = validation.createImage(image);
+        // }
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)})
-        if (user.isAdmin === undefined || !user.isAdmin) throw "Only administrators can update events."
+        if (user.role !== "admin" ) throw "Only administrators can update events."
         let evenData = {
             eventName: eventName,
             description: description,
-            date: validation.getDate(),
+            // date: validation.getDate(),
             buildingName: buildingName,
             organizer: organizer,
             seatingCapacity: seatingCapacity,
-            image: path
+            // image: path
         }
         let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
         if (!event.acknowledged || event.matchedCount !== 1) {
@@ -180,32 +180,61 @@ let exportedMethods = {
     async updateCapacity(
         id,
         seatingCapacity,
-        userId
+        userId,
+        reaction
     ) {
         id = validation.checkId(id);
         userId = validation.checkId(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id:new ObjectId(userId)});
-        // console.log(user)
+
+       
         if(!user){
             throw "No user Found!!"
         }
-        // console.log(user.userName)
+      
         seatingCapacity = validation.checkCapacity(seatingCapacity, "SeatingCapacity");
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});
-        // console.log(checkEventExist)
+        
+        let likes=checkEventExist.likes,dislikes=checkEventExist.dislikes;
+            if(reaction=="like"){
+                if(checkEventExist.likes){
+                likes=checkEventExist.likes+1;
+            }
+            
+        else{
+            likes=1;
+        }
+    }
+        
+            if(reaction=="dislike"){
+                if(checkEventExist.dislikes){
+                dislikes=checkEventExist.dislikes+1;
+            }
+            
+        else{
+            dislikes=1;
+        }
+    }
         let attendees = checkEventExist.attendees
-        // console.log(attendees);
+       
         if(Object.keys(attendees).length===0) {
             attendees=[];
+           
+
         }
         
         if (!checkEventExist) throw `Event is not exist with that ${id}`;
+        console.log(user.userName);
+        attendees.push(user.userName)
         let evenData = {
             seatingCapacity: seatingCapacity,
-            attendees:attendees.push(user.userName)
+            likes: likes,
+            dislikes: dislikes,
+            attendees:attendees
         }
+        console.log(evenData);
         let event = await eventCollection.updateOne({_id: new ObjectId(id)}, {$set: evenData});
         if (!event.acknowledged || event.matchedCount !== 1) {
             throw "Could not update record with that ID.";

@@ -1,80 +1,143 @@
 
-   <div class="container center">
-<h1 id="event-header">Discuss</h1>
-<form method="POST" action="/discussion">
-<div class="inf">
-<div class="sec-1">
-<label for="category">Category:</label>
-</div>
+<script src="/public/js/discuss/discuss.js" type="module"></script>
 
-</div>
-<div class="sec-2">
-<select id="category" name="category"><br>
-<option value=""></option>
-</select>
-</div>
 
-    <script>
-      const categories = [
-"events", "education", "sports", "food", "random", "books", "anime", "games", "TV", "Programming" ];
 
-      const selectElement = document.getElementById("category");
+<div class="container center">
+    <h1 id="event-header">Discuss</h1>
+    <form method="POST" action="/discuss">
+        <div class="inf">
+            <div class="sec-1">
+                <label for="category">Category:</label>
+            </div>
 
-      categories.forEach((category) => {
-        const option = document.createElement("option");
-        option.text = category;
-        option.value = category;
-        selectElement.appendChild(option);
-      });
-    </script>
-
-<div class="inf">
-          <div class="sec-1">
-  <label for="discussionTopic">Topic</label>
-  </div>
-          <div class="sec-2">
-  <input id="discussionTopic" type="text" name="discussionTopic">
-  </div>
-      </div>
-       <div class="inf">
-          <div class="sec-1">
-
-  <label for="discussion">Discussion</label>
-  </div>
-   <div class="sec-2">
-  <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
-     </div>
+            <div class="sec-2">
+                <select id="category" name="category"><br>
+                    <option value=""></option>
+                </select>
+            </div>
         </div>
-    <form class="comment-form" id="comment-form" action="/add-comment" method="POST">
-    <input type="hidden" name="postId" value="{{_id}}">
-    <label for="comment-text"></label>
-    <input type="text" name="commentText" id="comment-text">
-    <input type="submit" value="Comment">
+
+        <script>
+            const categories = [
+                "events", "education", "sports", "food", "random", "books", "anime", "games", "TV", "Programming"];
+
+            const selectElement = document.getElementById("category");
+
+            categories.forEach((category) => {
+                const option = document.createElement("option");
+                option.text = category;
+                option.value = category;
+                selectElement.appendChild(option);
+            });
+        </script>
+
+        <div class="inf">
+            <div class="sec-1">
+
+                <label for="description">Discussion</label>
+            </div>
+            <div class="sec-2">
+                <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
+            </div>
+        </div>
+
+        <input type="submit" value="Submit">
     </form>
-    <a href="#" id="view-comments">View Comments</a>
-    </div>
+
+</div>
 
 
-{{#each discussions}}
-    <div class="discussion-container">
-        <h2>{{topic}}</h2>
-        <p>Category: {{category}}</p>
-        <p>Created by: {{topic}}</p>
-        <p>Created by: {{discussion}}</p>
-        <p>Created at: {{created_Date}}</p>
-                  
-        <div class="comments-container">
-            <h3>Comments:</h3>
-            {{#each comments}}
-                <div class="comment-container">
-                <p>{{text}}</p>
-                <p>Posted by: {{author}}</p>
-                <p>Posted at: {{created_Date}}</p>
-                </div>
+
+{{#each newDiscussion}}
+<div class="discussion">
+    <p>{{userName}}</p>
+    <p>{{category}}</p>
+    <p>{{description}}</p>
+    <div>
+        <button class="dislike-btn" onclick="replyForm('{{this._id}}', this)">Show replies</button>
+        <div class="replies" style="display: none;">
+        {{#each result}}
+            <div class="reply">
+                <p>{{this.userName}} - {{this.message}}</p>
+            </div>
         {{/each}}
+        </div>
 
-{{#if deletable}}
-            <button class="delete-btn" onClick ="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
-        {{/if}}
     </div>
+   
+
+
+    <button onclick="showReplyForm(this)">Reply</button>
+    <form class="reply-form" style="display: none;">
+        <textarea id="reply-textarea"></textarea>
+        <button type="submit" onclick="postReply(event, '{{_id}}', this)">Post Reply</button>
+    </form>
+
+</div>
 {{/each}}
+
+<script>
+        function replyForm(postId, button) {
+        const replies = button.nextElementSibling;
+
+        // Toggle the display of the replies
+        if (replies.style.display === 'block') {
+            replies.style.display = 'none';
+            button.innerText = 'Show replies';
+        } else {
+            replies.style.display = 'block';
+            button.innerText = 'Hide replies';
+        }
+    }
+
+
+
+
+    function showReplyForm(button) {
+    // Get the parent element of the button
+    const discussionElement = button.parentNode;
+
+    // Get the reply form within the parent element
+    const replyForm = discussionElement.querySelector('.reply-form');
+
+    // Toggle the display of the reply form
+    replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+}
+
+function postReply(event, discussionId, button) {
+// Prevent the form from submitting
+event.preventDefault();
+
+// Get the parent element of the button
+const discussionElement = button.parentNode;
+
+// Get the value of the reply text
+const replyText = discussionElement.querySelector('#reply-textarea').value;
+
+// Send a POST request to the server to add the reply
+fetch(`/discussions/${discussionId}/replies`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        message: replyText
+    })
+})
+.then(response => {
+          if (response.ok) {
+              alert('reply added successfully');
+              window.location.href = `/discuss`;
+          } else {
+              throw new Error('Network response was not ok');
+          }
+})
+.catch(error => {
+    alert(error.message || "Something went wrong.");
+});
+}
+</script>
+
+
+

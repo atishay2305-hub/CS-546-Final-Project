@@ -34,7 +34,7 @@ let exportedMethods = {
             likes: 0,
             dislikes: 0,
 
-            commentIds: []
+            commentIds:[]
 
         };
         const postCollection = await posts();

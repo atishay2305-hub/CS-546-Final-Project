@@ -3,6 +3,7 @@ import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
 import eventsData from '../data/events.js'
+import discussData from '../data/discussion.js';
 import validation from '../validationchecker.js';
 import multer from "multer";
 import path from "path";
@@ -347,7 +348,9 @@ router.route('/events').get(async (req, res) => {
 
 
         const events = await eventsData.getAllEvents();
+        console.log("hiiiii",events);
         let isAdmin;
+       
         if (user.role === 'admin') {
             isAdmin = true;
             for (const x of events) {
@@ -437,7 +440,7 @@ router.route('/events').post(eventUploadImage, async (req, res) => {
         //     }
         // }
 
-        return res.status(200).render('events', {newEvent: gettingAllEvents});
+        //return res.status(200).render('events', {newEvent: gettingAllEvents});
     } catch (error) {
         return res.status(500).json({error: error});
     }
@@ -458,9 +461,10 @@ router
 
 router.route('/events/capacity/:id').post(async (req, res) => {
     let id = req.params.id; // fix the id variable assignment
-    const {seatingCapacity, attendance} = req.body;
+    const {seatingCapacity, attendance,reaction} = req.body;
+    const userId = req.session.userId;
     try {
-
+       console.log(req.body);
         let newSeatingCapacity = seatingCapacity;
         if (typeof newSeatingCapacity === 'string') {
             newSeatingCapacity = Number(newSeatingCapacity);
@@ -474,7 +478,8 @@ router.route('/events/capacity/:id').post(async (req, res) => {
         const result = await eventsData.updateCapacity(
             id, // pass the correct id variable
             newSeatingCapacity,
-            userId
+            userId,
+            reaction
         );
         return res.render('events', {newEvent: result});
     } catch (e) {
@@ -486,8 +491,18 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 
 
 
-router.route('/events/:id').delete(async (req, res) => {
+router.route('/events/:id') 
+ .get(async (req, res) => {
+    try {
+        const event=await eventsData.getEventByID(req.params.id);
+        return res.render("editEvent", {event: event});
+    } catch (e) {
+        return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
+    }
+})
+.delete(async (req, res) => {
     //console.log(req.params.id);
+    console.log("entered delete event route");
     try {
         const user = await userData.getUserByID(req.session.userId);
         if (!user) {
@@ -521,7 +536,31 @@ router.route('/events/:id').delete(async (req, res) => {
 
     //res.send(response);
 
-});
+})
+.put(async (req, res) => {
+      let id = req.params.id; // fix the id variable assignment
+      let updatedData = req.body;
+      if(!updatedData || Object.keys(updatedData).length === 0){ // fix the condition to check for empty object
+          return res.status(400).json({error: `There are no fields in the request body`});
+      }
+      
+     
+      try{
+          const result = await eventsData.updateEvent(
+              id, // pass the correct id variable
+              userId,
+              updatedData.eventName,
+              updatedData.description,
+              updatedData.buildingName,
+              updatedData.organizer,
+              updatedData.seatingCapacity,
+             
+          );
+          res.status(200).json(result);
+      }catch (e){
+          return res.status(400).json({error: e});
+      }
+    });
 
 
 router.route('/events/:id/comment').post(async (req, res) => {
@@ -718,6 +757,7 @@ router
         return res.render('allComments', {comment: comment});
     });
 
+
 router
   .route('/search')
   .get(async (req, res) => {
@@ -729,6 +769,78 @@ router
       res.status(500).json({ error: 'Internal server error' });
     }
   });
+
+    router.route('/discuss').get(async (req,res)=>{
+        //const userId = req.session.userId;
+        const userCollection = await users();
+    
+        const discuss = await discussData.getAllDiscussions();
+        for (let x of discuss){
+            const user = await userCollection.findOne({_id:x.userId});
+            x.userName = user.userName;
+            x.result=[];
+            for (let y of x.replyId){
+                const user = await userCollection.findOne({_id:y.userId});
+                x.result.push({
+                    userName:user.userName,
+                    message:y.message
+                });
+            }
+        }
+
+
+
+        console.log(discuss);
+        
+        return res.render('discuss',{newDiscussion: discuss });
+    
+      });
+    
+      router.route('/discuss').post(async(req,res)=>{
+    
+        const userId = req.session.userId;
+        const {category,description} = req.body;
+    
+        const discuss = await discussData.createDiscussion(category,description,userId);
+        console.log(discuss);
+        console.log("discussion created!!");
+        return res.redirect('/discuss');
+        //return res.status(200).render('discuss', { newDiscussion: discuss });
+    
+      });
+    
+    router.route('/discussions/:id/replies').post(async(req,res)=>{
+
+        const userId = req.session.userId;
+        const id = req.params.id;
+        const{ message } = req.body;
+        const discuss = await discussData.updateDiscussion(id,userId,message);
+        return res.sendStatus(200);
+    });
+
+    router.route('/discussions/:id/replies').get(async (req, res) => {
+        const id = req.params.id;
+        const discuss = await discussData.getDiscussionById(id);
+        const replies = discuss.replyId;
+        const userCollection = await users();
+        //const usersMap = new Map();
+        
+        // get user names for each reply and add to map
+        for (let reply of replies) {
+
+          //if (!usersMap.has(reply.userId.toString())) {
+
+            const user = await userCollection.findOne({_id: reply.userId});
+            reply.userName = user.userName;
+            //usersMap.set(reply.userId.toString(), user);
+          //}
+        
+        }
+        console.log(replies);
+      
+        return res.render('allReplies',{replies:replies});
+      });
+
 
   
 export default router;
