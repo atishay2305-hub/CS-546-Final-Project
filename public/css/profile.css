@@ -1,0 +1,13 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  h1, h2, p {
+    text-align: center;
+    margin: 10px;
+  }
+  

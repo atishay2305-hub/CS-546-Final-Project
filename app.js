@@ -27,11 +27,11 @@ app.use('/', eventsRoutes);
 const hbs = exphbs.create({
     defaultLayout: 'main',
     helpers: {
-        checkCategory: function (category){
-            return category === "lost&found";
+        if_eq: function (val1, val2){
+            return val1 === val2;
         }
     }
-})
+});
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
@@ -51,12 +51,6 @@ app.use(session({
     resave: false
 }));
 
-app.use(session({
-    name: 'AuthCookie',
-    secret: 'myKeySecret',
-    saveUninitialized: false,
-    resave: false
-}));
 
 const isLoggedIn = (req, res, next) => {
     if (!req.session.userId) {
