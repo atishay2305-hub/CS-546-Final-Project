@@ -26,13 +26,17 @@
 // .get(async (req, res) => {
 //   try {
 
+
+// router.route('/events')
+// .get(async (req, res) => {
+//   try {
+
 //     const events = await eventsData.getAllEvents();
 //     return res.render('events', {events: events});
 //   } catch (error) {
 //     res.status(500).json({ error: error });
 //   }
 // })
-
 //   .post(uploadImage, async (req, res) => {
 //     // const event = req.body;
 //     // try {

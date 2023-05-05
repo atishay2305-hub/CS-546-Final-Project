@@ -27,8 +27,14 @@ app.use('/public', staticDir);
 import multer from "multer";
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
+//import eventsRoutes from './routes/events.js';
+
 
 app.use('/public', express.static(__dirname + '/public'));
+
+//app.use('/', eventsRoutes);
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 
 
@@ -49,6 +55,7 @@ app.use(session({
     saveUninitialized: false,
     resave: false
 }));
+
 
 const isLoggedIn = (req, res, next) => {
   if (!req.session.userId) {
