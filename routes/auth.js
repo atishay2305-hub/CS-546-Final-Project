@@ -527,7 +527,16 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 
 
 
-router.route('/events/:id').delete(async (req, res) => {
+router.route('/events/:id') 
+ .get(async (req, res) => {
+    try {
+        const event=await eventsData.getEventByID(req.params.id);
+        return res.render("editEvent", {event: event});
+    } catch (e) {
+        return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
+    }
+})
+.delete(async (req, res) => {
     //console.log(req.params.id);
     console.log("entered delete event route");
     try {
@@ -566,7 +575,31 @@ router.route('/events/:id').delete(async (req, res) => {
 
     //res.send(response);
 
-});
+})
+.put(async (req, res) => {
+      let id = req.params.id; // fix the id variable assignment
+      let updatedData = req.body;
+      if(!updatedData || Object.keys(updatedData).length === 0){ // fix the condition to check for empty object
+          return res.status(400).json({error: `There are no fields in the request body`});
+      }
+      
+     
+      try{
+          const result = await eventsData.updateEvent(
+              id, // pass the correct id variable
+              userId,
+              updatedData.eventName,
+              updatedData.description,
+              updatedData.buildingName,
+              updatedData.organizer,
+              updatedData.seatingCapacity,
+             
+          );
+          res.status(200).json(result);
+      }catch (e){
+          return res.status(400).json({error: e});
+      }
+    });
 
 
 router.route('/events/:id/comment').post(async (req, res) => {
