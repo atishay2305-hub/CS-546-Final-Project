@@ -1,8 +1,4 @@
 import {Router} from 'express';
-import moment from 'moment';
-//import {userData} from '../data/index.js';
-//import { userData } from '../data/index.js';
-import commentData from '../data/comments.js';
 import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
@@ -12,10 +8,11 @@ import multer from "multer";
 import path from "path";
 import {passwordResetByEmail} from "../email.js";
 import xss from 'xss';
-import {comments, users} from '../config/mongoCollections.js';
+import {comments, users, posts} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 
 const router = Router();
+
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -49,6 +46,7 @@ const uploadImage = upload.single("postImage");
 const eventUpload = multer({storage: eventStorage});
 const eventUploadImage = eventUpload.single("postImage");
 
+
 router.route('/').get(async (req, res) => {
     if (req.session.userId) {
         return res.status(200).redirect('/homepage');
@@ -74,6 +72,7 @@ router
             const sessionUser = await userData.checkUser(email, password);
             req.session.userId = sessionUser.userId;
             req.session.userName = sessionUser.userName;
+            req.session.role = sessionUser.role;
             return res.redirect('/homepage');
         } catch (e) {
             return res.status(401).json({
@@ -86,84 +85,63 @@ router
     })
 
 
-// router.post('/login', async (req, res) => {
-//     try {
-//         let {emailAddressInput, passwordInput} = req.body;
-//         // console.log(emailAddressInput)
-//         // console.log(passwordInput)
-//         emailAddressInput = validation.checkEmail(emailAddressInput);
-//         passwordInput = validation.checkPassword(passwordInput);
-//         // console.log(emailAddressInput)
-//         // console.log(passwordInput)
-//         const sessionUser = await userData.checkUser(emailAddressInput, passwordInput);
-//         // console.log(sessionUser);
-//         req.session.userId = sessionUser.userId;
-//         console.log('Welcome', req.session.userId);
+router
+    .route('/register')
+    .get(async (req, res) => {
 
-//         req.session.userName = sessionUser.userName;
-//         console.log('welcome abc', req.session.userName);
+        return res.status(200).render('register', {title: "Register Page"});
+    })
+    .post(async (req, res) => {
+        try {
 
-//         return res.redirect('/homepage');
-//     } catch (e) {
-//         return res.redirect('/login');
-//     }
-// });
+            // removed dept
+            let firstName = xss(req.body.firstName);
+            let lastName = xss(req.body.lastName);
+            let userName = xss(req.body.userName);
+            let email = xss(req.body.email);
+            let password = xss(req.body.password);
+            let DOB = xss(req.body.DOB);
+            DOB = validation.checkDOB(DOB);
+            let role = xss(req.body.role);
+            let department = xss(req.body.department);
+            let user;
+            const userCollection = await users();
+            const existingUser = await userCollection.findOne({email: email});
+            if (existingUser) {
+                return res.status(401).json({
+                    success: false,
+                    message: "either username or email already exists."
+                });
+            }
+            if (role === 'admin') {
+                let authentication = xss(req.body.authentication);
+                user = await userData.createUser(firstName, lastName, userName, email, password, DOB, role, department, authentication);
+            } else {
+                user = await userData.createUser(firstName, lastName, userName, email, password, DOB, role, department);
+            }
+            const date = validation.getDate();
 
-router.route('/register').get(async(req,res)=>{
-    return res.status(200).render('register',{title:"Register Page"});
-});
-
-router.route('/register').post(async(req,res)=>{
-    try{
-        // removed dept
-        let firstName = xss(req.body.firstName);
-        console.log("65")
-        let lastName = xss(req.body.lastName);
-        console.log("66")
-        let userName = xss(req.body.userName);
-        console.log("67")
-        let email = xss(req.body.email);
-        console.log("68")
-        let password = xss(req.body.password);
-        console.log("69")
-        let DOB = xss(req.body.DOB);
-        console.log("70")
-        let role = xss(req.body.role);
-        console.log("71")
-        let department = xss(req.body.department);
-        console.log("72")
-        let user;
-        console.log("73")
-        if(role === 'admin'){
-            console.log("74")
-            let authentication = xss(req.body.authentication);
-            console.log("75")
-            user = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department, authentication);
-        }else{
-            console.log("76")
-            user  = await userData.createUser(firstName,lastName,userName,email, password, DOB, role, department);
+            if (user.insertedUser) {
+                return res.redirect('/login');
+            }
+            return res.status(200).json({
+                success: true,
+                message: "Registration complete",
+                data: req.session.user
+            });
+        } catch (e) {
+            return res.status(400).json({
+                success: false,
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email,
+                phoneNumber: req.body.phoneNumber,
+                password: req.body.password,
+                dateOfBirth: req.body.dateOfBirth,
+                error: e,
+            })
         }
-        const date = validation.getDate();
-        //const user = await userData.createUser(firstname,lastname,username,email,psw,date,dept);
-        //console.log(user);
-        //const {sessionUser} = await userData.;
-        // console.log(user);
-        if(user.insertedUser)
-        {
-            console.log("98")
-            return res.redirect('/login');
-        }
-        // req.session.userId = sessionUser.userId;
-        // req.session.userName = sessionUser.userName;
-        // console.log(req.session.userId);
-        // console.log(req.session.userName);
-      
-        //return res.json(newuser);
-    }catch(e){
-        // console.log(e);
-        return res.redirect('/register');
-    }
-});
+    });
 
 // router.route('/updatePassword').get(async(req, res)=>{
 //     res.status(200).render('updatePassword');
@@ -172,18 +150,17 @@ router.route('/register').post(async(req,res)=>{
 //     let email = xss(req.body.email);
 //     const userCollection = await users();
 //     userData.updatePassword(email, )
-// }), 
 
-router.route('/homepage').get(async(req,res)=>{
-
-
+router.route('/homepage').get(async (req, res) => {
     const userId = req.session.userId;
     console.log(userId);
+
     // console.log(userId)
     //const email = req.session.email;
     //useremail from session and will just keep it
     //const user = await userData.getUserByID(userId);
     //const postList = await userData.getPostList(user.email);
+
     //user info from ID
     //getpost list if true
     const userName = req.session.userName;
@@ -224,31 +201,89 @@ router.route('/homepage').get(async(req,res)=>{
     });
 
 });
-
-
-router.route('/profile').get(async(req,res)=> {
-    const id = req.session.userId;
-    // console.log(id);
-    const user = await userData.getUserByID(id);
-    return res.render('profile',{user:user});
-});
-
+// router.route('/homepage').get(async (req, res) => {
+//
+//
+//     const userId = req.session.userId;
+//     console.log(userId);
+//     // console.log(userId)
+//     //const email = req.session.email;
+//     //useremail from session and will just keep it
+//     //const user = await userData.getUserByID(userId);
+//     //const postList = await userData.getPostList(user.email);
+//     //user info from ID
+//     //getpost list if true
+//     const userName = req.session.userName;
+//     console.log(userName)
+//     //const postList = await postData.getAllPosts();
+// // getpost by userId--> all the post by userID[]. should have delete createDate(5) and
+//     // for (let x of postList){
+//     //     let resId = x?.userId;
+//     //     //console.log(resId);
+//     //     let resString= resId.toString();
+//     //     const user = await userData.getUserByID(resString);
+//     //     x.name =user.userName;
+//     //     //console.log(user.userName);
+//     //     //console.log(x.userName);
+//     //     if(resString === userId){
+//     //         x.editable =true;
+//     //         x.deletable = true;
+//     //     }else{
+//     //         x.editable = false;
+//     //         x.deletable = false;
+//     //     }
+//     // }
+//     const postList = await postData.getPostByUserId(userId);
+//     // const listOfPosts = [{category: "education", content: "Anime"}]
+//     // posts: postList
+//     return res.render('homepage', {userId: userId, userName: userName, posts: postList});
+//
+// });
 
 router.route('/posts')
     .get(async (req, res) => {
+        // Retrieve posts and comments
+        let posts = await postData.getAllPosts();
+        posts = posts.map(post => {
+            return {...post, _id: post._id.toString()};
+        });
+        const getComments = posts.map(post => commentData.getPostCommentById(post._id.toString()));
+        const allComment = await Promise.all(getComments);
 
-        return res.render('posts');
+        // Separate comments by postId
+        const comments = allComment.reduce((acc, comment, index) => {
+            const postId = posts[index]._id.toString();
+            if (acc[postId]) {
+                acc[postId].push(comment);
+            } else {
+                acc[postId] = [comment];
+            }
+
+            return acc;
+        }, {});
+
+        Object.values(comments).forEach(commentArr => {
+            commentArr.sort((a, b) => b.created_Date - a.created_Date);
+        });
+
+        // Render the 'posts' template with posts and commentsByPostId
+        return res.render('posts', {role: req.session.role, posts: posts, comments: comments});
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.userId;
         console.log(id);
         const userName = req.session.userName;
-
+        const role = req.session.role;
+        if (role === 'admin') {
+            return res.status(401).json({
+                success: false,
+                message: "Post cannot generate by admin"
+            });
+        }
         let category = xss(req.body.category);
         let postContent = xss(req.body.postContent);
         category = validation.checkCategory(category);
         postContent = validation.checkPhrases(postContent);
-        console.log(postContent);
         let address = "";
         try {
             let imagePath;
@@ -258,13 +293,15 @@ router.route('/posts')
                 imagePath = 'images/default.jpg';
             }
 
-            if(category === 'lost&found'){
+            if (category === 'lost&found') {
                 address = xss(req.body.address);
                 address = validation.checkAddress(address);
             }
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
-            return res.redirect('/homepage');
+
+            console.log("The post is posted");
+            return res.redirect('/posts');
         } catch (e) {
             return res.status(400).json({
                 success: false,
@@ -274,6 +311,13 @@ router.route('/posts')
             });
         }
     });
+
+router.route('/profile').get(async (req, res) => {
+    const id = req.session.userId;
+    // console.log(id);
+    const user = await userData.getUserByID(id);
+    return res.render('profile', {user: user});
+});
 
 router.route('/events').get(async (req, res) => {
     try {
@@ -331,6 +375,7 @@ router.route('/events').get(async (req, res) => {
         res.status(500).json({error: error});
     }
 });
+
 
 router.route('/events').post(eventUploadImage, async (req, res) => {
 
@@ -418,18 +463,18 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 
 router.route('/posts/:id').delete(async (req, res) => {
     console.log(req.params.id);
-    try{
+    try {
         const user = await userData.getUserByID(req.session.userId);
-        if(!user){
+        if (!user) {
             throw 'cannot find user';
         }
         //console.log(user);
         const commentCollection = await comments();
-        const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
+        const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
         console.log(post);
-        if(post.length !== 0){
+        if (post.length !== 0) {
             const responsePost = await commentData.removeCommentByPost(req.params.id);
-            console.log("hi",responsePost.deleted);
+            console.log("hi", responsePost.deleted);
         }
         const response = await postData.removeById(req.params.id);
         console.log("hi", response.deleted);
@@ -438,9 +483,8 @@ router.route('/posts/:id').delete(async (req, res) => {
         //res.status(200).send(response);
         //res.send(response);
         return res.sendStatus(200);
-    } catch(e
-        )
-    {
+    } catch (e
+        ) {
         console.log(e);
     }
 });
@@ -457,113 +501,51 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         const post = await postData.putComment(postId, comment.commentId);
         // console.log(post);
         console.log('The comment is added');
-        return res.sendStatus(200);
+        return res.redirect('/posts');
     } catch (e) {
         console.log(e);
     }
 });
 
 
-router.route('/events/:id').delete(async(req,res)=>{
+router.route('/events/:id').delete(async (req, res) => {
     //console.log(req.params.id);
-    try{
+    try {
         const user = await userData.getUserByID(req.session.userId);
-    if(!user){
-        throw 'cannot find user';
-    }
-    console.log(user);
-    if (user.role !== 'admin') throw "Only administrators can delete events.";
+        if (!user) {
+            throw 'cannot find user';
+        }
+        console.log(user);
+        if (user.role !== 'admin') throw "Only administrators can delete events.";
 
 
-    const commentCollection = await comments();
-    const event = await commentCollection.find({eventId:new ObjectId(req.params.id)}).toArray();
-    console.log(event);
-    if(event.length!==0){
-        const response = await commentData.removeCommentByEvent(req.params.id);
-        console.log("hi",response.deleted);
-    }
-    if(!event){
-        throw "No events found!!"
-    }
+        const commentCollection = await comments();
+        const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
+        console.log(event);
+        if (event.length !== 0) {
+            const response = await commentData.removeCommentByEvent(req.params.id);
+            console.log("hi", response.deleted);
+        }
+        if (!event) {
+            throw "No events found!!"
+        }
 
-    const responseEvent = await eventsData.removeEventById(req.params.id);
-    console.log(responseEvent);
-    
 
-    console.log("hi",responseEvent.deleted);
+        const responseEvent = await eventsData.removeEventById(req.params.id);
+        console.log(responseEvent);
 
-    return res.sendStatus(200);
 
-    }catch(e){
+        console.log("hi", responseEvent.deleted);
+
+        return res.sendStatus(200);
+
+    } catch (e) {
         console.log(e);
     }
-    
-});
 
 
-    //   for (let x of events){
+    //res.send(response);
 
-    //     let resId = x?.userId;        
-    //     let resString= resId.toString();
-
-    //     const user = await userData.getUserByID(resString);
-    //     x.name =user.userName;
-    //     //console.log(user.userName);
-    //     //console.log(resString);
-    //     //console.log(x.userName);
-    //     if(resString === userId){
-    //         x.editable =true;
-    //         x.deletable = true;
-    //     }else{
-    //         x.editable = false;
-    //         x.deletable = false;
-    //     }
-    // }
-
-
-
-//   const eventStorage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//       cb(null, "./public/images");
-//     },
-//     filename: function (req, file, cb) {
-  
-//       const timestamp = new Date().getTime();
-//       const randomString = Math.random().toString(36).slice(2);
-//       const ext = path.extname(file.originalname);
-//       const filename = `${timestamp}-${randomString}${ext}`;
-//       cb(null, filename);
-//     },
-//   });
-
-
-//   const eventUpload = multer({ storage: eventStorage });
-// const eventUploadImage = eventUpload.single("postImage");
-
-
-  router.route('/events/capacity/:id').post(async (req, res) => {
-    let id = req.params.id; // fix the id variable assignment
-    const {seatingCapacity,attendance} = req.body;
-    try{
-        let newSeatingCapacity = seatingCapacity;
-        if(typeof newSeatingCapacity === 'string') {
-          newSeatingCapacity = Number(newSeatingCapacity);
-        }
-        if(attendance === 'attend') {
-          newSeatingCapacity = newSeatingCapacity - 1;
-        } else if(attendance === 'cancel') {
-          newSeatingCapacity = newSeatingCapacity + 1;
-        }
-        
-        const result = await eventsData.updateCapacity(
-            id, // pass the correct id variable
-            newSeatingCapacity
-        );
-        return res.render('events', {newEvent: result});
-    }catch (e){
-        console.log(e);
-        return res.status(400).json({error: e});
-    }
 });
 
 
@@ -665,7 +647,6 @@ router
         try {
             let email = xss(req.body.email);
             email = validation.checkEmail(email);
-
             let checkExist = await userData.getUserByEmail(email);
             await passwordResetByEmail({id: checkExist._id, email: checkExist.email}, res);
         } catch (e) {
@@ -685,93 +666,52 @@ router.route('/profile').get(async (req, res) => {
 });
 
 
-
-
-router.route('/posts')
-    .get(async (req, res) => {
-        return res.render('posts');
-    })
-    .post(uploadImage, async (req, res) => {
-        const id = req.session.userId;
-        console.log(id);
-        const userName = req.session.userName;
-
-        const {postCategory, postContent} = req.body;
-        console.log(postContent);
-
+router
+    .route('/posts/:postId/like')
+    .post(async (req, res) => {
         try {
-            let imagePath = '';
-            if (req.file) {
-                imagePath = req.file.path.replace('public', '');
-            } else {
-                imagePath = 'images/default.jpg';
-            }
+            const { postId } = req.params;
+            const { liked, disliked } = req.body;
 
-            const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
-            const user = await userData.putPost(id, post._id);
-            console.log(user);
-            console.log(post);
-            console.log("The post is posted");
-            return res.redirect('/homepage');
-        } catch (e) {
-            console.log(e)
-            return res.render('posts', {Error: e});
+            const result = await postData.updateLikes(postId, liked, disliked);
+            if (typeof localStorage !== 'undefined') {
+                const storageKey = `post-${postId}-state`;
+                const localStorageValue = localStorage.getItem(storageKey);
+                const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : { liked: false, disliked: false };
+                parsedValue.liked = liked;
+                parsedValue.disliked = false;
+                localStorage.setItem(storageKey, JSON.stringify(parsedValue));
+            }
+            return res.json({ likes: result.likes, dislikes: result.dislikes });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Server error' });
         }
     });
-
-
-router.route('/posts/:id/comment').post(async (req, res) => {
-    try {
-        const userId = req.session.userId;
-        const postId = req.params.id;
-        const {commentText} = req.body;
-        // console.log(postId);
-        // console.log(commentText);
-        const comment = await commentData.createPostComment(userId, postId, commentText);
-        console.log(comment);
-        const post = await postData.putComment(postId, comment.commentId);
-        // console.log(post);
-        console.log('The comment is added');
-        return res.sendStatus(200);
-    } catch (e) {
-        console.log(e);
-    }
-});
 
 router
-    .route('posts/:category')
-    .get(async (req, res) => {
+    .route('/posts/:postId/dislike')
+    .post(async (req, res) => {
         try {
-            let category = req.params.category;
-            category = validationchecker.checkCategory(category);
-            let postList = await postData.getAllPosts({category: category});
-            res.render('post-list', {category, posts: postList});
-        } catch (e) {
-            return res.status(500).sendFile(path.resolve("/public/static/notfound.h tml"));
+            const { postId } = req.params;
+            const { liked, disliked } = req.body;
+
+            // Update the dislike status in the server-side storage
+            const result = await postData.updateDisLikes(postId, liked, disliked);
+
+            const storageKey = `post-${postId}-state`;
+            const localStorageValue = localStorage.getItem(storageKey);
+            const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : { liked: false, disliked: false };
+            parsedValue.liked = false;
+            parsedValue.disliked = disliked;
+            localStorage.setItem(storageKey, JSON.stringify(parsedValue));
+
+            return res.json({ likes: result.likes, dislikes: result.dislikes });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Server error' });
         }
-    })
-
-router.route('/increaseLikes')
-    .post(async (req, res) => {
-        const postId = req.body.postId;
-        const updatedPost = await postData.increaseLikes(postId);
-        return res.json(updatedPost);
     });
-
-
-router.route('/increaseDislikes')
-    .post(async (req, res) => {
-        const postId = req.body.postId;
-        const updatedPost = await postData.increaseDislikes(postId);
-        return res.json(updatedPost);
-    });
-
-
-router.route('/logout').get(async (req, res) => {
-    //code here for GET
-    req.session.destroy();
-    return res.render('logout', {title: 'Logout'})
-});
 
 
 router

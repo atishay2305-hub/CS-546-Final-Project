@@ -1,4 +1,5 @@
 import authCheck from "../validtionChecker.js";
+
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById("register-Form");
@@ -87,7 +88,7 @@ import authCheck from "../validtionChecker.js";
                             document.getElementById("role").value = data.role;
                             document.getElementById("department").value = data.department;
                             document.getElementById("authentication").value = data.authentication;
-                            return handleError(data || "Something went wrong");
+                            return handleError(data.message || "Something went wrong");
                         }
                     }
                     location.href = "/login";

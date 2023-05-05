@@ -1,5 +1,10 @@
 let map = null; // Declare map variable outside the function
 
+document.getElementById("showOnMapBtn").addEventListener("click", function(event) {
+    event.preventDefault();
+    showAddressOnMap();
+});
+
 function showAddressOnMap() {
     const addressInput = document.getElementById('address');
     const address = addressInput.value;
@@ -30,7 +35,8 @@ function showAddressOnMap() {
 
     // Add a current position icon to the map
     L.control.locate({
-        icon: 'icon ion-md-locate',
+        position: 'topright',
+        icon: 'fas fa-location-arrow',
         iconElementTag: 'i'
     }).addTo(map);
 
@@ -77,4 +83,3 @@ function showAddressOnMap() {
 
     return false;
 }
-

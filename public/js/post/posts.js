@@ -19,14 +19,13 @@ import authCheck from "../validtionChecker.js";
                 let category = categorySelect.value;
                 let postContent = document.getElementById("postContent").value;
                 let file = postImageInput.files[0];
-                if (category === "lost&found") {
-                    address = document.getElementById("address").value;
-                }
+
 
                 try {
                     category = authCheck.checkCategory(category);
                     postContent = authCheck.checkPhrases(postContent, "Post Content");
                     if (category === "lost&found") {
+                        address = document.getElementById("address").value;
                         address = authCheck.checkAddress(address);
                     }
                 } catch (e) {
@@ -41,33 +40,31 @@ import authCheck from "../validtionChecker.js";
                 formData.append("postImage", file); // Append the file
                 formData.append("address", address);
 
-                document.getElementById('addPostBtn').addEventListener("click", function () {
-                    fetch("/posts", {
-                        method: "post",
-                        body: formData,
+                fetch("/posts", {
+                    method: "post",
+                    body: formData,
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            return response.json();
+                        }
                     })
-                        .then((response) => {
-                            if (!response.ok) {
-                                return response.json();
+                    .then((data) => {
+                        if (data) {
+                            if (!data.success) {
+                                document.getElementById("postCategory").value = data.category;
+                                document.getElementById("postContent").value = data.postContent;
+                                document.getElementById("address").value = data.address;
+                                return handleError(data.message || "Something went wrong.");
                             }
-                        })
-                        .then((data) => {
-                            if (data) {
-                                if (!data.success) {
-                                    document.getElementById("postCategory").value = data.category;
-                                    document.getElementById("postContent").value = data.postContent;
-                                    document.getElementById("address").value = data.address;
-                                    return handleError(data || "Something went wrong.");
-                                }
-                            }
+                        }
 
-                            location.href = "/homepage";
-                        })
-                        .catch((e) => {
-                            alert(e || "Something went wrong.");
-                        });
+                        location.href = "/posts";
+                    })
+                    .catch((e) => {
+                        alert(e || "Something went wrong.");
+                    });
 
-                });
             });
         }
 

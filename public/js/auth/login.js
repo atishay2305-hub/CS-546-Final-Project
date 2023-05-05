@@ -9,7 +9,6 @@ $(document).ready(function () {
             event.stopImmediatePropagation();
             event.preventDefault();
 
-            const elements = event.target.elements;
             let accessDenied = false;
             errorHandle.hide();
 
@@ -41,7 +40,7 @@ $(document).ready(function () {
                         if (!data.success) {
                             $("#email").val(data.email);
                             $("#password").val(data.password);
-                            handleError(data.message || "Something went wrong");
+                            handleError(data || "Something went wrong");
                         }
                     } else {
                         accessDenied = false;

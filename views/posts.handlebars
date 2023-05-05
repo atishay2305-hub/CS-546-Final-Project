@@ -1,7 +1,8 @@
 <body>
+{{#if (if_eq role "user")}}
 <form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
     <div class="container center">
-        <h1 class="login">Posts</h1>
+        <h1 class="title">Posts</h1>
         <div class="inf">
             <div class="sec-1">
                 <label for="postCategory">Post Category:</label>
@@ -29,13 +30,13 @@
             <div class="sec-1">
                 <label for="address">Location:</label>
                 <div class="sec-2">
-                    <input type="text" name="address" id="address" placeholder="Address, City, State, Zip" value="{{address}}">
-                    <button onclick="showAddressOnMap()">Show on Map</button>
+                    <input type="text" name="address" id="address" placeholder="Address, City, State, Zip"
+                           value="{{address}}">
+                    <button type="submit" id="showOnMapBtn">Show on Map</button>
                     <div id="map"></div>
                 </div>
             </div>
         </div>
-
         <div class="inf">
             <div class="sec-1">
                 <label for="postImage">Upload Image: </label>
@@ -50,42 +51,84 @@
     </div>
 </form>
 <br>
-<div class="postText-container">
+{{/if}}
+
+<div id="posts-container">
+
     {{#each posts}}
         <div class="post-container">
             <h2>{{content}}</h2>
             <img id="img-home" src="{{image}}" alt="Post image">
             <p>Category: {{category}}</p>
-            <p>Created by: {{name}}</p>
-            <p>Created at: {{created_Date}}</p>
-            <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
-            <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
-            <div class="comments-container">
-                <h3>Comments:</h3>
-                {{#each comments}}
-                    <div class="comment-container">
-                        <p>{{text}}</p>
-                        <p>Posted by: {{author}}</p>
-                        <p>Posted at: {{created_Date}}</p>
-                    </div>
-                {{/each}}<br>
-                <form class="comment-form" id="comment-form-{{_id}}" action="/posts/{{_id}}/comment" method="POST">
-                    <input type="hidden" name="postId" value="{{_id}}">
-                    <label for="comment-text-{{_id}}">Add a Comment:</label>
-                    <input type="text" name="commentText" id="comment-text-{{_id}}">
+            <p>Created by: {{userName}}</p>
+            {{#if (if_eq category "lost&found")}}
+                <p>Address: {{address}}</p>
+            {{/if}}
+            <p class="create_date" data-created_Date="{{created_Date}}">Created at: {{created_Date}}</p>
+            <button class="like-btn" onclick="toggleLike('{{this._id}}', this)">
+                <ion-icon name="thumbs-up"></ion-icon>
+                <span class="like-count" data-likes="{{this.likes}}">{{this.likes}}</span>
+            </button>
+            <button class="dislike-btn" onclick="toggleDislike('{{this._id}}', this)">
+                <ion-icon name="thumbs-down"></ion-icon>
+                <span class="dislike-count">{{this.dislikes}}</span>
+            </button>
+            <hr>
+            <div id="comments-{{this._id}}" class="comments-container" style="display: none;">
+                <form class="comment-form" id="comment-form-{{this._id}}" action="/posts/{{this._id}}/comment" method="POST">
+                    <input type="hidden" name="postId" value="{{this._id}}">
+                    <label for="comment-text-{{this._id}}">Add a Comment:</label>
+                    <input type="text" name="commentText" id="comment-text-{{this._id}}">
                     <input type="submit" value="Submit">
                 </form>
-                <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a>
+                {{#each ../ comments}}
+                    {{#if (if_eq @key ../_id)}}
+                        {{#each this}}
+                            {{#each this}}
+                                <div class="comment">
+                                    <p>Comment: {{contents}} /User Name: {{userName}} - Created
+                                        Date: {{created_Date}}</p>
+                                </div>
+                                <hr>
+                            {{/each}}
+                        {{/each}}
+                    {{/if}}
+                {{/each}}
             </div>
+            <button class="comment-btn" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
+                <ion-icon name="chatbox-ellipses"></ion-icon>
+            </button>
+
             {{#if deletable}}
-                <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
+                <button class="delete-btn" onclick="deletePost('{{_id}}')">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
             {{/if}}
         </div>
     {{/each}}
+
+
 </div>
+
+<div id="posts-container">
+    <div class="sort-container">
+        <label for="sortCriteria">Sort By:</label>
+        <select id="sortCriteria" onchange="sortPosts(this.value)">
+            <option value=""> </option>
+            <option value="a-z">A-Z</option>
+            <option value="created_date">Created Date</option>
+            <option value="most_likes">Most Likes</option>
+        </select>
+    </div>
+</div>
+
+<script src="/public/js/post/sort.js"></script>
 <script src="/public/js/post/map.js"></script>
+<script src="/public/js/post/comments.js" ></script>
+<script src="/public/js/post/like&dislike.js"></script>
 <script src="/public/js/post/posts.js" type="module"></script>
 <link rel="stylesheet" href="/public/css/posts.css">
+
 </body>
 
 
@@ -94,154 +137,4 @@
 
 
 
-
-
-
-<p id="error-message">{{Error}}</p>
-
-<img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
-
-<script>
-  const postImageInput = document.getElementById("postImage");
-  const imagePreview = document.getElementById("image-preview");
-
-  postImageInput.addEventListener("change", function () {
-    const file = this.files[0];
-    const reader = new FileReader();
-
-    reader.addEventListener("load", function () {
-      imagePreview.src = reader.result;
-      imagePreview.style.display = "block";
-    });
-
-    reader.readAsDataURL(file);
-  });
-</script>
-
-
-
-{{#each posts}}
-    <div class="post-container">
-        <h2>{{content}}</h2>
-        <img id="img-home" src="{{image}}" alt="Post image">
-        <p>Category: {{category}}</p>
-        <p>Created by: {{name}}</p>
-        <p>Created at: {{created_Date}}</p>
-        <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
-        <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
-                  
-        <div class="comments-container">
-            <h3>Comments:</h3>
-            {{#each comments}}
-                <div class="comment-container">
-                <p>{{text}}</p>
-                <p>Posted by: {{author}}</p>
-                <p>Posted at: {{created_Date}}</p>
-                </div>
-        {{/each}}<br>
-            <form class="comment-form" id="comment-form-{{_id}}" action="/posts/{{_id}}/comment" method="POST">
-                  <input type="hidden" name="postId" value="{{_id}}">
-                  <label for="comment-text-{{_id}}">Add a Comment:</label>
-                  <input type="text" name="commentText" id="comment-text-{{_id}}">
-                  <input type="submit" value="Submit">
-              </form>
-            <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a>
-        </div>
-        {{#if deletable}}
-            <button class="delete-btn" onClick ="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
-        {{/if}}
-    </div>
-{{/each}}
-
-<script>
-
-function myFunction(x) {
-  x.classList.toggle("fa-thumbs-down");
-}
-
-function deletePost(id) {
-  fetch(`/posts/${id}`, {
-    method: "delete",
-    headers: {
-      Accept: 'application/json, text/plain, */*',
-      "Content-type": 'application/json'
-    },
-  })
-  .then(response => {
-  if (response.ok) {
-    alert('Post deleted successfully');
-    window.location.href = '/homepage';
-  } else {
-    throw new Error('Network response was not ok');
-  }
-})
-  .catch(error => {
-    alert(error.message || "Something went wrong.");
-  })
-  .then(() => {
-    console.log('This will run after either success or failure');
-  });
-}
-
-document.querySelectorAll('.comment-form').forEach(form => {
-      form.addEventListener('submit', function(event){
-          event.preventDefault();
-          const commentText = this.querySelector('input[name="commentText"]').value;
-          const postId = this.querySelector('input[name="postId"]').value;
-          fetch(`/posts/${postId}/comment`, {
-              method: "post",
-              body: JSON.stringify({commentText: commentText}),
-              headers: {
-                  "Content-Type": "application/json"
-              }
-          })
-          .then(response => {
-              if (response.ok) {
-                  alert('Comment added successfully');
-                  window.location.href = `/homepage`;
-              } else {
-                  throw new Error('Network response was not ok');
-              }
-          })
-          .catch(error => {
-              alert(error.message || "Something went wrong.");
-          })
-          .then(() => {
-              console.log('This will run after either success or failure');
-          });
-      });
-  });
-
-const likeBtn = document.getElementById(`like-btn-${postId}`);
-likeBtn.addEventListener('click', async () => {
-  const response = await fetch(`/posts/${postId}/increaseLikes`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  if (response.ok) {
-    const post = await response.json();
-    likeBtn.innerHTML = `<i class="fa fa-thumbs-up"></i> Like (${post.likes})`;
-  } else {
-    console.error('Failed to increase likes');
-  }
-});
-
-document.querySelectorAll('.dislike-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const postId = btn.dataset.postId;
-    fetch(`/increaseDislikes?postId=${postId}`)
-      .then(response => response.json())
-      .then(data => {
-        btn.textContent = `Dislike (${data.dislikes})`;
-      })
-      .catch(error => console.error(error));
-  });
-});
-
-
-
-</script>
-<link rel="stylesheet" href="/public/css/homepage.css">
 

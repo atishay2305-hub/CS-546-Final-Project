@@ -4,49 +4,44 @@ import {ObjectId} from "mongodb";
 import {userData} from "./index.js";
 import multer from "multer";
 import path from "path";
-//import { pseudoRandomBytes } from "crypto";
+
 
 
 let exportedMethods = {
-    async createPost(category, image, postedContent, userName, req) {
-
-        category = validation.checkLegitName(category, "category");
+    async createPost(category, image, postedContent, userName, address) {
+        category = validation.checkCategory(category, "category");
+        postedContent = validation.checkPhrases(postedContent);
         // postedContent = validation.checkPhrases(postedContent, "PostedContent");
-        const userId = validation.checkId(userName);
+        userName = validation.checkName(userName);
         const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        const user = await userCollection.findOne({userName: userName});
+        let userId = user._id;
         if (!user) {
-          throw `The user does not exist with that Id &{id}`;
+            throw `The user does not exist with that Id &{id}`;
         }
-        if (user.isAdmin) {
-          throw "Post can only be created by users."
+        if(user.role === 'admin'){
+            throw "You are unable to create post";
         }
-      
-        let imagePath = '';
-        if (req.file) {
-          imagePath = req.file.path.replace('public', '');
-        } else {
-          imagePath = 'images/default.jpg';
-        }
-      
-        if(!req){
-            throw "Error"
-        }
+
+
         let post = {
-          category: category,
-          content: postedContent,
-          image: imagePath,
-          userId: user._id,
-          created_Date: validation.getDate(),
-          likes: 0,
-          dislikes: 0,
-          commentIds: []
+            category: category,
+            content: postedContent,
+            image: image,
+            userId: userId,
+            userName: userName,
+            address: address,
+            created_Date: validation.getDate(),
+            likes: 0,
+            dislikes: 0,
+            commentIds: []
         };
         const postCollection = await posts();
         let insertInfo = await postCollection.insertOne(post);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-          throw "Could not add post";
+            throw "Could not add post";
         }
+
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
         return insertInfo;
@@ -75,7 +70,7 @@ let exportedMethods = {
     },
 
     async getPostByUserId(userId) {
-        id = await validation.checkId(userId);
+        userId = await validation.checkId(userId);
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(userId)});
         if (post === null) {
@@ -228,8 +223,73 @@ let exportedMethods = {
         );
         if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${postId}`;
         return true;
+        },
+
+        async updateDisLikes(postId, liked, disliked){
+            postId = validation.checkId(postId);
+            const postCollection = await posts();
+            const post = await postCollection.findOne({_id: new ObjectId(postId)});
+
+            if(!post) `Error: ${post} not found`;
+            if (!liked && !disliked) {
+                if (post.dislikes > 0) {
+                    post.dislikes--;
+                } else if (post.likes > 0) {
+                    post.likes--;
+                }
+            } else {
+                if (disliked) {
+                    if (liked && post.likes > 0) {
+                        post.likes--;
+                    }
+                    post.dislikes++;
+                } else {
+                    post.dislikes--;
+                }
+            }
+
+
+            const updatedInfo = await postCollection.updateOne(
+                {_id: new ObjectId(postId)},
+                { $set: { likes: post.likes, dislikes: post.dislikes}}
+            );
+            if (updatedInfo.modifiedCount === 0) {
+                throw `Error: Failed to update likes and dislikes for post ${postId}`;
+            }
+            return {likes: post.likes, dislikes: post.dislikes};
+        },
+
+    async updateLikes(postId, liked, disliked){
+        postId = validation.checkId(postId);
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(postId)});
+        if(!post) `Error: ${post} not found`;
+        if (!liked && !disliked) {
+            if (post.likes > 0) {
+                post.likes--;
+            } else if (post.dislikes > 0) {
+                post.dislikes--;
+            }
+        } else {
+            if (liked) {
+                if (disliked && post.dislikes > 0) {
+                    post.dislikes--;
+                }
+                post.likes++;
+            } else {
+                post.likes--;
+            }
         }
 
+        const updatedInfo = await postCollection.updateOne(
+            {_id: new ObjectId(postId)},
+            { $set: { likes: post.likes, dislikes: post.dislikes }}
+        );
+        if (updatedInfo.modifiedCount === 0) {
+            throw  `Error: Failed to update likes and dislikes for post ${postId}`;
+        }
+        return {likes: post.likes, dislikes: post.dislikes};
+    }
 };
 //express session,handlebars
 export default exportedMethods;
