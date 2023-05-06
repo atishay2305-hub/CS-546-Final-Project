@@ -2,6 +2,7 @@ import {Router} from 'express';
 import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
+import discussData from '../data/discussion.js'
 import eventsData from '../data/events.js'
 import validation from '../validationchecker.js';
 import multer from "multer";
@@ -70,7 +71,8 @@ router
 
             return res.redirect('/homepage');
             }
-        } catch (e) {
+        
+        catch (e) {
             return res.status(401).json({
                 success: false,
                 email: req.body.email,
@@ -281,28 +283,6 @@ router.route('/profile').get(async (req, res) => {
     return res.render('profile', {user: user, title: 'Profile'});
 });
 
-    try {
-        let newSeatingCapacity = seatingCapacity;
-        if (typeof newSeatingCapacity === 'string') {
-            newSeatingCapacity = Number(newSeatingCapacity);
-        }
-        if (attendance === 'attend') {
-            newSeatingCapacity = newSeatingCapacity - 1;
-        } else if (attendance === 'cancel') {
-            newSeatingCapacity = newSeatingCapacity + 1;
-        }
-
-        const result = await eventsData.updateCapacity(
-            id, // pass the correct id variable
-            newSeatingCapacity
-        );
-        return res.render('events', {newEvent: result, title: 'Eveents'});
-    } catch (e) {
-        console.log(e);
-        return res.status(400).json({error: e});
-    }
-});
-
 
 router.route('/posts/:id').delete(async (req, res) => {
     // console.log(req.params.id);
@@ -350,33 +330,31 @@ router.route('/posts/:id/comment').post(async (req, res) => {
 
 });
 
-})
-.delete(async (req, res) => {
-    //console.log(req.params.id);
-    console.log("entered delete event route");
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
-        if (!user) {
-            throw 'cannot find user';
-        }
-        if (user.role !== 'admin') throw "Only administrators can delete events.";
+// router.route('').delete(async (req, res) => {
+//     //console.log(req.params.id);
+//     console.log("entered delete event route");
+//     try {
+//         const user = await userData.getUserByID(req.session.user.userId);
+//         if (!user) {
+//             throw 'cannot find user';
+//         }
+//         if (user.role !== 'admin') throw "Only administrators can delete events.";
 
 
-        const commentCollection = await comments();
-        const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
-        if (event.length !== 0) {
-            const response = await commentData.removeCommentByEvent(req.params.id);
-            console.log("hi", response.deleted);
-        }
-        if (!event) {
-            throw "No events found!!"
-        }
+//         const commentCollection = await comments();
+//         const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
+//         if (event.length !== 0) {
+//             const response = await commentData.removeCommentByEvent(req.params.id);
+//             console.log("hi", response.deleted);
+//         }
+//         if (!event) {
+//             throw "No events found!!"
+//         }
+
+//         const responseEvent = await eventsData.removeEventById(req.params.id);
 
 
-        const responseEvent = await eventsData.removeEventById(req.params.id);
-
-
-        // console.log("hi", responseEvent.deleted);
+//         // console.log("hi", responseEvent.deleted);
 
 
 
@@ -642,18 +620,12 @@ router
         return res.render('allComments', {comment: comment, title: 'All Comments'});
     });
 
-router
-    .route('/events/:eventId/allComments')
-    .get(async (req, res) => {
-        const eventId = req.params.eventId;
-        const comment = await commentData.getEventCommentById(eventId)
-        return res.render('allComments', {comment: comment, title: 'All Comments'});
-    });
 
 
-    const discuss = await discussData.createDiscussion(category, description, userId);
-    return res.redirect('/discuss');
-    //return res.status(200).render('discuss', { newDiscussion: discuss });
+    // const discuss = await discussData.createDiscussion(category, description, userId);
+    // return res.redirect('/discuss');
+    // //return res.status(200).render('discuss', { newDiscussion: discuss });
+
 
 router.route('/search').get(async (req, res) => {
   try {
@@ -695,7 +667,7 @@ router.route('/discuss').get(async (req, res) => {
 
 router.route('/discuss').post(async (req, res) => {
   const userId = req.session.user.userId;
-  description = validation.checkPhrases(description);
+//   description = validation.checkPhrases(description);
 category = validation.checkCategory()
   const { category, description } = req.body;
 

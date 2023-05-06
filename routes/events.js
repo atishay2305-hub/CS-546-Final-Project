@@ -35,7 +35,7 @@ const eventUploadImage = eventUpload.single("eventImage");
 router
     .route('/')
     .get(async (req, res) => {
-        let events = []; // Declare and initialize events variable
+        let events = []; 
 
         if (req.session.user) {
             events = await eventsData.getAllEvents();

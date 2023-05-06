@@ -27,7 +27,7 @@ import {userData} from "./data/index.js";
 import eventsRoutes from './routes/events.js';
 import { title } from "process";
 
-app.use('/', eventsRoutes);
+// app.use('/', eventsRoutes);
 
 
 const hbs = exphbs.create({
@@ -45,10 +45,12 @@ const hbs = exphbs.create({
         },
 
         not_past_date: function (date) {
-            const eventDate = new Date(date).toISOString().slice(0, 10);
-            const now = new Date().toISOString().slice(0, 10);
-            return eventDate >= now;
-        }
+            const eventDate = new Date(date);
+            const now = new Date();
+            const eventDateStr = `${eventDate.getFullYear()}-${eventDate.getMonth() + 1}-${eventDate.getDate()}`;
+            const nowStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+            return eventDateStr >= nowStr;
+          }
     }
 });
 
@@ -77,10 +79,10 @@ app.use(session({
     saveUninitialized: true,
     resave: false
 
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 7 
-      },
-    store: store,
+    // cookie: {
+    //     maxAge: 1000 * 60 * 60 * 24 * 7 
+    //   },
+    // store: store,
 }));
 
 
