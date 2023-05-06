@@ -1,118 +1,117 @@
+<div class="container-fluid p-2">
+    <div id="search">
+        <form action="/search" method="GET">
+            <input type="text" name="query" placeholder="Search Events Here">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    <div class="row">
+        {{#each posts}}
+        <div class="post-container col-4 border border-secondary">
+            <h2>{{content}}</h2>
 
-<div id="search">
-  <form action="/search" method="GET">
-    <label for="search-input">Search Events Here:</label>
-    <input type="text" id="search-input" name="query" placeholder="Enter search term">
-    <button type="submit">Search</button>
-  </form>
-</div>
+            {{!-- <img id="img-home" src="{{image}}" alt="Post image"> --}}
+            <img id="img-home" src="{{image}}" alt="Post image">
+            <p>Category: {{category}}</p>
+            <p>Created by: {{userName}}</p>
+            <p>Created at: {{created_Date}}</p>
+            {{#if (if_eq category "lost&found")}}
+            <p>Address: {{address}}</p>
+            {{/if}}
+            <div class="row">
+                <div class="col">
+                    <button class="like-btn-home" data-post-id="{{this._id}}"
+                        onclick="likeFunc('{{this._id}}','home')"><i class="fa fa-thumbs-up">Like</i></button>
+                    <span class="like-count" id="like-count-{{this._id}}">{{this.likes}}</span>
+                </div>
+
+                <div class="col">
+                    <button class="dislike-btn-home" data-post-id="{{this._id}}"
+                        onclick="dislikeFunc('{{this._id}}','home')"><i class="fa fa-thumbs-down">Dislike</i></button>
+                    <span class="dislike-count" id="dislike-count-{{this._id}}">{{this.dislikes}}</span>
+                </div>
+                <div class="col-12 my-3">
+                    <button class="btn btn-info btn-sm" onclick="toggleComments(this)">View Comments</button>
+                    <div id="replies-sec" class="replies text-left" style="display: none;">
+                        {{#each result}}
+                        <div class="reply p-2 my-2 bg-light">
+                            <p>{{this.commentUserName}} - {{this.commentContent}}</p>
+                        </div>
+                        {{/each}}
+                        <form class="reply-form">
+                            <textarea id="reply-textarea"></textarea>
+                            <div>
+                                <span id="cmt-err" class="text-danger" style="display: none;">Please enter valid
+                                    comment</span>
+                            </div>
+                            <button class="btn btn-success btn-sm" type="button"
+                                onclick="postReply(event, '{{_id}}', this)">Post
+                                Comment</button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
 
 
-{{#each posts}}
-    <div class="post-container">
-        <h1>{{content}}</h1>
-        <img id="img-home-{{_id}}" src="{{image}}" alt="Post image">
-        <p>Category: {{category}}</p>
-        <p>Created by: {{name}}</p>
-        <p>Created at: {{created_Date}}</p>
+            {{!-- {{#each result}}
+            <div class="reply p-2 my-2 bg-light">
+                <p>{{this.commentUserName}} - {{this.commentContent}}</p>
+            </div>
+            {{/each}} --}}
 
-        <p>Address: {{address}}</p>
-        <button type="submit" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
-        <button type="submit" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
+            <div class="my-1 text-right">
 
-        <div class="comments-container">
-            <h2>Comments:</h2>
-            {{#each comments}}
+
+            </div>
+
+
+
+            {{!-- <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
+            <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button> --}}
+            {{!-- <button type="submit" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
+            <button type="submit" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button> --}}
+
+            {{!-- <div class="comments-container">
+                <h3>Comments:</h3>
+                {{#each comments}}
                 <div class="comment-container">
                     <p>{{text}}</p>
                     <p>Posted by: {{author}}</p>
                     <p>Posted at: {{created_Date}}</p>
 
+
                 </div>
-            {{/each}}<br>
-            <form class="comment-form" id="comment-form-{{_id}}" action="/posts/{{_id}}/comment" method="POST">
-                <input type="hidden" name="postId" value="{{_id}}">
-                <label for="comment-text-{{_id}}">Add a Comment:</label>
-                <input type="text" name="commentText" id="comment-text-{{_id}}">
-                <input type="submit" value="Submit">
-            </form>
+                {{/each}}<br>
+                <form class="comment-form" id="comment-form-{{_id}}" action="/posts/{{_id}}/comment" method="POST">
+                    <input type="hidden" name="postId" value="{{_id}}">
+                    <label for="comment-text-{{_id}}">Add a Comment:</label>
+                    <input type="text" name="commentText" id="comment-text-{{_id}}">
+                    <input type="submit" value="Submit">
+                </form>
+                <a href="/posts/{{_id}}/allComments" id="view-comments-{{_id}}">View Comments</a>
 
-            {{!-- <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a> --}}
-
-            {{!-- <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a> --}}
-            <a href="/posts/{{_id}}/allComments" id="view-comments-{{_id}}">View Comments</a>
-            
-
-        </div>
-        {{#if deletable}}
+            </div> --}}
+            {{#if deletable}}
             <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
-        {{/if}}
+            {{/if}}
+        </div>
+
+        {{/each}}
     </div>
-{{/each}}
+</div>
+
+
 
 <script>
-
-    function myFunction(x) {
-        x.classList.toggle("fa-thumbs-down");
-    }
-
-    function deletePost(id) {
-        fetch(`/posts/${id}`, {
-            method: "delete",
-            headers: {
-                Accept: 'application/json, text/plain, */*',
-                "Content-type": 'application/json'
-            },
-        })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Post deleted successfully');
-                        window.location.href = '/homepage';
-                    } else {
-                        throw new Error('Network response was not ok');
-                    }
-                })
-                .catch(error => {
-                    alert(error.message || "Something went wrong.");
-                })
-                .then(() => {
-                    console.log('This will run after either success or failure');
-                });
-    }
-
-    document.querySelectorAll('.comment-form').forEach(form => {
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            const commentText = this.querySelector('input[name="commentText"]').value;
-            const postId = this.querySelector('input[name="postId"]').value;
-            fetch(`/posts/${postId}/comment`, {
-                method: "post",
-                body: JSON.stringify({commentText: commentText}),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-                    .then(response => {
-                        if (response.ok) {
-                            alert('Comment added successfully');
-                            window.location.href = `/homepage`;
-                        } else {
-                            throw new Error('Network response was not ok');
-                        }
-                    })
-                    .catch(error => {
-                        alert(error.message || "Something went wrong.");
-                    })
-                    .then(() => {
-                        console.log('This will run after either success or failure');
-                    });
-        });
-    });
-
 
 
 
 </script>
+
+<script src="../public/js/homepage/homepage.js"></script>
+{{!--
+<script src="../public/js/post/like&dislike.js"></script> --}}
+
 <link rel="stylesheet" href="/public/css/homepage.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-

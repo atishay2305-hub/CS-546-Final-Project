@@ -61,4 +61,4 @@ function sortPosts(criteria) {
     posts.forEach((post) => {
         postsContainer.appendChild(post);
     });
-}
+}   
