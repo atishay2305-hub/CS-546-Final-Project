@@ -26,7 +26,8 @@ let exportedMethods = {
         let post = {
             category: category,
             content: postedContent,
-            image: image,
+            // image: image,
+            image: image.replace(/\\/g, "/"),
             userId: userId,
             userName: userName,
             address: address,

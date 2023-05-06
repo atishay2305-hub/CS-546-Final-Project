@@ -8,7 +8,8 @@
     <div class="post-container">
         <h2>{{content}}</h2>
         {{!-- <img id="img-home" src="{{image}}" alt="Post image"> --}}
-        <img id="img-home" src="{{image}}" alt="Post image">
+        {{!-- <img id="img-home" src="{{image}}" alt="Post image"> --}}
+        <img id="img-home-{{_id}}" src="{{image}}" alt="Post image">
         <p>Category: {{category}}</p>
         <p>Created by: {{name}}</p>
         <p>Created at: {{created_Date}}</p>
@@ -33,7 +34,8 @@
                 <input type="text" name="commentText" id="comment-text-{{_id}}">
                 <input type="submit" value="Submit">
             </form>
-            <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a>
+            {{!-- <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a> --}}
+            <a href="/posts/{{_id}}/allComments" id="view-comments-{{_id}}">View Comments</a>
             
         </div>
         {{#if deletable}}

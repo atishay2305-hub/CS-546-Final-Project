@@ -1,61 +1,36 @@
-/* /* body {
-  background: #fefefe;
-  font-family: monospace;
-  font-size: 15pt; */
-
-/* added for test */
-/* position: relative;
-min-height: 100vh;
-} */
-
-/* main {
-  max-width: 75%;
-  margin: auto;
-} */
-
 body {
   font-family: monospace;
-  /* background-image: url('../background_img/background-img.jpg'); */
   background-repeat: no-repeat;
   background-size: cover;
 }
 
-
 header {
   border-bottom: 1px solid #be3144;
 }
-input{
-  width:250px;
-}
-/* input[type=text], input[type=password], input[type=email] {
-  width: 65%;
-  padding: 15px;
-  margin: 5px 0 22px 0;
-  display: inline-block;
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
   border: none;
   background: #f1f1f1;
-  
 }
-input[type=text]:focus, input[type=password]:focus, input[type=email]:focus {
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+select:focus {
   background-color: #ddd;
   outline: none;
-} */
-
-
-
-
-
-
-
-h1
-{
-  color: #333;
-  margin-bottom: 5px;
 }
 
 h1 {
   font-size: 2rem;
   text-align: center;
+  margin-bottom: 5px;
 }
 
 nav {
@@ -84,8 +59,7 @@ nav li a {
 
 .container {
   display: table;
-  width: 100%
-
+  width: 100%;
 }
 
 .center {
@@ -97,52 +71,26 @@ nav li a {
   margin-top: 10%;
 }
 
-
 .inf {
-  width: 80%
+  width: 80%;
 }
 
 .sec-1 {
   width: 30%;
   float: left;
-  margin-left: 80pt;
+  margin-left: 80px;
   margin-top: 10px;
   align-content: center;
 }
 
 .sec-2 {
   float: left;
-
   margin-top: 10px;
-}
-
-/* nav li a:hover {
-  background-color: #111;
-} */
-
-#main-header {
-  text-align: center;
 }
 
 footer {
   height: 50px;
 }
-/* .container {
-  padding: 16px;
-} */
-/* .center {
-  margin: auto;
-  width: 55%;
-  border: 3px solid green;
-  padding: 10px;
-  text-align: left;
-} */
-/* .center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-} */
 
 .form-container {
   width: 50%;
@@ -174,51 +122,30 @@ footer {
 #get-posts-navbar button[type="submit"] {
   height: 30px;
 }
-/* .inf {
-  width: 30%; 
-  height: 100px; 
-  float: left; 
-  margin-left: 100pt;
-  margin-top: 50pt;
-  align-content: center;
-}
-.sec-2 {
-  margin-left: 40%; 
-  height: 100px; 
-  margin-top: 20pt;
-} */
 
 #event-cards {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .event-card {
   width: 400px;
   padding: 20px;
   margin: 20px;
   background-color: #f2f2f2;
 }
+
 .event-card h2 {
   font-size: 1.5rem;
   margin-bottom: 10px;
 }
+
 .event-card p {
   font-size: 1rem;
   margin-bottom: 10px;
 }
 
-footer {
-  text-align: center;
-  padding: 3px;
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  padding: 3px;
-  background-color: DarkSalmon;
-  color: white;
-}
 .registerbtn {
   background-color: #04AA6D;
   color: white;
@@ -231,16 +158,18 @@ footer {
 }
 
 .registerbtn:hover {
-  opacity:1;
+  opacity: 1;
 }
 
 a {
   color: dodgerblue;
 }
+
 .hlink {
   width: 100%;
   text-align: center;
 }
 
-#map { height: 180px; }
- 
+#map {
+  height: 180px
+}

@@ -1,7 +1,7 @@
 let sortingCriteria = [];
 
 function sortPosts(criteria) {
-    let postsContainer = document.getElementById('posts-container');
+    let postsContainer = document.getElementById('posts-container-1');
     let posts = Array.from(postsContainer.getElementsByClassName('post-container'));
 
     // Add the new criteria to the sortingCriteria array
