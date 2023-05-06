@@ -44,7 +44,7 @@ function replyForm(postId, button) {
         button.innerText = 'Show replies';
     } else {
         replies.style.display = 'block';
-        button.innerText = 'Hide replies';
+        button.innerText = 'Hide replies';  
     }
 }
 
@@ -64,10 +64,12 @@ function postReply(event, discussionId, button) {
     const discussionElement = button.parentNode;
 
     const replyText = discussionElement.querySelector('#reply-textarea').value;
+    
+
 
     fetch(`/discussions/${discussionId}/replies`, {
         method: 'POST',
-        headers: {
+        headers: {  
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({

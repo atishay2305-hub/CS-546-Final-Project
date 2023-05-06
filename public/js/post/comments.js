@@ -1,3 +1,4 @@
+
 function showCommentsPopup(postId) {
     const commentsButton = document.getElementById(`comment-btn-${postId}`);
     const commentsPopup = document.getElementById(`comments-${postId}`);
