@@ -1,7 +1,23 @@
 import eventsData from "./data/events.js";
 
 // try {
-//     let something = await eventsData.createEvent("Something", "sdsjdisj", "Babio", "Atishay", 5, "jsdsdjisdj21212")
+//     let something = await eventsData.createEvent("6441e06cf0917340bd02623c", "something", "lieb building", "lieb building", "Atishay Jain", 5)
+//     console.log(something);
+
+// } catch(error){
+//     console.log(error)
+// }
+
+try {
+    let something = await eventsData.searchEvent("Updated")
+    console.log(something);
+
+} catch(error){
+    console.log(error)
+}
+
+// try {
+//     let something = await eventsData.getEventByID("6442e7e7b9f2f13914c32dc3")
 //     console.log(something);
 
 // } catch(error){
@@ -9,23 +25,7 @@ import eventsData from "./data/events.js";
 // }
 
 // try {
-//     let something = await eventsData.getAllEvents()
-//     console.log(something);
-
-// } catch(error){
-//     console.log(error)
-// }
-
-// try {
-//     let something = await eventsData.getEventByID("64420389f267ac11bedc3a84")
-//     console.log(something);
-
-// } catch(error){
-//     console.log(error)
-// }
-
-// try {
-//     let something = await eventsData.removeEventById("643f858a366864df7f9d901a")
+//     let something = await eventsData.removeEventById("6442e7e7b9f2f13914c32dc3")
 //     console.log(something);
 
 // } catch(error){

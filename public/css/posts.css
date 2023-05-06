@@ -1,0 +1,134 @@
+body {
+  padding-top: 50px; /* add 50 pixels of padding to the top of the body */
+}
+
+.post-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+  border: 1px solid gray;
+  padding: 10px;
+  width: 600px; /* adjust this value as needed */
+  text-align: center; /* center the text within the container */
+}
+
+.post-container img {
+  width: 100%; 
+  height: auto; 
+  margin-bottom: 10px; 
+}
+.comments-container,
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.comment-form input[type="text"] {
+    margin-right: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 60%;
+}
+
+.comment-form input[type="submit"] {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.comment-form input[type="submit"]:hover {
+    background-color: #3e8e41;
+}
+
+/* style comments */
+.comment {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 100%;
+}
+
+.comment p {
+    margin: 0;
+}
+
+/* style show comments button */
+.comment-btn {
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.comment-btn:hover {
+    color: #2196F3;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.inf {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.inf label {
+  font-weight: bold;
+}
+
+.inf textarea {
+  width: 100%;
+}
+
+.inf input[type="text"],
+.inf select,
+.inf input[type="file"] {
+  width: 70%;
+}
+
+.postBtn {
+  margin-top: 20px;
+  padding: 10px 30px;
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.postBtn:hover {
+  background-color: #3e8e41;
+}
+
+#error li {
+  color: red;
+  margin-bottom: 10px;
+}
+
+#error {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#addPostBtn {
+  align-self: flex-end;
+  margin-top: auto;
+}
+

@@ -1,21 +1,23 @@
-import {users} from '../config/mongoCollections.js';
-import bcrypt from 'bcryptjs'
+import {users, events} from '../config/mongoCollections.js';
+import bcrypt from 'bcrypt'
 import validation from '../validationchecker.js';
 import {ObjectId} from "mongodb";
+import {userData} from "./index.js";
 
-const authenticationCode = "Get privilege";
+
 let exportedMethods = {
     /**
      *
-     * @param {string} firstName
-     * @param {string} lastName
-     * @param {string} email
-     * @param {string} userName
-     * @param {string} password
-     * @param {string} DOB
-     * @param {boolean} isAdmin
-     * @param {string} authentication
-     * @returns {Promise<{createUser: boolean, userID: string}>}
+     * @param firstName
+     * @param lastName
+     * @param email
+     * @param userName
+     * @param password
+     * @param DOB
+     * @param department
+     * @param role
+     * @param authentication
+     * @returns {Promise<{insertedUser: boolean, userID: string}>}
      */
     async createUser(
         firstName,
@@ -24,10 +26,9 @@ let exportedMethods = {
         email,
         password,
         DOB,
-        dept,
-        isAdmin = false,
+        role,
+        department,
         authentication = null
-        
     ) {
         firstName = validation.checkLegitName(firstName, 'First name');
         lastName = validation.checkLegitName(lastName, 'Last name');
@@ -35,48 +36,43 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         DOB = validation.checkDOB(DOB);
-
+        role = validation.checkRole(role);
+        department = validation.checkDepartment(department);
+        authentication = validation.checkAuth(authentication);
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (checkExist) throw "Sign in to this account or enter an email address that isn't already in user.";
-        let user;
-        if (isAdmin) {
-            if (!authentication || typeof authentication !== "string" || authentication !== authenticationCode) {
-                throw "Invalid admin verification code.";
-            }
-            user = {
-                firstName: firstName,
-                lastName: lastName,
-                userName: userName,
-                email: email,
-                password: await bcrypt.hash(password, 10),
-                DOB: DOB,
-                department:dept,
-                eventIDs: [],
-                comments: [],
-                isAdmin: true
-            };
-        } else {
-            user = {
-                firstName: firstName,
-                lastName: lastName,
-                userName: userName,
-                email: email,
-                password: await bcrypt.hash(password, 10),
-                DOB: DOB,
-                department:dept,
-                postIDs: [],
-                comments: []
-            };
+        const checkUserNameExist = await userCollection.findOne({userName: userName});
+        if (checkUserNameExist) throw "User name already exists.";
+        let user = {
+            firstName: firstName,
+            lastName: lastName,
+            userName: userName,
+            email: email,
+            password: await bcrypt.hash(password, 10),
+            DOB: DOB,
+            commentIDs: [],
+            eventAttend: [],
+            role: role,
+            department: department,
+            authentication: false
+        };
+
+        if (role === 'admin' && authentication) {
+            user.eventIDs = [];
+            user.role = 'admin';
+            user.authentication = true;
+        }else{
+            user.postIDs = [];
+            user.role = 'user';
+            user.authentication = authentication;
+
         }
+
         const insertInfo = await userCollection.insertOne(user);
-        console.log(insertInfo);
-        if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add event.";
-        const userId = insertInfo.insertedId.toString();
-        const sessionUser = { userId: userId, userName: user.userName };
-        console.log(sessionUser);
-        return { createUser: true,sessionUser:sessionUser};
-        //return {createUser: true, userID: insertInfo.insertedId.toString()};
+        if (!insertInfo.acknowledged || !insertInfo.insertedId) throw "Could not add user.";
+
+        return {insertedUser: true, userID: insertInfo.insertedId.toString()};
 
     },
 
@@ -84,17 +80,13 @@ let exportedMethods = {
      *
      * @param email
      * @param password
-     * @returns {Promise<{authenticatedUser: boolean, userID: string}>}
+     * @return {Promise<{firstName: (string|*), lastName: (string|*), emailAddress: *, role: *, userName: (string|*)}>}
      */
-    async getAllUsers() {
-        const userCollection = await users();
-        const userList = await userCollection.find({}).toArray();
-        return userList;
-      },
 
     async checkUser(email, password) {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
+        // const userId = checkExist._id.toString();
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (!checkExist) throw "You may have entered the wrong email address or password.";
@@ -102,13 +94,21 @@ let exportedMethods = {
             password,
             checkExist.password
         );
-        if (!checkPassword) throw "You may have entered the wrong email address or password."
-        const sessionUser = {
-            userId: checkExist._id.toString(),
-            userName: checkExist.userName
+        if (!checkPassword) throw "You may have entered the wrong email address or password.";
+        const userId = checkExist._id.toString();
+        // console.log(userId);
+        // console.log(checkExist.firstName,checkExist.lastName,checkExist.userName, checkExist._id, checkExist.email, checkExist.role, checkExist.department);
+        return {
+            firstName: checkExist.firstName,
+            lastName: checkExist.lastName,
+            userName: checkExist.userName,
+            userId: userId,
+            emailAddress: checkExist.email,
+            role: checkExist.role,
+            department: checkExist.department
         };
-        return {authenticatedUser: true,sessionUser:sessionUser};
     },
+
 
     async updateUser(
         firstName,
@@ -117,6 +117,7 @@ let exportedMethods = {
         email,
         password,
         DOB,
+        department,
     ) {
         firstName = validation.checkLegitName(firstName, 'First name');
         lastName = validation.checkLegitName(lastName, 'Last name');
@@ -124,12 +125,13 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         DOB = validation.checkDOB(DOB);
+        // department = validation.checkDepartment(department);
         const userCollection = await users();
-        const checkExist = await userCollection.findOne({email: email});
-        if (!checkExist) throw "You may have entered the wrong email address or password.";
+        const user = await userCollection.findOne({email: email});
+        if (!user) throw "You may have entered the wrong email address or password.";
         const checkPassword = await bcrypt.compare(
             password,
-            checkExist.password
+            user.password
         );
         if (checkPassword) throw "Cannot be the same password as the original";
         const hashPassword = await bcrypt.hash(password, 10);
@@ -141,7 +143,8 @@ let exportedMethods = {
                     firstName: firstName,
                     lastName: lastName,
                     userName: userName,
-                    DOB: DOB
+                    DOB: DOB,
+                    department: department,
                 },
             }
         );
@@ -151,6 +154,61 @@ let exportedMethods = {
         return {updatedUser: true, email: email};
     },
 
+    async getPostList(email) {
+        email = validation.checkEmail(email);
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        return user.postIDs;
+    },
+
+    async checkPostEditable(userId, postId) {
+        userId = validation.checkId(userId);
+        postId = validation.checkId(postId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`;
+        const postList = user.postIDs;
+        return postList.includes(postId);
+    },
+
+    async checkEventEditable(userId, eventId) {
+        userId = validation.checkId(userId);
+        eventId = validation.checkId(eventId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`;
+        const eventList = user.eventIDs;
+        return eventList.includes(eventId);
+    },
+
+    async checkComment(userId, commentId) {
+        userId = validation.checkId(userId);
+        commentId = validation.checkId(commentId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`;
+        const commentList = user.commentIDs;
+        return commentList.includes(commentId);
+    },
+
+    async getEventList(email) {
+        email = validation.checkEmail(email);
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user.role !== 'admin') throw `Error: ${email} is not an administrator`
+        return user.eventIDs;
+    },
+
+    async getCommentList(email) {
+        email = validation.checkEmail(email);
+        const userCollection = await users();
+        const user = await userCollection.findOne({email: email});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        return user.commentIDs;
+    },
+
     async getUserByEmail(email) {
         email = validation.checkEmail(email);
         const userCollection = await users();
@@ -158,175 +216,275 @@ let exportedMethods = {
         if (!user) throw `Error: ${user} not found`; //check password as well
         user._id = user._id.toString();
         return user;
-    }, 
-    async getUserByUserNameOrEmail(userName, email){
-        email = validation.checkEmail(email);
-        userName = validation.checkName(userName);
-        const userCollection = await users();
-        let user = await userCollection.findOne({userName: userName});
-        return user;
     },
 
-    async getUserByID(id) {
-        id = validation.checkId(id);
+    async getUserByID(userId) {
+        userId = validation.checkId(userId);
         const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(id)});
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `Error: ${user} not found`; //check password as well
         user._id = user._id.toString();
         return user;
     },
 
-    
-    async removeUserById(id) {
-        id = validation.checkId(id);
+    async getUserByUserName(userName) {
+        userName = validation.checkName(userName);
         const userCollection = await users();
+        const user = await userCollection.findOne({userName: userName});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        user._id = user._id.toString();
+        return user;
+    },
+
+    async putPost(userId, postId) {
+        userId = validation.checkId(userId);
+        postId = validation.checkId(postId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        let postIdList = user.postIDs;
+        postIdList.push(postId);
+        const updatedInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {postIDs: postIdList}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put post with that ID ${userId}`;
+        return true;
+    },
+
+
+    async removePost(userId, postId) {
+        userId = validation.checkId(userId);
+        postId = validation.checkId(postId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        let postIdList = user.postIDs;
+        if (postIdList.includes(postId)) {
+            postIdList = postIdList.filter(elem => elem !== postId);
+            const updatedInfo = await userCollection.updateOne(
+                {_id: new ObjectId(userId)},
+                {$set: {postIDs: postIdList}}
+            );
+            if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove post with that ID${userId}`;
+            return true;
+        } else {
+            throw `Error: postId ${postId} not found in postIDs list for user ${userId}`;
+        }
+    },
+
+    async putEvent(userId, eventId) {
+        userId = validation.checkId(userId);
+        eventId = validation.checkId(eventId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        let eventIdList = user.eventIDs;
+        eventIdList.push(eventId);
+        const updatedInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {eventIDs: eventIdList}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put event with that ID ${eventId}`;
+        return true;
+    },
+
+    async removeEvent(userId, eventId) {
+        userId = validation.checkId(userId);
+        eventId = validation.checkId(eventId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `User with that ID${userId} not found`; //check password as well
+        let eventIdList = user.eventIDs;
+        if (eventIdList.includes(eventId)) {
+            eventIdList = eventId.filter(elem => elem !== eventId);
+            const updatedInfo = await userCollection.updateOne(
+                {_id: new ObjectId(userId)},
+                {$set: {eventIDs: eventIdList}}
+            );
+            if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove event with that ID${userId}`;
+            return true;
+        } else {
+            throw `Error: eventId ${eventId} not found in eventIDs list for user ${userId}`;
+        }
+    },
+
+    async putAttendee(userId, eventId) {
+        userId = validation.checkId(userId);
+        eventId = validation.checkId(eventId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `User with that ID${userId} not found`; //check password as well
+        const eventCollection = await events()
+        const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
+        if (!event) throw `Event with that ID${eventId} not found`;
+        const {attendees, seatingCapacity} = event;
+        const length = seatingCapacity - Object.keys(attendees).length
+        if (length <= 0) {
+            throw "Sorry, the event is already fully booked";
+        }
+        const attendeeName = `${user.firstName} ${user.lastName}`;
+        attendees[seatingCapacity - length] = {id: userId, name: attendeeName};
+        const updateInfo = await eventCollection.updateOne(
+            {_id: new ObjectId(eventId)},
+            {$set: {attendees}}
+        )
+        if (!updateInfo.matchedCount || !updateInfo.modifiedCount) {
+            throw `Could not update event with attendee`;
+        }
+        const eventAttended = user.eventAttend;
+        eventAttended.push(eventId);
+        const updatedInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {eventAttended}}
+        )
+        if (!updatedInfo.matchedCount || !updatedInfo.modifiedCount) {
+            throw `Could not update attendee with event`;
+        }
+
+        return {updateInfo: true, eventId: eventId};
+
+    },
+
+    async removeAttendee(userId, eventId) {
+        userId = validation.checkId(userId);
+        eventId = validation.checkId(eventId);
+
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `User with ID ${userId} not found`;
+
+        const eventCollection = await events();
+        const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
+        if (!event) throw `Event with ID ${eventId} not found`;
+
+        const updatedAttendees = {};
+        let attendeeRemoved = false;
+        for (const [attendeeId, attendeeData] of Object.entries(event.attendees)) {
+            if (attendeeData.id !== userId) {
+                updatedAttendees[attendeeId] = attendeeData;
+            } else {
+                attendeeRemoved = true;
+            }
+        }
+        if (!attendeeRemoved) {
+            throw `User with ID ${userId} is not attending event with ID ${eventId}`;
+        }
+
+        const updateInfo = await eventCollection.updateOne(
+            {_id: new ObjectId(eventId)},
+            {$set: {attendees: updatedAttendees}}
+        );
+        if (!updateInfo.matchedCount || !updateInfo.modifiedCount) {
+            throw `Could not update event with ID ${eventId}`;
+        }
+
+        return {deleteInfo: true, eventId: eventId};
+    },
+
+    async putComment(userId, commentId) {
+        userId = validation.checkId(userId);
+        commentId = validation.checkId(commentId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        let commentIdList = user.commentIDs;
+        commentIdList.push(commentId);
+        const updatedInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {commentIDs: commentIdList}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${userId}`;
+        return true;
+    },
+
+    async removeComment(userId, commentId) {
+        userId = validation.checkId(userId);
+        commentId = validation.checkId(commentId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        let commentIdList = user.commentIDs;
+        if (commentIdList.includes(commentId)) {
+            commentIdList = commentId.filter(elem => elem !== commentId);
+            const updatedInfo = await userCollection.updateOne(
+                {_id: new ObjectId(userId)},
+                {$set: {commentIDs: commentIdList}}
+            );
+            if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove post with that ID${userId}`;
+            return true;
+        } else {
+            throw `Error: postId ${commentId} not found in commentIDs list for user ${userId}`;
+        }
+    },
+
+    async updatePassword(id, password){
+        id = validation.checkId(id);
+        password = validation.checkPassword(password);
+        const  userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(id)});
-        const deletionInfo = await userCollection.deleteOne({_id: new ObjectId(id)});
+        if(!user) throw `Error: user ${id} not found`;
+        const updatedInfo = await userCollection.updateOne(
+            {_id: new ObjectId(user._id)},
+            {$set: {password: await bcrypt.hash(password, 10)}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) {
+            throw `Error: could not update password ${password}`;
+        }
+        return {updatedPassword: true};
+
+    },
+
+    async removeUserById(userId) {
+        userId = validation.checkId(userId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${userId} not found`; //check password as well
+        const deletionInfo = await userCollection.deleteOne({_id: new ObjectId(userId)});
         if (deletionInfo.deletedCount === 0) {
-            throw `Could not delete user with id of ${id}`;
+            throw `Could not delete user with id of ${userId}`;
         }
         return `The user ${user._id} has been successfully deleted!`;
     },
 
-    async isPasswordValid(userName, password){
-        
+    async putEventAttended(userId, eventId){
+        userId = validation.checkId(userId);
+        eventId  = validation.checkId(eventId);
+        const user = await userData.getUserByID(userId);
+        if (!user) throw `Error: ${userId} not found`; //check password as well
+        const eventIndex = user.eventAttended.findIndex(event => event.eventId === eventId);
+        let eventAttended = user.eventAttended;
+        if (eventIndex === -1) {
+            // event not found in eventAttended array, add it
+            eventAttended.push({eventId: eventId});
+        }
+        const userCollection = await users();
+        const updateInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {eventAttended: eventAttended}}
+        )
+        if (!updateInfo.acknowledged || updateInfo.matchedCount !== 1) {
+            throw `Error: could not update userId ${userID}`;
+        }
+        return  true;
+    },
+
+    async removeEventAttended(userId, eventId){
+        userId = validation.checkId(userId);
+        eventId  = validation.checkId(eventId);
+        const user = await userData.getUserByID(userId);
+        if (!user) throw `Error: ${userId} not found`; //check password as well
+        let eventAttended = user.eventAttended.filter(event => event.eventId !== eventId);eventAttended.push({eventId: eventId});
+        const userCollection = await users();
+        const updateInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {eventAttended: eventAttended}}
+        )
+        if (!updateInfo.acknowledged || updateInfo.matchedCount !== 1) {
+            throw `Error: could not update userId ${userId}`;
+        }
+        return  true;
     }
-
-    // async getPostList(email) {
-    //     email = validation.checkEmail(email);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({email: email});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     return user.postIDs;
-    // },
-    // async getEventList(email){
-    //     email = validation.checkEmail(email);
-    //     const userCollection = await users();
-    //     const admin = await userCollection.findOne({email: email});
-    //     if (!admin) throw `Error: ${admin} not found`; //check password as well
-    //     if(!admin.isAdmin) throw `Error: ${email} is not an administrator`
-    //     return admin.eventIDs;
-    // },
-
-    // async getCommentList(email) {
-    //     email = validation.checkEmail(email);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({email: email});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     return user.commentIDs;
-    // },
-
- 
-
-    // async putPost(id, postId) {
-    //     id = validation.checkId(id);
-    //     postId = validation.checkId(postId);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({_id: new ObjectId(id)});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     let postIdList = user.postIDs;
-    //     postIdList.push(postId);
-    //     const updatedInfo = await userCollection.updateOne(
-    //         {_id: new ObjectId(id)},
-    //         {$set: {postIDs: postIdList}}
-    //     );
-    //     if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put post with that ID ${id}`;
-    //     return true;
-    // },
-
-
-    // async removePost(id, postId) {
-    //     id = validation.checkId(id);
-    //     postId = validation.checkId(postId);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({_id: new ObjectId(id)});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     let postIdList = user.postIDs;
-    //     if (postIdList.includes(postId)) {
-    //         postIdList = postId.filter(elem => elem !== postId);
-    //         const updatedInfo = await userCollection.updateOne(
-    //             {_id: new ObjectId(id)},
-    //             {$set: {postIDs: postIdList}}
-    //         );
-    //         if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove post with that ID${id}`;
-    //         return true;
-    //     } else {
-    //         throw `Error: postId ${postId} not found in postIDs list for user ${id}`;
-    //     }
-    // },
-
-    // async putEvent(id, eventId) {
-    //     id = validation.checkId(id);
-    //     eventId = validation.checkId(eventId);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({_id: new ObjectId(id)});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     let eventIdList = user.eventIDs;
-    //     eventIdList.push(eventId);
-    //     const updatedInfo = await userCollection.updateOne(
-    //         {_id: new ObjectId(id)},
-    //         {$set: {eventIDs: eventIdList}}
-    //     );
-    //     if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put event with that ID ${id}`;
-    //     return true;
-    // },
-
-    // async removeEvent(id, eventId) {
-    //     id = validation.checkId(id);
-    //     eventId = validation.checkId(eventId);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({_id: new ObjectId(id)});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     let eventIdList = user.eventIDs;
-    //     if (eventIdList.includes(eventId)) {
-    //         eventIdList = eventId.filter(elem => elem !== eventId);
-    //         const updatedInfo = await userCollection.updateOne(
-    //             {_id: new ObjectId(id)},
-    //             {$set: {eventIDs: eventIdList}}
-    //         );
-    //         if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove event with that ID${id}`;
-    //         return true;
-    //     } else {
-    //         throw `Error: eventId ${eventId} not found in eventIDs list for user ${id}`;
-    //     }
-    // },
-
-    // async putComment(id, commentId) {
-    //     id = validation.checkId(id);
-    //     commentId = validation.checkId(commentId);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({_id: new ObjectId(id)});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     let commentIdList = user.commentIDs;
-    //     commentIdList.push(commentId);
-    //     const updatedInfo = await userCollection.updateOne(
-    //         {_id: new ObjectId(id)},
-    //         {$set: {commentIDs: commentIdList}}
-    //     );
-    //     if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${id}`;
-    //     return true;
-    // },
-
-    // async removeComment(id, commentId) {
-    //     id = validation.checkId(id);
-    //     commentId = validation.checkId(commentId);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({_id: new ObjectId(id)});
-    //     if (!user) throw `Error: ${user} not found`; //check password as well
-    //     let commentIdList = user.commentIDs;
-    //     if (commentIdList.includes(commentId)) {
-    //         commentIdList = commentId.filter(elem => elem !== commentId);
-    //         const updatedInfo = await userCollection.updateOne(
-    //             {_id: new ObjectId(id)},
-    //             {$set: {commentIDs: commentIdList}}
-    //         );
-    //         if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Error:could not remove post with that ID${id}`;
-    //         return true;
-    //     } else {
-    //         throw `Error: postId ${commentId} not found in commentIDs list for user ${id}`;
-    //     }
-    // },
-
 }
 
 export default exportedMethods;

@@ -1,105 +1,297 @@
-import { posts } from "../config/mongoCollections.js";
+import {posts, users} from "../config/mongoCollections.js";
 import validation from "../validationchecker.js";
-import { ObjectId } from "mongodb";
-import moment from 'moment';
+import {ObjectId} from "mongodb";
+import {userData} from "./index.js";
+import multer from "multer";
+import path from "path";
+
+
 
 let exportedMethods = {
-    // Create a new post with the given category and content
-    async createPost(category, postedContent) {
-        // category = validation.checkString(category, "category");
-        //  postedContent = validation.checkString(postedContent, "PostedContent");
+    async createPost(category, image, postedContent, userName, address) {
+        category = validation.checkCategory(category, "category");
+        postedContent = validation.checkPhrases(postedContent, "PostedContent");
+        userName = validation.checkName(userName);
+
+        const userCollection = await users();
+        const user = await userCollection.findOne({userName: userName});
+        let userId = user._id;
+        if (!user) {
+            throw `The user does not exist with that Id &{id}`;
+        }
+        if(user.role === 'admin'){
+            throw "You are unable to create post";
+        }
+
+
         let post = {
             category: category,
-            postContent: postedContent,
-            // img: generateImageUrl(),
-            user_id: '64321cb672bd393e9e0f9ef4',
-            created_Date: moment().format('MM-DD-YYYYTHH:mm:ss.SSSZ'),
+            content: postedContent,
+            // image: image,
+            image: image.replace(/\\/g, "/"),
+            userId: userId,
+            userName: userName,
+            address: address,
+            created_Date: validation.getDate(),
             likes: 0,
             dislikes: 0,
-            comments: {}
+            commentIds: []
         };
-
         const postCollection = await posts();
-        const insertInfo = await postCollection.insertOne(post);
+        let insertInfo = await postCollection.insertOne(post);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-            throw new Error('Could not add post');
+            throw "Could not add post";
         }
-        post._id = insertInfo.insertedId.toString();
-        post = Object.assign({_id: post._id}, post);
-        return post;
+
+        insertInfo._id = insertInfo.insertedId.toString();
+        insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
+        return insertInfo;
     },
 
-    // Get all posts with optional projection
-    async getAllPost() {
+    async getAllPosts() {
         const postCollection = await posts();
-        let postList = await postCollection.find({}).project().toArray();
-        if (postList.length === 0) {
-            throw new Error('No posts found');
-        }
-        postList = postList.map(element => {
-            element._id = new ObjectId(element._id).toString();
-            return element;
-        });
-        return postList;
+        return await postCollection.find({}).sort({created_Date: -1}).toArray();
     },
 
-    // Get a post by ID
+    async getPostByCategory(category){
+        category = validation.checkLegitName(category);
+        const postCollection = await posts();
+        return await postCollection.find({category: category}).toArray();
+    },
+
     async getPostById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(id)});
-        if (!post) {
-            throw new Error(`No post found with ID ${id}`);
+        if (post === null) {
+            throw `No post found with that ID ${id}`;
         }
         post._id = new ObjectId(post._id).toString();
         return post;
     },
 
-    async getPostByCategory(category) {
+    async getPostByUserId(userId) {
+        userId = await validation.checkId(userId);
         const postCollection = await posts();
-        const post = await postCollection.findOne({ category: category });
-        if (!post) {
-            throw new Error(`No post found with category: ${category}`);
+        const post = await postCollection.findOne({ userId: new ObjectId(userId) });
+        if (post === null) {
+          throw `No post found with that ID ${userId}`;
         }
-        post._id = new ObjectId(post._id).toString();
         return post;
-    },
-    
+      },
 
-    async removePostById(id) {
+    async getPostByUserIdTop(userId){
+        const id = await validation.checkId(userId);
+        const postCollection = await posts();
+        const postList = await postCollection.find({userId:new ObjectId(userId)}).sort({created_Date: -1}).limit(5).toArray();
+        console.log(postList);
+        for(let x of postList){
+            x.deletable = true;
+        }
+        return postList;
+
+    },
+
+    // async removeById(id) {
+    //     id = await validation.checkId(id);
+    //     const postCollection = await posts();
+    //     const post = await postCollection.findOne({_id: new ObjectId(id)});
+    //     if (post === null) {
+    //         throw `No post found with that Id ${id}`;
+    //     }
+    //     const userCollection = await users();
+    //     const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
+    //     //console.log(user.postID);
+    //     if (user.isAdmin === undefined || !user.isAdmin) {
+    //         if(!user.postIDs.includes(id)){
+    //             throw "Only administrators or the poster can delete posts.";
+    //         } 
+    //     }
+
+    //     const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
+    //     if (removePost.deletedCount === 0) {
+    //         throw `Could not delete post with id of ${id}`;
+    //     }
+    //     await userData.removePost(post.userId.toString(), id);
+    //     return {
+    //         postId: id,
+    //         deleted: true
+    //     };
+
+    // },
+    async removeById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
-        const post = await postCollection.findOneAndDelete({_id: new ObjectId(id)});
-        if (!post.value) {
-          throw {statusCode: 404, error: `Could not delete post with id of ${id}`};
+        const post = await postCollection.findOne({_id: new ObjectId(id)});
+        if (post === null) {
+            throw `No post found with that Id ${id}`;
         }
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(post.userId.toString())});
+        // console.log(user);
+        // console.log("hello macha!!",user.postIDs);
+        let postIdList = user.postIDs.map(post => post.toString());
+        // console.log(postIdList);
+        // if (user.isAdmin === undefined || !user.isAdmin){
+        //     if(!postIdList.includes(id)){
+        //         throw "Only administrators or the poster can delete posts.";
+        //     }
+        // }
+        const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
+        if (removePost.deletedCount === 0) {
+            throw `Could not delete band with id of ${id}`;
+        }
+        await userData.removePost(post.userId.toString(), id);
+    
         return {
-          postId: id,
-          deleted: true
+            eventId: id,
+            deleted: true
         };
-      },
+    },
 
-      
-      async updatePost(id, category, postedContent, img) {
-        // id = await validation.checkId(id);
-        // category = validation.checkString(category, "category");
-        // postedContent = validation.checkString(postedContent, "postedContent");
-      
-        const postCollection = await posts();
-        const updateFields = {category, postContent: postedContent, img};
-        const options = {returnOriginal: false};
-        const updatedPost = await postCollection.findOneAndUpdate({_id: new ObjectId(id)}, {$set: updateFields}, options);
-      
-        if (!updatedPost.value) {
-          throw new Error('Could not update post');
+    async updatePost(id,
+                     userId,
+                     category,
+                     postedContent) {
+        id = validation.checkId(id);
+        userId = validation.checkId(userId);
+        category = validation.checkLegitName(category, "category");
+        postedContent = validation.checkPhrases(postedContent, "PostedContent");
+        let path = "";
+        if (!image || image.trim().length === 0) {
+            path = "public/images/default.png";
+        } else {
+            path = validation.createImage(image);
         }
-      
-        const post = updatedPost.value;
-        post._id = post._id.toString();
+        const userCollection = await users();
+        const checkPostExist = userCollection.findOne({_id: new ObjectId(id)});
+        if (!checkPostExist) throw `Post is not exist with that ${id}`;
+        const user = await userCollection.findOne({_id: new ObjectId(userId)})
+        if (user.isAdmin === undefined || !user.isAdmin || !user.postIDs.includes(id)) {
+            throw "Only administrators or the poster can delete posts.";
+        }
+        const updatedPost = {
+            category: category,
+            content: postedContent,
+            created_Date: validation.getDate(),
+            image: path
+        }
+        const postCollection = await posts();
+        const post = await postCollection.updateOne({_id: new ObjectId(id)}, {$set: updatedPost});
+        if (!post.acknowledged || post.matchedCount !== 1) {
+            throw "Could not update post with that ID.";
+        }
+        return await postCollection.findOne({_id: new ObjectId(id)});
+    },
+
+    // async getPostByEmail(email) {
+    //     email = validation.checkEmail(email);
+    //     let postIdList = await userData.getPostList(email);
+    //     return await Promise.all(
+    //         postIdList.map(async (eventId) => {
+    //             return await this.getPostById(postId);
+    //         })
+    //     );
+    // },
+
+    async increaseLikes(postId) {
+        const post = await this.getPostById(postId);
+        post.likes++;
+        await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
         return post;
       },
+      
+      async increaseDislikes(postId) {
+        const post = await this.getPostById(postId);
+        post.dislikes++;
+        await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
+        return post;
+      },  
+      
+      async putComment(postId, commentId) {
+        postId = validation.checkId(postId);
+        commentId = validation.checkId(commentId);
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(postId)});
+        if (!post) throw `Error: ${post} not found`;
+        // console.log(post) 
+        let commentIdList = post.commentIds;
+        commentIdList.push(new ObjectId(commentId));
+        const updatedInfo = await postCollection.updateOne(
+            {_id: new ObjectId(postId)},
+            {$set: {commentIds: commentIdList}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${postId}`;
+        return true;
+        },
+
+        async updateDisLikes(postId, liked, disliked){
+            postId = validation.checkId(postId);
+            const postCollection = await posts();
+            const post = await postCollection.findOne({_id: new ObjectId(postId)});
+
+            if(!post) `Error: ${post} not found`;
+            if (!liked && !disliked) {
+                if (post.dislikes > 0) {
+                    post.dislikes--;
+                } else if (post.likes > 0) {
+                    post.likes--;
+                }
+            } else {
+                if (disliked) {
+                    if (liked && post.likes > 0) {
+                        post.likes--;
+                    }
+                    post.dislikes++;
+                } else {
+                    post.dislikes--;
+                }
+            }
+
+
+            const updatedInfo = await postCollection.updateOne(
+                {_id: new ObjectId(postId)},
+                { $set: { likes: post.likes, dislikes: post.dislikes}}
+            );
+            if (updatedInfo.modifiedCount === 0) {
+                throw `Error: Failed to update likes and dislikes for post ${postId}`;
+            }
+            return {likes: post.likes, dislikes: post.dislikes};
+        },
+
+    async updateLikes(postId, liked, disliked){
+        postId = validation.checkId(postId);
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(postId)});
+        if(!post) `Error: ${post} not found`;
+        if (!liked && !disliked) {
+            if (post.likes > 0) {
+                post.likes--;
+            } else if (post.dislikes > 0) {
+                post.dislikes--;
+            }
+        } else {
+            if (liked) {
+                if (disliked && post.dislikes > 0) {
+                    post.dislikes--;
+                }
+                post.likes++;
+            } else {
+                post.likes--;
+            }
+        }
+
+        const updatedInfo = await postCollection.updateOne(
+            {_id: new ObjectId(postId)},
+            { $set: { likes: post.likes, dislikes: post.dislikes }}
+        );
+        if (updatedInfo.modifiedCount === 0) {
+            throw  `Error: Failed to update likes and dislikes for post ${postId}`;
+        }
+        return {likes: post.likes, dislikes: post.dislikes};
     }
-//express session,handlebars
+};
+
 export default exportedMethods;
 
 

@@ -1,22 +1,189 @@
-{{!-- TODO: Change the action below --}}
+{{#each events}}
+  <h2>{{eventName}}</h2>
+  <p>{{description}}</p>
+{{/each}} --}}
+{{!-- <div class="event-card"> --}}
+<body>
+<form method="POST" action="/events" id="event-form" enctype="multipart/form-data">
+    <div class="container center" data-userId="{{userId}}" data-email="{{email}}">
+        <h1 id="event-header">Events</h1>
+        {{#if (if_eq role "admin")}}
+            <div class="inf">
+                <div class="sec-1">
+                    <label for="eventName">Event Name</label>
+                    <div class="sec-2">
+                        <input id="eventName" type="text" name="eventName">
+                    </div>
+                </div>
+            </div>
+            <div class="inf">
+                <div class="sec-1">
+                    <label for="description">Description</label>
+                    <div class="sec-2">
+                        <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
+                    </div>
+                </div>
+            </div>
 
-{{!-- creating event handlebar below --}}
-<form method="POST" action="/create-event">
-<label for="eventName">Event Name: </label>
-<input type="text" name="eventName" required>
+            <div class="inf">
+                <div class="sec-1">
+                    <label for="date">Date: </label>
+                </div>
+                <div class="sec-2">
+                    {{!-- <ion-icon name="calendar-outline"></ion-icon> --}}
+                    <input type="date" name="date" id="date" value="{{date}}" required>
 
-<label for="description">Event Description: </label>
-<textarea name="description" rows="6" maxlength="300" required></textarea>
+                </div>
+            </div>
 
-<label for="buildingName">Building Name: </label>
-<input type="text" name="buildingName" required>
+            <div class="inf">
+                <div class="sec-1">
+                    <label for="buildingName">Select Building :</label>
+                    <div class="sec-2">
+                        <select id="buildingName" name="buildingName">
+                            <option value=""></option>
+                        </select>
 
-<label for="organizer">Organizer: </label>
-<input type="text" name="organizer" required>
+                        <script>
+                            const allowedLocation = [
+                                "Edwin A. Stevens Hall", "Carnegie Laboratory", "Lieb Building", "Burchard Building",
+                                "McLean Hall", "Babbio Center", "Morton-Pierce-Kidde Complex", "Rocco Technology Center", "Nicholl Environmental Laboratory",
+                                "Davidson Laboratory", "Gatehouse", "Griffith Building and Building Technology Tower", "Walker Gymnasium",
+                                "Schaefer Athletic and Recreation Center", "Samuel C. Williams Library and Computer Center", "Jacobus Student Center",
+                                "Alexander House", "Colonial House"
+                            ];
 
-<label for="seatingCapacity">Seating Capacity: </label>
-<input type="number" name="seatingCapacity" required>
+                            const selectElement = document.getElementById("buildingName");
 
-<button type="submit">Create Event</button>
+                            allowedLocation.forEach((location) => {
+                                const option = document.createElement("option");
+                                option.text = location;
+                                option.value = location;
+                                selectElement.appendChild(option);
+                            });
+                        </script>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inf">
+                <div class="sec-1">
+                    <label for="roomNumber">Room Number: </label>
+                    <div class="sec-2">
+                        <input id="roomNumber" type="text" name="roomNumber" placeholder="603, 1st floor, lobby">
+                    </div>
+                </div>
+            </div>
+
+            <div class="inf">
+                <div class="sec-1">
+                    <label for="organizer">Organizer</label>
+                    <div class="sec-2">
+                        <input id="organizer" type="text" name="organizer">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="inf">
+                <div class="sec-1">
+                    <label for="seatingCapacity">Seating Capacity</label>
+                    <div class="sec-2">
+                        <input id="seatingCapacity" type="text" name="seatingCapacity" placeholder="10-500" pattern="[1-4]?[0-9]{1,2}|500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="inf">
+                <div class="sec-1">
+                    <label for="eventImage">Upload Image: </label>
+                    <div class="sec-2">
+                        <input type="file" name="eventImage" id="eventImage">
+                        <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="registerbtn">Create Event</button>
+            <ul class="error" id="eventError" hidden></ul>
+
+        {{/if}}
+    </div>
 </form>
+
+<!--<div class="eventPost-container">-->
+<div class="event-container">
+    {{#each events}}
+        <h2>{{eventName}}</h2>
+        <img id="img-home" src="{{image}}" alt="Post image">
+        <p>Date: {{date}}</p>
+        <p>Organizer: {{organizer}}</p>
+        <div id="attendees-container-{{this._id}}" class="attendees-container" style="display: none">
+            <p class="event-attendees">Attendee: {{numAttendees}}: {{attendees}}</p>
+        </div>
+        <button class="list-btn" data-event_id="{{this._id}}" onclick="showAttendeesPopup('{{this._id}}')">
+            <ion-icon name="people-outline"></ion-icon>
+            Attendee List
+        </button><br>
+        {{#if (is_attendee this.attendees userId)}}
+            {{#if (not_past_date date)}}
+                <button class="cancel-btn" data-event_id="{{this._id}}">
+                    <ion-icon name="close-outline"></ion-icon>
+                    Cancel
+                </button>
+            {{else}}
+                <p class="event-over">You cannot cancel registration for this event.</p>
+            {{/if}}
+        {{else}}
+            {{#if (not_past_date date)}}
+                <button class="register-btn" data-event_id="{{this._id}}">
+                    <ion-icon name="person-add-outline"></ion-icon>
+                    Register
+                </button>
+            {{else}}
+                <p class="event-over">Registration for this event is closed.</p>
+            {{/if}}
+        {{/if}}
+        <br>
+
+        <div id="comments-{{this._id}}" class="comments-container" style="display: none">
+            <form class="comment-form" id="comment-form-{{this._id}}" action="/events/{{this._id}}/comment"
+                  method="POST">
+                <input type="hidden" name="postId" value="{{this._id}}">
+                <label for="comment-text-{{this._id}}">Add a Comment:</label>
+                <input type="text" name="commentText" id="comment-text-{{this._id}}">
+                <input type="submit" value="Submit">
+            </form>
+            {{#each ../ comments}}
+                {{#if (if_eq @key ../_id)}}
+                    {{#each this}}
+                        {{#each this}}
+                            <div class="comment">
+                                <p>Comment: {{contents}} /User Name: {{userName}} - Created
+                                    Date: {{created_Date}}</p>
+                            </div>
+                            <hr>
+                        {{/each}}
+                    {{/each}}
+                {{/if}}
+                {{#if deletable}}
+                    <button class="delete-btn" onclick="deletePost('{{_id}}')" data-event_id="{{this._id}}">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                {{/if}}
+            {{/each}}
+        </div>
+        <p>SeatCapacity: {{seatingCapacity}}</p>
+        <button class="comment-btn" onclick="showCommentsPopup('{{this._id}}', this)" data-_id="{{this._id}}">
+            <ion-icon name="chatbox-ellipses"></ion-icon>
+        </button>
+    {{/each}}
+</div>
+<script src="/public/js/event/eventCancel.js"></script>
+<script src="/public/js/event/commentBtn.js"></script>
+<script src="/public/js/event/attendees.js"></script>
+<script src="/public/js/event/sendEmail.js"></script>
+<script src="/public/js/event/event.js" type="module"></script>
+<script src="/public/js/event/eventRegister.js" type="module"></script>
+<link rel="stylesheet" href="/public/css/events.css">
+</body>
 

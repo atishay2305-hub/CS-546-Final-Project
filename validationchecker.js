@@ -1,4 +1,6 @@
 import {ObjectId} from "mongodb";
+import path from "path";
+import fs from "fs";
 
 const exportedMethods = {
 
@@ -43,12 +45,18 @@ const exportedMethods = {
         return password;
     },
 
+    checkRoom(roomNumber){
+        const regex = /^([0-9]+|lobby|1st|1th\s*floor)$/i;
+        if(!regex.test(roomNumber)) throw "Wrong format of roomNumber";
+        return roomNumber ;
+    },
+
     checkName(name, valName) {
         if (!name) throw `${valName} not provided`;
         if (typeof name !== "string" || name.trim().length === 0) throw `Please provide a valid input of ${valName}`
         name = name.trim();
-        const nameRegex = /^[ a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~.]+$/;
-        if (!nameRegex.test(name)) throw `${valName} must be only contain character a-z and A-Z`
+        const nameRegex = /^[ a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]+$/;
+        if (!nameRegex.test(name)) throw `${valName} must only contain letters, numbers, and common special characters`;
         return name;
     },
 
@@ -77,44 +85,120 @@ const exportedMethods = {
         return phrase;
     },
 
-    checkDOB(DOB) {
-        if (!DOB) throw `DOB not provided`;
-        if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB"
-        const dateRegex = /^(\d{2})-(\d{2})-(\d{4})$/;
-        if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'mm-dd-yyyy";
-        const [_, month, day, year] = DOB.match(dateRegex);
-
-        const currentDate = new Date();
-        const inputDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-
-        if (inputDate > currentDate) {
-            throw "Date of birth must be in the past";
-        }
-        return inputDate;
+    checkComments(phrase, valName) {
+        if (!phrase) throw `${valName} not provided`;
+        if (typeof phrase !== "string" || phrase.trim().length === 0) throw `Please provide a valid input of ${valName}`
+        phrase = phrase.trim();
+        // if (phrase.length < 5)
+        //     throw `${valName} length must greater than 5 characters`;
+        if (phrase.length > 300)
+            throw `${valName} length must less than 300 characters`;
+        return phrase;
     },
 
-    checkLocation(buildingName, valName) {
-        if (!buildingName) throw `${valName} not provided`;
-        if (typeof buildingName !== "string" || buildingName.trim().length === 0) throw `Please provide a valid input of ${valName}`
-        const allowedLocation = ["edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
+
+    checkDOB(DOB) {
+        if (!DOB) throw "DOB not provided";
+        if (typeof DOB !== "string" || DOB.trim().length === 0) throw "Please provide a valid DOB";
+        const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+        if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
+        const [_, year, month, day] = DOB.match(dateRegex);
+
+    
+        const currentDate = new Date();
+    
+        if (DOB > currentDate.toISOString().slice(0, 10)) {
+          throw "Date of birth must be in the past";
+        }
+    
+        const minAge = 13;
+        const minBirthYear = currentDate.getFullYear() - minAge;
+        const birthYear = parseInt(year, 10);
+    
+        const maxBirthYear = 1900;
+        if (birthYear < maxBirthYear) {
+          throw `Invalid year of birth. Please provide a year after ${maxBirthYear}`;
+        }
+    
+        if (birthYear > minBirthYear) {
+          throw `You must be at least ${minAge} years old to register`;
+
+        }
+    
+        return DOB;
+    },
+
+
+
+    checkDate(date) {
+        if (!date) throw "Date not provided";
+        if (typeof date !== "string" || date.trim().length === 0) throw "Please provide a valid date";
+        const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+        if (!dateRegex.test(date)) throw "Invalid date format, should be 'yyyy-mm-dd'";
+        const [_, year, month, day] = date.match(dateRegex);
+        const currentDate = new Date().toISOString().slice(0, 10);
+
+        if (date < currentDate) {
+            throw "Date of event must be in the future";
+        }
+        return date;
+    },
+
+
+    checkRole(role) {
+        if (!role) throw  "Role is not provided";
+        if (typeof role !== "string" || role.trim().length === 0) throw "Role is not a valid type";
+        role = role.trim().toLowerCase();
+        if (role !== "admin" && role !== "user") throw "Please select a role";
+        return role
+    },
+
+    checkDepartment(department) {
+        if (!department) throw "Department is not provided";
+        if (typeof department !== 'string') throw "Department is not a valid type";
+        const allowedDepartment = [
+            "biomedical engineering", "chemistry and chemical biology", "chemical engineering and materials science",
+            "civil, environmental and ocean engineering", "computer science", "electrical and computer engineering",
+            "mathematical sciences", "mechanical engineering", "physics"];
+        department = department.trim().toLowerCase();
+        if (allowedDepartment.includes(department)) {
+            return department;
+        } else {
+            throw "Department select from the existed department from Stevens Institute of Technology.";
+        }
+    },
+
+    checkAuth(authentication) {
+        if (!authentication) return false;
+        if (typeof authentication !== "string" || authentication.trim().length === 0) return false;
+        authentication = authentication.trim().toLowerCase();
+        if (authentication === "getprivilege") {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    checkLocation(building) {
+        if (!building) throw `${building} not provided`;
+        if (typeof building !== "string" || building.trim().length === 0) throw `Please provide a valid input of building`
+        building = building.trim();
+        const allowedLocation = [" ",
+            "edwin a. stevens hall", "carnegie laboratory", "lieb building", "burchard building",
             "mclean hall", "babbio center", "morton-pierce-kidde complex", "rocco technology center", "nicholl environmental laboratory",
             "davidson laboratory", "gatehouse", "griffith building and building technology tower", "walker gymnasium",
             "schaefer athletic and recreation center", "samuel c. williams library and computer center", "jacobus student center",
             "alexander house", "colonial house"];
-        buildingName = buildingName.trim().toLowerCase();
-        if(!allowedLocation.find(loc => buildingName.startsWith(loc))){
+        if (!allowedLocation.includes(building)) {
+            return building;
+        } else {
             throw "Location must be on Stevens Institute of Technology main campus.";
         }
-        return buildingName;
     },
 
-    checkCapacity(seatCapacity){
+    checkCapacity(seatCapacity) {
         if (!seatCapacity) throw "seatCapacity not provided.";
-        if (typeof seatCapacity !== "number") throw "Please provide a number."
-        if (seatCapacity < 5)
-            throw "seatCapacity must greater than 10";
-        if (seatCapacity > 300)
-            throw "seatCapacity must less than 300";
+        seatCapacity = parseInt(seatCapacity);
         return seatCapacity;
     },
 
@@ -122,128 +206,71 @@ const exportedMethods = {
         const date = new Date();
         const year = date.getFullYear();
         const month = ('0' + (date.getMonth() + 1)).slice(-2);
-        const day = ('0' + date.getDay()).slice(-2);
-        const hour = ('0' +date.getHours()).slice(-2);
-        const minute = ('0' +date.getMinutes()).slice(-2);
-        const second = ('0' +date.getSeconds()).slice(-2);
-        return `${year}-${month}-${day} ${hour}:${minute}:${second}`
+        const day = ('0' + date.getDate()).slice(-2);
+        const hour = ('0' + date.getHours()).slice(-2);
+        const minute = ('0' + date.getMinutes()).slice(-2);
+        const second = ('0' + date.getSeconds()).slice(-2);
+        return `${year}/${month}/${day} ${hour}:${minute}:${second}`;
     },
 
-    checkString(strVal, varName){
-      if(!strVal) {
-          throw `Error: You must supply a ${varName}`;
-      }
-      if(typeof strVal !== 'string') {
-          throw `Error: ${varName} must be a string!`;
-      }
-      strVal = strVal.trim();
-      if(strVal.length === 0){
-          throw `Error: ${varName} cannot be an empty string or string with just spaces`;
-      }
-      if(!isNaN(strVal)){
-          throw `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`;
-      }
-      return strVal;
-  },
+    async createImage(image) {
+        const imageName = `${Date.now()}-${Math.floor(Math.random() * 1000)}.jpg`;
+        const dir = path.join(__dirname, '../public/uploads');
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
+        }
+        const imagePath = path.join(dir, imageName);
+        const response = await fetch(image);
+        const buffer = await response.buffer();
+        await fs.promises.writeFile(imagePath, image, buffer);
+        return imagePath;
+    },
 
-  checkSeating(seatingCapacityVal, varName){
-    if(typeof(seatingCapacityVal) !== "number"){
-        throw "The seating Capacity should be of type number."
-      }
-      if(seatingCapacityVal.toFixed(1) < 0){
-        throw "Seating capacity should not be less than 0."
-      }
-      return seatingCapacityVal;
-},
+    async removeImage(image) {
+        try {
+            await fs.promises.unlink(image);
+            console.log(`Image ${image} successfully removed from file system.`);
+        } catch (e) {
+            console.error(`Error removing image ${image} from file system: ${e}`);
+        }
+    },
 
+    checkIdentify(password, confirmPassword) {
+        if (password !== confirmPassword) {
+            throw "ConfirmPassword must be the same as password";
+        }
+        return true;
+    },
 
-    checkPostEventConditions(event){
-        if (!event) {
-          throw "No event data provided.";
+    checkCategory(category) {
+        if (!category) throw "Category is not provided";
+        if (typeof category !== 'string' || category.trim().length === 0) throw "Category is not a valid type";
+        category = category.trim().toLowerCase();
+        const allowCategories = ["education", "sports", "entertainment", "lost&found"]
+        if (allowCategories.includes(category)) {
+            return category;
+        } else {
+            throw "Category must select from the list"
         }
-      
-        if (typeof event !== "object") {
-          throw "Event data should be an object.";
-        }
-      
-        if (!event.eventName) {
-          throw "You must provide a name for the event.";
-        }
-      
-        if (typeof event.eventName !== "string") {
-          throw "The event name should be a string.";
-        }
-      
-        if (event.eventName.trim().length === 0) {
-          throw "Event name cannot be an empty string or just spaces.";
-        }
-      
-        if (!event.description) {
-          throw "You must provide a description for the event.";
-        }
-      
-        if (typeof event.description !== "string") {
-          throw "The description should be a string.";
-        }
-      
-        if (event.description.trim().length === 0) {
-          throw "Description cannot be an empty string or just spaces.";
-        }
-      
-        if (!event.buildingName) {
-          throw "You must provide a building name for the event.";
-        }
-      
-        if (typeof event.buildingName !== "string") {
-          throw "The building name should be a string.";
-        }
-      
-        if (event.buildingName.trim().length === 0) {
-          throw "Building name cannot be an empty string or just spaces.";
-        }
-      
-        if (!event.organizer) {
-          throw "You must provide an organizer for the event.";
-        }
-      
-        if (typeof event.organizer !== "string") {
-          throw "The organizer should be a string.";
-        }
-      
-        if (event.organizer.trim().length === 0) {
-          throw "Organizer cannot be an empty string or just spaces.";
-        }
-      
-        if (!event.seatingCapacity) {
-          throw "You must provide seating capacity for the event.";
-        }
-      
-        if (typeof event.seatingCapacity !== "number") {
-          throw "The seating capacity should be a number.";
-        }
-      
-        if (event.seatingCapacity <= 0) {
-          throw "The seating capacity must be a positive number.";
-        }
-      
-        // Validate any other fields that you require here.
-      
-        const validatedEvent = {
-          eventName: event.eventName,
-          description: event.description,
-          buildingName: event.buildingName,
-          organizer: event.organizer,
-          seatingCapacity: event.seatingCapacity,
-          userId: event.userId,
-          // Include any other validated fields here.
-        };
-      
-        return validatedEvent;
-      }
-      
-      
+    },
 
+    checkAddress(address) {
+        if (!address) throw "Address is not provided";
+        const addressRegex = /^\s*(\S+(\s+\S+)*)\s*,\s*(\S+(\s+\S+)*)\s*,\s*(\S+)\s*,\s*(\d{5})\s*$/;
+        const match = address.match(addressRegex)
+        if (match) {
+            const address = match[1].trim().toLowerCase();
+            const city = match[3].trim().toLowerCase();
+            const state = match[5].trim().toLowerCase();
+            const zip = match[6];
 
-};
+            return `${address}, ${city}, ${state}, ${zip}`;
+        } else {
+            throw "Invalid address format. Please provide address, city, state, and ZIP code separated by commas";
+        }
+    }
+
+}
+
 
 export default exportedMethods;
