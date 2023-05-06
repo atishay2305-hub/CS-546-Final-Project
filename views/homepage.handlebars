@@ -1,9 +1,3 @@
-<div id="search">
-    <form action="/search" method="GET">
-        <input type="text" name="query" placeholder="Search Events Here">
-        <button type="submit">Search</button>
-    </form>
-</div>
 {{#each posts}}
     <div class="post-container">
         <h2>{{content}}</h2>
@@ -13,11 +7,13 @@
         <p>Category: {{category}}</p>
         <p>Created by: {{name}}</p>
         <p>Created at: {{created_Date}}</p>
+
         <p>Address: {{address}}</p>
         {{!-- <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
         <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button> --}}
         <button type="submit" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
         <button type="submit" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button>
+
         <div class="comments-container">
             <h3>Comments:</h3>
             {{#each comments}}
@@ -34,15 +30,20 @@
                 <input type="text" name="commentText" id="comment-text-{{_id}}">
                 <input type="submit" value="Submit">
             </form>
+
+            <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a>
+
             {{!-- <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a> --}}
             <a href="/posts/{{_id}}/allComments" id="view-comments-{{_id}}">View Comments</a>
             
+
         </div>
         {{#if deletable}}
             <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
         {{/if}}
     </div>
 {{/each}}
+
 <script>
 
     function myFunction(x) {

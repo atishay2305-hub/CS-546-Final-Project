@@ -16,25 +16,42 @@ import {dirname} from 'path';
 
 const __dirname = dirname(__filename);
 const staticDir = express.static(__dirname + '/public');
-app.use('/public', staticDir);
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+
 app.use('/public', staticDir);
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
+
+import {userData} from "./data/index.js";
+
 import eventsRoutes from './routes/events.js';
 import { title } from "process";
 
 app.use('/', eventsRoutes);
 
+
 const hbs = exphbs.create({
     defaultLayout: 'main',
     helpers: {
-        if_eq: function (val1, val2){
+        if_eq: function (val1, val2) {
             return val1 === val2;
+        },
+
+        is_attendee: function (attendees, userId) {
+            if(!attendees) return false;
+            const attendeeList = attendees.split(',');
+            const attendeeIds = attendeeList.map(attendee => attendee.split('userId: ')[1].split(' ')[0]);
+            return attendeeIds.includes(userId);
+        },
+
+        not_past_date: function (date) {
+            const eventDate = new Date(date).toISOString().slice(0, 10);
+            const now = new Date().toISOString().slice(0, 10);
+            return eventDate >= now;
         }
     }
 });
+
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
@@ -57,12 +74,13 @@ const store = new MongoDBStore({
 app.use(session({
     name: 'AuthCookie',
     secret: 'myKeySecret',
+    saveUninitialized: true,
+    resave: false
+
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7 
       },
     store: store,
-    resave: true,
-    saveUninitialized: true
 }));
 
 
@@ -84,7 +102,9 @@ app.use('/search', isLoggedIn)
 app.use('/searchResults', isLoggedIn);
 app.use('/allComments', isLoggedIn);
 app.use('/discussionResults', isLoggedIn);
+
 app.use('/searchDiscussions', isLoggedIn);
+
 app.use('/protected', isLoggedIn);
 
 app.use('/login', (req, res, next) => {
@@ -114,7 +134,7 @@ app.use('/logout', (req, res) => {
     req.session.destroy();
     return res.render('logout', {title: 'logout'});
 });
-  
+
 
 configRoutes(app);
 

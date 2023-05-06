@@ -4,6 +4,7 @@ body {
   background-size: cover;
 }
 
+
 header {
   border-bottom: 1px solid #be3144;
 }
@@ -170,6 +171,5 @@ a {
   text-align: center;
 }
 
-#map {
-  height: 180px
-}
+#map { height: 180px; }
+

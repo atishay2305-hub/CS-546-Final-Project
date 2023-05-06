@@ -21,7 +21,6 @@ const passwordResetByEmail = async ({id, email}, res) => {
         const result = await transporter.sendMail(mailOptions);
         if(result) {
              return res.redirect('/login');
-
         }else{
             return res.json({
                 success: true,
@@ -37,31 +36,30 @@ const passwordResetByEmail = async ({id, email}, res) => {
 }
 
 const registrationConfirmByEmail = async ({id, email}, res) => {
-    try{
-        const url = `http://localhost:3000/event/registratoin/${id}`;
+    try {
+        const url = `http://localhost:3000/events/registration/confirm/${id}`;
         const mailOptions = {
             from: "stevenseventboard@gmail.com",
             to: email || "stevenseventboard@gmail.com",
             subject: "Confirm your registration",
-            html: `<p>Click <a href="${url}">here</a> to confirm event registration.</p>`
-        }
+            html: `<p>Please login to the system to verify the user status first, then click <a href="${url}">here</a> to confirm event registration. </p>`
+        };
         const result = await transporter.sendMail(mailOptions);
-        if(result) {
-            return res.redirect('/homepage');
-
-        }else{
+        if (result) {
+            return res.json({ success: true, message: "Confirmation email sent successfully" });
+        } else {
             return res.json({
                 success: true,
                 message: "Link was sent to your email"
             })
         }
-    }catch (e){
+    } catch (e) {
         return res.status(500).json({
             success: false,
             message: "Some error occurred, try again later"
         })
     }
-}
+};
 
 
-export {passwordResetByEmail}
+export {passwordResetByEmail, registrationConfirmByEmail}

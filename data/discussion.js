@@ -5,34 +5,35 @@ import {userData } from "./index.js";
 
 
 let exportedMethods = {
-
-    async createDiscussion(category, description,userId) {
-
+    async createDiscussion(category, topic, discussion, userName, req) {
         category = validation.checkLegitName(category, "category");
-        description = validation.checkPhrases(description, "Description");
+
+        // description = validation.checkPhrases(description, "Description");
         // const userId = validation.checkId(userId);
+
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) {
-          throw `The user does not exist with that Id &{id}`;
+            throw `The user does not exist with that Id &{id}`;
         }
         if (user.isAdmin) {
-          throw "Discussion can only be created by users."
+            throw "Discussion can only be created by users."
         }
-      
+
         let discuss = {
-          category: category,
-          description: description,
-          userId: user._id,
-          created_Date: validation.getDate(),
-          replyId:[]
+            category: category,
+            topic: topic,
+            discussion: discussion,
+            userId: userId,
+            created_Date: validation.getDate(),
+            commentIds: {}
         };
         const discussionCollection = await discussion();
         let insertInfo = await discussionCollection.insertOne(discuss);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-          throw "Could not add discussion.";
+            throw "Could not add discussion.";
         }
-      
+
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
         return insertInfo;
@@ -51,7 +52,7 @@ let exportedMethods = {
 
     async getDiscussionById(id) {
         id = await validation.checkId(id);
-        const discussionCollection = await discussion();
+        const discussionCollection = await posts();
         const discuss = await discussionCollection.findOne({_id: new ObjectId(id)});
         if (discuss === null) {
             throw `No discussion was found with that ID ${id}`;
@@ -80,6 +81,7 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(discuss.userId)});
+        //console.log(user.postID);
         if (user.isAdmin === undefined || !user.isAdmin) {
             if(!user.postIDs.includes(id)){
                 throw "Only administrators or the poster can delete the discussion.";
@@ -95,6 +97,7 @@ let exportedMethods = {
             eventId: id,
             deleted: true
         };
+
 
     },
     
@@ -147,7 +150,7 @@ let exportedMethods = {
 
     }
 };
-
+//express session,handlebars
 export default exportedMethods;
 
 

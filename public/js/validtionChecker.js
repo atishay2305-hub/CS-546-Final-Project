@@ -19,7 +19,24 @@ const authCheck = {
         return name;
     },
 
-    checkLoginPass(password){
+    checkComment(comment) {
+        // Check if the comment is empty or only contains whitespace
+        if (!comment || /^\s*$/.test(comment)) {
+            return false;
+        }
+
+        // Check if the comment contains any inappropriate language
+        const inappropriateWords = ['bad', 'hate', 'stupid', 'ugly', 'disgusting', 'offensive'];
+        for (const word of inappropriateWords) {
+            if (comment.toLowerCase().includes(word)) {
+                comment = comment.replaceAll(word, '***');
+            }
+        }
+
+        // Return the updated comment
+        return comment;
+    },
+    checkLoginPass(password) {
         if (!password) throw "Password not provided";
         if (password.length < 8 || password.length > 25) throw "Password must be at least 8 characters and less than 25 characters";
         return password;
@@ -36,8 +53,8 @@ const authCheck = {
         return password;
     },
 
-    checkIdentify(password, confirmPassword){
-        if(password !== confirmPassword){
+    checkIdentify(password, confirmPassword) {
+        if (password !== confirmPassword) {
             throw "ConfirmPassword must be the same as password";
         }
         return true;
@@ -92,6 +109,7 @@ const authCheck = {
         const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
         const [_, year, month, day] = DOB.match(dateRegex);
+
     
         const currentDate = new Date();
     
@@ -107,15 +125,29 @@ const authCheck = {
         if (birthYear < maxBirthYear) {
           throw `Invalid year of birth. Please provide a year after ${maxBirthYear}`;
         }
-    
-        if (birthYear > minBirthYear) {
-          throw `You must be at least ${minAge} years old to register`;
-        }
-    
         return DOB;
     },
-    
-      
+
+    checkDate(date) {
+        if (!date) throw "Date not provided";
+        if (typeof date !== "string" || date.trim().length === 0) throw "Please provide a valid date";
+        const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+        if (!dateRegex.test(date)) throw "Invalid date format, should be 'yyyy-mm-dd'";
+        const [_, year, month, day] = date.match(dateRegex);
+        const currentDate = new Date().toISOString().slice(0, 10);
+
+        if (date < currentDate) {
+            throw "Date of event must be in the future";
+        }
+        return date;
+    },
+
+    checkRoom(roomNumber) {
+        const regex = /^([0-9]+|lobby|1st|1th\s*floor)$/i;
+        if (!regex.test(roomNumber)) throw "Wrong format of roomNumber";
+        return roomNumber;
+    },
+
 
     checkRole(role) {
         if (!role) throw  "Role is not provided";
@@ -150,16 +182,14 @@ const authCheck = {
         }
     },
 
-
     checkCategory(category) {
         if (!category) throw "Category is not provided";
         if (typeof category !== 'string' || category.trim().length === 0) throw "Category is not a valid type";
         category = category.trim().toLowerCase();
-        const allowCategories = ["education", "sports", "entertainment", "lost&found"]
+        const allowCategories = ["education", "sports", "entertainment", "lost&found"];
         if (allowCategories.includes(category)) {
             return category;
         } else {
-
             throw "Category must select from the list"
         }
     },
@@ -194,31 +224,24 @@ const authCheck = {
 
     checkCapacity(seatCapacity) {
         if (!seatCapacity) throw "seatCapacity not provided.";
-        if (typeof seatCapacity !== "number") throw "Please provide a number."
-        if (seatCapacity < 5)
-            throw "seatCapacity must greater than 10";
-        if (seatCapacity > 300)
-            throw "seatCapacity must less than 300";
+        seatCapacity = parseInt(seatCapacity);
         return seatCapacity;
     },
 
-    checkAddress(address){
+    checkAddress(address) {
         const addressRegex = /^\s*(\S+(\s+\S+)*)\s*,\s*(\S+(\s+\S+)*)\s*,\s*(\S+)\s*,\s*(\d{5})\s*$/;
         const match = address.match(addressRegex)
-        if(match){
+        if (match) {
             const address = match[1].trim().toLowerCase();
             const city = match[3].trim().toLowerCase();
             const state = match[5].trim().toLowerCase();
             const zip = match[6];
 
             return `${address}, ${city}, ${state}, ${zip}`;
-        }else{
+        } else {
             throw "Invalid address format. Please provide address, city, state, and ZIP code separated by commas";
         }
     }
-
-
-
 
 
 }
