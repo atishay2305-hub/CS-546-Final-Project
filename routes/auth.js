@@ -799,8 +799,8 @@ router.route('/discuss').get(async (req, res) => {
 
 router.route('/discuss').post(async (req, res) => {
   const userId = req.session.user.userId;
-  description = validation.checkPhrases(description);
-category = validation.checkCategory()
+//   description = validation.checkPhrases(description);
+// category = validation.checkCategory()
   const { category, description } = req.body;
 
   const discuss = await discussData.createDiscussion(category, xss(description), userId); 

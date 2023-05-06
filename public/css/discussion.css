@@ -1,3 +1,60 @@
+/* Override Bootstrap styles */
+.discussion-panel .btn-primary {
+  /* Add your custom styles here */
+  color: #fff;
+  background-color: blue;
+  border-color: blue;
+}
+
+#filters .btn-dark {
+  /* Add your custom styles here */
+  color: #fff;
+  background-color: #343a40;
+  border-color: #343a40;
+}
+
+.discussion {
+  /* Add your custom styles here */
+  color: #333;
+}
+.discussion-panel .discussion .text-primary {
+  color: blue !important;
+}
+
+.discussion-panel .discussion .replies .btn-success {
+  background-color: green !important;
+  border-color: green !important;
+}
+
+.discussion-panel .discussion .replies .btn-info {
+  background-color: green !important;
+  border-color: green !important;
+}
+
+
+
+.replies .btn-info {
+  /* Add your custom styles here */
+  color: #fff;
+  background-color: green;
+  border-color: green;
+}
+
+.reply-form .btn-success {
+  /* Add your custom styles here */
+  color: #fff;
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.modal-content .btn-primary {
+  /* Add your custom styles here */
+  color: #fff;
+  background-color: blue;
+  border-color: blue;
+}
+
+
 .container {
   max-width: 600px;
   margin: 50px auto;
@@ -28,7 +85,7 @@ select, textarea {
 }
 
 input[type="submit"] {
-  background-color: #00539C;
+  background-color: blue;
   color: white;
   border: none;
   border-radius: 5px;
@@ -59,7 +116,7 @@ input[type="submit"] {
 }
 
 #category:focus, #description:focus {
-  border-color: #00539C;
+  border-color: blu;
 }
 
 .container {
@@ -75,16 +132,16 @@ input[type="submit"] {
 }
 
 .discussion h1 {
-  color: #00539C; 
+  color: blue; 
   text-align: left;
 }
 
 .discussion h2 {
-  color: #00539C;
+  color: blue;
 }
 
 .discussion p {
-  color: #333;
+  color: black;
   margin-bottom: 10px;
 }
 
