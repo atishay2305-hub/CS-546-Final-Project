@@ -623,6 +623,14 @@ router
         }
     });
 
+    router.use('/logout', (req, res) => {
+        if (!req.session.user) {
+            return res.render('login', {title: 'Login'});
+        }
+        req.session.destroy();
+        return res.render('logout', {title: 'logout'});
+    });
+
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
     const user = await userData.getUserByID(id);
