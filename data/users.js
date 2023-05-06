@@ -2,6 +2,7 @@ import {users, events} from '../config/mongoCollections.js';
 import bcrypt from 'bcrypt'
 import validation from '../validationchecker.js';
 import {ObjectId} from "mongodb";
+import {userData} from "./index.js";
 
 
 let exportedMethods = {
@@ -41,6 +42,8 @@ let exportedMethods = {
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (checkExist) throw "Sign in to this account or enter an email address that isn't already in user.";
+        const checkUserNameExist = await userCollection.findOne({userName: userName});
+        if (checkUserNameExist) throw "User name already exists.";
         let user = {
             firstName: firstName,
             lastName: lastName,
@@ -49,6 +52,7 @@ let exportedMethods = {
             password: await bcrypt.hash(password, 10),
             DOB: DOB,
             commentIDs: [],
+            eventAttend: [],
             role: role,
             department: department,
             authentication: false
@@ -63,9 +67,6 @@ let exportedMethods = {
             user.role = 'user';
             user.authentication = authentication;
 
-
-            const checkUserNameExist = await userCollection.findOne({userName: userName});
-            if (checkUserNameExist) throw "User name already exists.";
         }
 
         const insertInfo = await userCollection.insertOne(user);
@@ -316,49 +317,71 @@ let exportedMethods = {
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) throw `User with that ID${userId} not found`; //check password as well
         const eventCollection = await events()
-        const event = eventCollection.findOne({_id: new ObjectId(eventId)});
+        const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Event with that ID${eventId} not found`;
         const {attendees, seatingCapacity} = event;
-        if (attendees.length >= seatingCapacity) {
+        const length = seatingCapacity - Object.keys(attendees).length
+        if (length <= 0) {
             throw "Sorry, the event is already fully booked";
         }
         const attendeeName = `${user.firstName} ${user.lastName}`;
-        attendees.push({id: userId, name: attendeeName});
+        attendees[seatingCapacity - length] = {id: userId, name: attendeeName};
         const updateInfo = await eventCollection.updateOne(
             {_id: new ObjectId(eventId)},
             {$set: {attendees}}
         )
-
         if (!updateInfo.matchedCount || !updateInfo.modifiedCount) {
             throw `Could not update event with attendee`;
         }
+        const eventAttended = user.eventAttend;
+        eventAttended.push(eventId);
+        const updatedInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {eventAttended}}
+        )
+        if (!updatedInfo.matchedCount || !updatedInfo.modifiedCount) {
+            throw `Could not update attendee with event`;
+        }
 
-        return `Successfully added ${attendeeName} as an attendee to the event.`
+        return {updateInfo: true, eventId: eventId};
 
     },
 
     async removeAttendee(userId, eventId) {
         userId = validation.checkId(userId);
         eventId = validation.checkId(eventId);
+
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `User with that ID${userId} not found`; //check password as well
-        const eventCollection = await events()
-        const event = eventCollection.findOne({_id: new ObjectId(eventId)});
-        if (!event) throw `Event with that ID${eventId} not found`;
-        const updatedList = event.attendees.filter(attendee => attendee.id !== userId);
-        if (updatedList.length === event.attendees.length) throw `User with ID ${userId} is not attending event with ID ${eventId}`;
+        if (!user) throw `User with ID ${userId} not found`;
+
+        const eventCollection = await events();
+        const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
+        if (!event) throw `Event with ID ${eventId} not found`;
+
+        const updatedAttendees = {};
+        let attendeeRemoved = false;
+        for (const [attendeeId, attendeeData] of Object.entries(event.attendees)) {
+            if (attendeeData.id !== userId) {
+                updatedAttendees[attendeeId] = attendeeData;
+            } else {
+                attendeeRemoved = true;
+            }
+        }
+        if (!attendeeRemoved) {
+            throw `User with ID ${userId} is not attending event with ID ${eventId}`;
+        }
+
         const updateInfo = await eventCollection.updateOne(
             {_id: new ObjectId(eventId)},
-            {$set: {attendees: updatedList}}
-        )
-        if (!updateInfo.matchedCount || !updateInfo.modifiedCount) throw `Could not update event with ID ${eventId}`;
+            {$set: {attendees: updatedAttendees}}
+        );
+        if (!updateInfo.matchedCount || !updateInfo.modifiedCount) {
+            throw `Could not update event with ID ${eventId}`;
+        }
 
-        return `Successfully removed ${user.firstName} ${user.lastName} from the event with ID ${eventId}`;
+        return {deleteInfo: true, eventId: eventId};
     },
-
-
-
 
     async putComment(userId, commentId) {
         userId = validation.checkId(userId);
@@ -413,7 +436,6 @@ let exportedMethods = {
 
     },
 
-
     async removeUserById(userId) {
         userId = validation.checkId(userId);
         const userCollection = await users();
@@ -424,6 +446,45 @@ let exportedMethods = {
             throw `Could not delete user with id of ${userId}`;
         }
         return `The user ${user._id} has been successfully deleted!`;
+    },
+
+    async putEventAttended(userId, eventId){
+        userId = validation.checkId(userId);
+        eventId  = validation.checkId(eventId);
+        const user = await userData.getUserByID(userId);
+        if (!user) throw `Error: ${userId} not found`; //check password as well
+        const eventIndex = user.eventAttended.findIndex(event => event.eventId === eventId);
+        let eventAttended = user.eventAttended;
+        if (eventIndex === -1) {
+            // event not found in eventAttended array, add it
+            eventAttended.push({eventId: eventId});
+        }
+        const userCollection = await users();
+        const updateInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {eventAttended: eventAttended}}
+        )
+        if (!updateInfo.acknowledged || updateInfo.matchedCount !== 1) {
+            throw `Error: could not update userId ${userID}`;
+        }
+        return  true;
+    },
+
+    async removeEventAttended(userId, eventId){
+        userId = validation.checkId(userId);
+        eventId  = validation.checkId(eventId);
+        const user = await userData.getUserByID(userId);
+        if (!user) throw `Error: ${userId} not found`; //check password as well
+        let eventAttended = user.eventAttended.filter(event => event.eventId !== eventId);eventAttended.push({eventId: eventId});
+        const userCollection = await users();
+        const updateInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {eventAttended: eventAttended}}
+        )
+        if (!updateInfo.acknowledged || updateInfo.matchedCount !== 1) {
+            throw `Error: could not update userId ${userId}`;
+        }
+        return  true;
     }
 }
 

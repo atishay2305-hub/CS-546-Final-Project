@@ -43,23 +43,21 @@ import authCheck from "../validtionChecker.js";
                 fetch("/posts", {
                     method: "post",
                     body: formData,
-                })
-                    .then((response) => {
+                }).then((response) => {
                         if (!response.ok) {
                             return response.json();
                         }
-                    })
-                    .then((data) => {
+                    }).then((data) => {
                         if (data) {
                             if (!data.success) {
                                 document.getElementById("postCategory").value = data.category;
                                 document.getElementById("postContent").value = data.postContent;
                                 document.getElementById("address").value = data.address;
-                                return handleError(data || "Something went wrong.");
+                                return handleError(data.message || "Something went wrong.");
                             }
                         }
 
-                        location.href = "/homepage";
+                        location.href = "/posts";
                     })
                     .catch((e) => {
                         alert(e || "Something went wrong.");
