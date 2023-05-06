@@ -2,6 +2,9 @@
 {{#if (if_eq role "user")}}
 <form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
     <div class="container center">
+         <div class="my-3 text-right">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDiscussionModal"> + New Post</button>
+            </div>
         <h1 class="title">Posts</h1>
         <div class="inf">
             <div class="sec-1">
