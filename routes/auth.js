@@ -3,10 +3,10 @@ import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
 import eventsData from '../data/events.js'
-import discussData from '../data/discussion.js';
 import validation from '../validationchecker.js';
 import multer from "multer";
 import path from "path";
+import bcrypt from 'bcrypt';
 import {passwordResetByEmail} from "../email.js";
 import xss from 'xss';
 import {comments, users, posts} from '../config/mongoCollections.js';
@@ -31,27 +31,13 @@ const storage = multer.diskStorage({
     },
 });
 
-const eventStorage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, "./public/images");
-    },
-    filename: function (req, file, cb) {
-
-        const timestamp = new Date().getTime();
-        const randomString = Math.random().toString(36).slice(2);
-        const ext = path.extname(file.originalname);
-        const filename = `${timestamp}-${randomString}${ext}`;
-        cb(null, filename);
-    },
-});
-
 const upload = multer({storage: storage});
 const uploadImage = upload.single("postImage");
-const eventUpload = multer({storage: eventStorage});
-const eventUploadImage = eventUpload.single("postImage");
 
 
-router.route('/').get(async (req, res) => { 
+
+router.route('/').get(async (req, res) => {
+
     if (req.session.user) {
         return res.status(200).redirect('/homepage');
     } else {
@@ -74,9 +60,14 @@ router
             email = validation.checkEmail(email);
             password = validation.checkPassword(password);
             const sessionUser = await userData.checkUser(email, password);
-            if(sessionUser){
-              req.session.user = {userName: sessionUser.userName, email: sessionUser.email ,userId: sessionUser.userId, role: sessionUser.role}; 
-            //   res.cookie('AuthCookie', true );
+
+            req.session.user = {
+                userName: sessionUser.userName,
+                email: sessionUser.emailAddress,
+                userId: sessionUser.userId,
+                role: sessionUser.role
+            };
+
             return res.redirect('/homepage');
             }
         } catch (e) {
@@ -97,7 +88,10 @@ router
         return res.status(200).render('register', {title: "Register Page"});
     })
     .post(async (req, res) => {
+
+
         try {
+            // removed dept
 
             let firstName = xss(req.body.firstName);
             let lastName = xss(req.body.lastName);
@@ -150,13 +144,18 @@ router
 router.route('/homepage').get(async (req, res) => {
     const userId = req.session.user.userId;
 
+    console.log(userId);
+
+    // console.log(userId)
+    //const email = req.session.email;
+    //useremail from session and will just keep it
+
     //const user = await userData.getUserByID(userId);
     //const postList = await userData.getPostList(user.email);
 
     //user info from ID
     //getpost list if true
-    const userName = req.session.userName;
-    // console.log(userName)
+    const userName = req.session.user.userName;
     // console.log(userName);
     //console.log(postList);
     const postList = await postData.getAllPosts();
@@ -166,16 +165,10 @@ router.route('/homepage').get(async (req, res) => {
     for (let x of postList) {
         let resId = x?.userId;
 
-        // console.log(resId);
-
         let resString = resId.toString();
 
         const user = await userData.getUserByID(resString);
         x.name = user.userName;
-        if(x.category === 'lost&found'){
-            x.addressCheck = true;
-        }
-
         if (resString === userId) {
             x.editable = true;
             x.deletable = true;
@@ -231,10 +224,12 @@ router.route('/posts')
         });
 
         // Render the 'posts' template with posts and commentsByPostId
+
         return res.render('posts', {role: req.session.user.role, posts: posts, comments: comments, title: 'Posts'});
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
+
         const userName = req.session.user.userName;
         const role = req.session.user.role;
         if (role === 'admin') {
@@ -256,13 +251,17 @@ router.route('/posts')
                 imagePath = 'images/default.jpg';
             }
 
-            if(category === 'lost&found'){
+            if (category === 'lost&found') {
                 address = xss(req.body.address);
                 address = validation.checkAddress(address);
             }
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
-            return res.redirect('/homepage');
+
+
+            console.log("The post is posted");
+            return res.redirect('/posts');
+
         } catch (e) {
             return res.status(400).json({
                 success: false,
@@ -275,126 +274,13 @@ router.route('/posts')
 
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
+
+    // console.log(id);
+
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user, title: 'Profile'});
 });
 
-router.route('/events').get(async (req, res) => {
-    try {
-
-        const userId = req.session.user.userId;
-        if (!userId) {
-            throw ('User ID not found in session');
-        }
-
-        //const userCollection = await users();
-        const userExists = await userData.getUserByID(userId);
-
-        if (!userExists) {
-            throw new Error('No user found');
-        }
-
-
-
-        const events = await eventsData.getAllEvents();
-        let isAdmin;
-       
-        if (userExists.role === 'admin') {
-            isAdmin = true;
-            for (const x of events) {
-                x.editable = true;
-                x.deletable = true;
-            }
-        }
-
-
-        //   for (let x of events){
-
-        //     let resId = x?.userId;
-        //     let resString= resId.toString();
-
-        //     const user = await userData.getUserByID(resString);
-        //     x.name =user.userName;
-        //     //console.log(user.userName);
-        //     //console.log(resString);
-        //     //console.log(x.userName);
-        //     if(resString === userId){
-        //         x.editable =true;
-        //         x.deletable = true;
-        //     }else{
-        //         x.editable = false;
-        //         x.deletable = false;
-        //     }
-        // }
-
-        
-        return res.render('events', {newEvent: events, isAdmin: isAdmin, title: 'Events'});
-
-    } catch (error) {
-        res.status(500).json({error: error});
-    }
-});
-
-
-router.route('/events').post(eventUploadImage, async (req, res) => {
-
-    const user = req.session.user;
-    try {
-        let imagePath = '';
-        if (req.file) {
-            imagePath = req.file.path.replace('public', '');
-        } else {
-            imagePath = 'images/default.jpg';
-        }
-        const {eventName, description, buildingName, organizer, seatingCapacity} = req.body;
-        const newEvent = await eventsData.createEvent(eventName, description, buildingName, organizer, seatingCapacity, imagePath, req);
-        return res.redirect('/events');
-        //   const gettingAllEvents = await eventsData.getAllEvents();
-
-        //   for (let x of gettingAllEvents){
-
-        //     let resId = x?.userId;
-        //     let resString= resId.toString();
-
-        //     const user = await userData.getUserByID(resString);
-        //     x.name =user.userName;
-
-        //     //console.log(user.userName);
-        //     //console.log(resString);
-        //     //console.log(x.userName);
-
-        //     if(resString === userId){
-        //         x.editable =true;
-        //         x.deletable = true;
-        //     }else{
-        //         x.editable = false;
-        //         x.deletable = false;
-        //     }
-        // }
-
-        //return res.status(200).render('events', {newEvent: gettingAllEvents});
-    } catch (error) {
-        return res.status(500).json({error: error});
-    }
-});
-
-router
-    .route('/events/registration/:id')
-    .get(async (req, res) => {
-        try {
-            return res.render("eventRegister", {id: req.params.id, title: 'Event Register'});
-        } catch (e) {
-            return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
-        }
-    })
-    .post(async (req, res) => {
-
-    })
-
-router.route('/events/capacity/:id').post(async (req, res) => {
-    const id = req.params.id; 
-    const {seatingCapacity, attendance,reaction} = req.body;
-    const userId = req.session.user.userId;
     try {
         let newSeatingCapacity = seatingCapacity;
         if (typeof newSeatingCapacity === 'string') {
@@ -412,6 +298,7 @@ router.route('/events/capacity/:id').post(async (req, res) => {
         );
         return res.render('events', {newEvent: result, title: 'Eveents'});
     } catch (e) {
+        console.log(e);
         return res.status(400).json({error: e});
     }
 });
@@ -444,8 +331,7 @@ router.route('/posts/:id').delete(async (req, res) => {
     }
 });
 
-router.route('/events/:id') 
- .get(async (req, res) => {
+router.route('/posts/:id/comment').post(async (req, res) => {
     try {
         const userId = req.session.user.userId;
         const postId = req.params.id;
@@ -459,8 +345,11 @@ router.route('/events/:id')
         console.log('The comment is added');
         return res.redirect('/posts');
     } catch (e) {
-        return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
+        console.log(e);
     }
+
+});
+
 })
 .delete(async (req, res) => {
     //console.log(req.params.id);
@@ -489,69 +378,20 @@ router.route('/events/:id')
 
         // console.log("hi", responseEvent.deleted);
 
-        return res.sendStatus(200);
-
-    } catch (e) {
-        return res.status(404).json({ error: 'Resource not found' });
-    }
 
 
-    //res.send(response);
-
-})
-.put(async (req, res) => {
-      let id = req.params.id; // fix the id variable assignment
-      let updatedData = req.body;
-      if(!updatedData || Object.keys(updatedData).length === 0){ // fix the condition to check for empty object
-          return res.status(400).json({error: `There are no fields in the request body`});
-      }
-      
-     
-      try{
-          const result = await eventsData.updateEvent(
-              id, // pass the correct id variable
-              userId,
-              updatedData.eventName,
-              updatedData.description,
-              updatedData.buildingName,
-              updatedData.organizer,
-              updatedData.seatingCapacity,
-             
-          );
-          res.status(200).json(result);
-      }catch (e){
-          return res.status(400).json({error: e});
-      }
-    });
 
 
-router.route('/events/:id/comment').post(async (req, res) => {
-    try {
-        const userId = req.session.user.userId;
-        const eventId = req.params.id;
-        const {commentText} = req.body;
-        // console.log(postId);
-        // console.log(commentText);
-        const comment = await commentData.createComment(userId, eventId, null, commentText, "event");
-        const post = await eventsData.putComment(eventId, comment.commentId);
-        return res.sendStatus(200);
-    } catch (e) {
-        return res.status(404).json({ error: 'Resource not found' });
-    }
-});
+// router.route('/logout')
+//   .get(async (req, res) => {
+//     if (req.cookies.AuthCookie) {
+//       res.clearCookie('AuthCookie');
+//     }
+//     res.redirect('/');
+//   });
 
+// router.route('/add-comment').post(async(req,res)=>{
 
-router.route('/putAttendee').post(async (req, res) => {
-    const userId = req.session.user.userId;
-    const eventId = req.body;
-    const userCollection = await userData.putAttendee(userId, eventId);
-});
-
-router.route('/removeAttendee').get(async (req, res) => {
-    const userId = req.session.id;
-    const eventId = req.body;
-    const userCollection = await userData.removeAttendee(userId, eventId);
-});
 
 router
     .route('/reset-password/:id')
@@ -578,6 +418,51 @@ router
             res.redirect('/login');
         } catch (e) {
             return res.status(400).render("/resetPassword", {
+                success: false,
+                id: req.body.id,
+                error: e
+            })
+        }
+    });
+
+    router
+    .route('/change-password/:id')
+    .get(async (req, res) => {
+        try {
+            return res.render('changePassword', {id: req.params.id, title: 'Change Password'})
+        } catch (e) {
+            return res.status(404).sendFile(path.resolve("public/static/404.html"));
+
+        }
+    })
+    .post(async (req, res) => {
+        try {
+          
+            let id = xss(req.params.id);
+            let newPassword = xss(req.body.newPassword);
+            let oldPassword = xss(req.body.oldPassword);
+            console.log(id);
+            id = validation.checkId(id);
+          
+            newPassword = validation.checkPassword(newPassword);
+            oldPassword = validation.checkPassword(oldPassword);
+            const user=await userData.getUserByID(id);
+            
+            const passwordMatch = await bcrypt.compare(oldPassword,user.password);
+            if(passwordMatch){
+                
+                const passwordUpdate = await userData.updatePassword(id, newPassword);
+            }else{
+                res.status(400).render("changePassword",{error:"Password did not match"});
+            }
+            // let result = validation.checkIdentify(newPassword, confirmNewPassword);
+            // if (result) {
+            //     const passwordUpdate = await userData.updatePassword(id, newPassword);
+            // }
+            res.redirect('/logout');
+        } catch (e) {
+            console.log(e);
+            return res.status(400).render("changePassword", {
                 success: false,
                 id: req.body.id,
                 error: e
@@ -620,22 +505,12 @@ router
 
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
+
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user});
 });
 
-router
-.route('posts/:category')
-.get(async (req, res) => {
-    try {
-        let category = req.params.category;
-        category = validationchecker.checkCategory(category);
-        let postList = await postData.getAllPosts({category: category});
-        res.render('post-list', {category, posts: postList});
-    } catch (e) {
-        return res.status(500).sendFile(path.resolve("/public/static/notfound.h tml"));
-    }
-})
+
 
 router.route('/posts/:id').delete(async (req, res) => {
     try{
@@ -681,24 +556,24 @@ router
     .route('/posts/:postId/like')
     .post(async (req, res) => {
         try {
-            const { postId } = req.params;
-            const { liked, disliked } = req.body;
+            const {postId} = req.params;
+            const {liked, disliked} = req.body;
 
             const result = await postData.updateLikes(postId, liked, disliked);
             if (typeof localStorage !== 'undefined') {
                 const storageKey = `post-${postId}-state`;
                 const localStorageValue = localStorage.getItem(storageKey);
-                const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : { liked: false, disliked: false };
+                const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : {liked: false, disliked: false};
                 parsedValue.liked = liked;
                 parsedValue.disliked = false;
                 localStorage.setItem(storageKey, JSON.stringify(parsedValue));
             }
 
-            const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
-            const user = await userData.putPost(id, post._id);
-            return res.redirect('/homepage');
-        } catch (e) {
-            return res.render('posts', {Error: e});
+            return res.json({likes: result.likes, dislikes: result.dislikes});
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({error: 'Server error'});
+
         }
     });
 
@@ -706,41 +581,58 @@ router
     .route('/posts/:postId/dislike')
     .post(async (req, res) => {
         try {
-            const { postId } = req.params;
-            const { liked, disliked } = req.body;
+            const {postId} = req.params;
+            const {liked, disliked} = req.body;
 
             // Update the dislike status in the server-side storage
             const result = await postData.updateDisLikes(postId, liked, disliked);
 
             const storageKey = `post-${postId}-state`;
             const localStorageValue = localStorage.getItem(storageKey);
-            const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : { liked: false, disliked: false };
+            const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : {liked: false, disliked: false};
             parsedValue.liked = false;
             parsedValue.disliked = disliked;
             localStorage.setItem(storageKey, JSON.stringify(parsedValue));
 
-            return res.json({ likes: result.likes, dislikes: result.dislikes });
+            return res.json({likes: result.likes, dislikes: result.dislikes});
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: 'Server error' });
+            res.status(500).json({error: 'Server error'});
         }
-    })
-
-router.route('/increaseLikes')
-    .post(async (req, res) => {
-        const postId = req.body.postId;
-        const updatedPost = await postData.increaseLikes(postId);
-        return res.json(updatedPost);
     });
 
-
-router.route('/increaseDislikes')
-    .post(async (req, res) => {
-        const postId = req.body.postId;
-        const updatedPost = await postData.increaseDislikes(postId);
-        return res.json(updatedPost);
+router
+    .route('/search')
+    .get(async (req, res) => {
+        try {
+            const searchTerm = req.query.query;
+            const searchResults = await eventsData.searchEvent(searchTerm);
+            res.render('searchResults', {results: searchResults, title: 'Search Results'});
+        } catch (e) {
+            res.status(500).json({error: 'Internal server error'});
+        }
     });
 
+router.route('/discuss').get(async (req, res) => {
+    const userCollection = await users();
+
+    const discuss = await discussData.getAllDiscussions();
+    for (let x of discuss) {
+        const user = await userCollection.findOne({_id: x.userId});
+        x.userName = user.userName;
+        x.result = [];
+        for (let y of x.replyId) {
+            const user = await userCollection.findOne({_id: y.userId});
+            x.result.push({
+                userName: user.userName,
+                message: y.message
+            });
+        }
+    }
+
+    return res.render('discuss', {newDiscussion: discuss, title: 'Discussion'});
+
+});
 
 router
     .route('/posts/:postId/allComments')
@@ -758,6 +650,10 @@ router
         return res.render('allComments', {comment: comment, title: 'All Comments'});
     });
 
+
+    const discuss = await discussData.createDiscussion(category, description, userId);
+    return res.redirect('/discuss');
+    //return res.status(200).render('discuss', { newDiscussion: discuss });
 
 router.route('/search').get(async (req, res) => {
   try {
@@ -840,5 +736,4 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
     }
     });
 
-  
 export default router;

@@ -1,77 +1,101 @@
 import authCheck from "../validtionChecker.js";
-(function () {
-    document.addEventListener("DOMContentLoaded", function () {
-        const eventForm = document.getElementById("event-form");
-        const errorHandle = document.getElementById("eventError");
 
-        if (eventForm) {
-            eventForm.addEventListener("submit", (event) => {
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                event.preventDefault();
-                const elements = event.target.elements;
-                errorHandle.hidden = true;
+document.addEventListener("DOMContentLoaded", function () {
+    const eventForm = document.getElementById("event-form");
+    const errorHandle = document.getElementById("eventError");
+    const eventImageInput = document.getElementById("eventImage");
+    const imagePreview = document.getElementById("image-preview");
 
-                let eventName = document.getElementById("eventName").value;
-                let description = document.getElementById("description").value;
-                let buildingName = document.getElementById("buildingName").value;
-                let organizer = document.getElementById("organizer").value;
-                let seatCapacity = document.getElementById("seatCapacity").value;
+    if (eventForm) {
+        eventForm.addEventListener("submit", (event) => {
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            event.preventDefault();
+            errorHandle.hidden = true;
 
+            let eventName = document.getElementById("eventName").value;
+            let description = document.getElementById("description").value;
+            let date = document.getElementById("date").value;
+            let buildingName = document.getElementById("buildingName").value;
+            let roomNumber = document.getElementById("roomNumber").value;
+            let organizer = document.getElementById("organizer").value;
+            let seatingCapacity = document.getElementById("seatingCapacity").value;
+            let file = eventImageInput.files[0]; // FIX: should be files not file
 
-                try {
-                    eventName = authCheck.checkName(eventName);
-                    description = authCheck.checkPhrases(description, "Description");
-                    buildingName = authCheck.checkLocation(buildingName);
-                    organizer = authCheck.checkName(organizer);
-                    seatCapacity = authCheck.checkCapacity(seatCapacity);
-                } catch (e) {
-                    document.getElementById("eventName").setAttribute("value", eventName);
-                    document.getElementById("description").setAttribute("description", description);
-                    document.getElementById("buildingName").setAttribute("buildingName", buildingName);
-                    document.getElementById("organizer").setAttribute("organizer", organizer);
-                    document.getElementById("seatingCapacity").setAttribute("searCapacity", seatCapacity);
-                    return handleError(e || "Something went wrong");
-                }
-                fetch("/events", {
-                    method: "post",
-                    headers: {
-                        Accept: "application/json, text/plain, */*",
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        eventName: eventName,
-                        description: description,
-                        buildingName: buildingName,
-                        organizer: organizer,
-                        seatCapacity: seatCapacity
-                    }),
-                }).then((response) => {
-                    if(!response.ok){
+            try {
+                eventName = authCheck.checkName(eventName);
+                description = authCheck.checkPhrases(description, "Description");
+                date = authCheck.checkDate(date);
+                buildingName = authCheck.checkLocation(buildingName);
+                roomNumber = authCheck.checkRoom(roomNumber);
+                organizer = authCheck.checkName(organizer);
+                seatingCapacity = authCheck.checkCapacity(seatingCapacity);
+            } catch (e) {
+                document.getElementById("eventName").setAttribute("value", eventName);
+                document.getElementById("description").setAttribute("value", description);
+                document.getElementById("date").setAttribute("value", date);
+                document.getElementById("buildingName").setAttribute("value", buildingName);
+                document.getElementById("roomNumber").setAttribute("value", roomNumber);
+                document.getElementById("organizer").setAttribute("value", organizer);
+                document.getElementById("seatingCapacity").setAttribute("value", seatingCapacity); // FIX: attribute name was wrong
+                return handleError(e || "Something went wrong");
+            }
+
+            const formData = new FormData();
+            formData.append("eventName", eventName);
+            formData.append("description", description);
+            formData.append("date", date);
+            formData.append("buildingName", buildingName);
+            formData.append("roomNumber", roomNumber);
+            formData.append("organizer", organizer);
+            formData.append("seatingCapacity", seatingCapacity);
+            formData.append("eventImage", file);
+
+            fetch("/events", {
+                method: "post",
+                body: formData,
+            })
+                .then((response) => {
+                    if (!response.ok) {
                         return response.json();
                     }
-                }).then((data) => {
+                })
+                .then((data) => {
                     if (data) {
                         if (!data.success) {
                             document.getElementById("eventName").value = data.eventName;
                             document.getElementById("description").value = data.description;
+                            document.getElementById("date").value = data.date;
                             document.getElementById("buildingName").value = data.buildingName;
+                            document.getElementById("roomNumber").value = data.roomNumber;
                             document.getElementById("organizer").value = data.organizer;
-                            document.getElementById("seatingCapacity").value = data.seatingCapacity;
-                            return handleError(data || "Something went wrong.");
+                            document.getElementById("seatingCapacity").value = data.seatingCapacity; // FIX: element id was wrong
+                            return handleError(data.message || "Something went wrong.");
                         }
                     }
-                    location.href = "/homepage";
-
-                }).catch((e) => {
+                    location.href = "/events";
+                })
+                .catch((e) => {
                     alert(e || "Something went wrong.");
                 });
-            });
-        }
-        const handleError = (errorMsg) => {
-            errorHandle.hidden = false;
-            errorHandle.innerHTML = errorMsg;
-        };
-    });
+        });
+    }
+    if(eventImageInput) {
+        eventImageInput.addEventListener("change", function () {
+            const file = this.files[0];
+            const reader = new FileReader();
 
-})();
+            reader.addEventListener("load", function () {
+                imagePreview.src = reader.result;
+                imagePreview.style.display = "block";
+            });
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    const handleError = (errorMsg) => {
+        errorHandle.hidden = false;
+        errorHandle.innerHTML = errorMsg;
+    };
+});

@@ -171,13 +171,11 @@ import authCheck from "../validtionChecker.js";
                 fetch("/posts", {
                     method: "post",
                     body: formData,
-                })
-                    .then((response) => {
+                }).then((response) => {
                         if (!response.ok) {
                             return response.json();
                         }
-                    })
-                    .then((data) => {
+                    }).then((data) => {
                         if (data) {
                             if (!data.success) {
                                 document.getElementById("postCategory").value = data.category;
