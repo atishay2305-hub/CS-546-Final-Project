@@ -157,29 +157,56 @@ router.route('/homepage').get(async (req, res) => {
 
     //user info from ID
     //getpost list if true
+    // const userName = req.session.user.userName;
     const userName = req.session.user.userName;
+    // console.log(userName)
     // console.log(userName);
     //console.log(postList);
-    const postList = await postData.getAllPosts();
+    const postList = await postData.getPostByUserIdTop(userId);
     // console.log(postList);
     //
     //console.log(postList);
+    const commentCollection = await comments();
     for (let x of postList) {
-        let resId = x?.userId;
 
-        let resString = resId.toString();
 
-        const user = await userData.getUserByID(resString);
-        x.name = user.userName;
-        if (resString === userId) {
-            x.editable = true;
-            x.deletable = true;
-        } else {
-            x.editable = false;
-            x.deletable = false;
+        x.editable = true;
+        x.deletable = true;
+
+        // let resId = x?.userId;
+
+        // // console.log(resId);
+
+        // let resString = resId.toString();
+
+        // const user = await userData.getUserByID(resString);
+        // x.name = user.userName;
+        if(x.category === 'lost&found'){
+            x.addressCheck = true;
         }
-    }
+        x.result=[];
+        for(let y of x.commentIds){
+            const comment = await commentCollection.findOne({_id:y});
+            x.result.push({commentUserName:comment.userName,
+                commentContent:comment.contents
+            })
+            //console.log(comment);
+        }
 
+
+        //const commentList = await commentData.getPostHomeCommentById(resString);
+        //console.log(commentList);
+        
+
+        // if (resString === userId) {
+        //     x.editable = true;
+        //     x.deletable = true;
+        // } else {
+        //     x.editable = false;
+        //     x.deletable = false;
+        // }
+    }
+    console.log(postList);
     // const listOfPosts = [{category: "education", content: "Anime"}]
     // posts: postList
     return res.render('homepage', {
@@ -517,12 +544,24 @@ router.route('/posts/:id').delete(async (req, res) => {
 router.route('/posts/:id/comment').post(async (req, res) => {
     try {
         const userId = req.session.user.userId;
-        let postId = req.params.id;
-        let {commentText} = req.body;
-        commentText = validation.checkPhrases(commentText);
-        const comment = await commentData.createComment(userId, null, postId, commentText, "post");
+        const postId = req.params.id;
+        console.log("here",postId);
+        const {commentText} = req.body;
+        commentText = validation.checkComments(commentText);
+
+        if(commentText ===''|| commentText.trim().length ===0){
+            console.log(commentText,commentText.length);
+            alert('cannot submit an empty comment');
+            return res.redirect('/posts');
+        }
+        else{
+            const comment = await commentData.createComment(userId, null, postId, commentText, "post");
         const post = await postData.putComment(postId, comment.commentId);
+        console.log(post);
+        //return res.sendStatus(200);
         return res.redirect('/posts');
+        }
+        
     } catch (e) {
         // return res.sendStatus(404)
         console.log(e)
@@ -534,24 +573,34 @@ router
     .route('/posts/:postId/like')
     .post(async (req, res) => {
         try {
-            const {postId} = req.params;
-            const {liked, disliked} = req.body;
+            const { postId } = req.params;
+            console.log("hereee",postId);
+            const userId = req.session.user.userId;
+            const userName = req.session.user.userName;
+            const liked =true;
+            const disliked = false;
+            //const { liked, disliked } = req.body;
+            const postCollection = await posts();
+        
 
-            const result = await postData.updateLikes(postId, liked, disliked);
-            if (typeof localStorage !== 'undefined') {
-                const storageKey = `post-${postId}-state`;
-                const localStorageValue = localStorage.getItem(storageKey);
-                const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : {liked: false, disliked: false};
-                parsedValue.liked = liked;
-                parsedValue.disliked = false;
-                localStorage.setItem(storageKey, JSON.stringify(parsedValue));
-            }
+            const result = await postData.updateLikes(postId, userId, liked,disliked);
+            //console.log(result);
+            return res.json(result);
+            // if (typeof localStorage !== 'undefined') {
+            //     const storageKey = `post-${postId}-state`;
+            //     const localStorageValue = localStorage.getItem(storageKey);
+            //     const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : { liked: false, disliked: false };
+            //     parsedValue.liked = liked;
+            //     parsedValue.disliked = false;
+            //     localStorage.setItem(storageKey, JSON.stringify(parsedValue));
+            // }
 
-            return res.json({likes: result.likes, dislikes: result.dislikes});
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({error: 'Server error'});
-
+            // const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
+            // const user = await userData.putPost(id, post._id);
+            // return res.redirect('/homepage');
+        } catch (e) {
+            console.log(e)
+            res.status(500).send(e.message);;
         }
     });
 
@@ -559,24 +608,30 @@ router
     .route('/posts/:postId/dislike')
     .post(async (req, res) => {
         try {
-            const {postId} = req.params;
-            const {liked, disliked} = req.body;
+            const { postId } = req.params;
+            const userId = req.session.user.userId;
+            const userName = req.session.user.userName;
+            const liked =false;
+            const disliked = true;
+            //const { liked, disliked } = req.body;
+            const postCollection = await posts();
+        
 
-            // Update the dislike status in the server-side storage
-            const result = await postData.updateDisLikes(postId, liked, disliked);
+            const result = await postData.updateLikes(postId, userId,liked,disliked);
+            return res.json(result);
 
-            const storageKey = `post-${postId}-state`;
-            const localStorageValue = localStorage.getItem(storageKey);
-            const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : {liked: false, disliked: false};
-            parsedValue.liked = false;
-            parsedValue.disliked = disliked;
-            localStorage.setItem(storageKey, JSON.stringify(parsedValue));
-
-            return res.json({likes: result.likes, dislikes: result.dislikes});
+            //return res.json({ likes: result.likes, dislikes: result.dislikes });
         } catch (error) {
             console.error(error);
-            res.status(500).json({error: 'Server error'});
+            res.status(500).send(error.message);
         }
+    });
+
+router.route('/increaseLikes')
+    .post(async (req, res) => {
+        const postId = req.body.postId;
+        const updatedPost = await postData.increaseLikes(postId);
+        return res.json(updatedPost);
     });
 
 router

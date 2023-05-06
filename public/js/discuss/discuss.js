@@ -43,7 +43,7 @@ function replyForm(postId, button) {
         button.innerText = 'Show replies';
     } else {
         replies.style.display = 'block';
-        button.innerText = 'Hide replies';
+        button.innerText = 'Hide replies';  
     }
 }
 
