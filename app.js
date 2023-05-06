@@ -71,6 +71,7 @@ app.use('/search', isLoggedIn)
 app.use('/searchResults', isLoggedIn);
 app.use('/allComments', isLoggedIn);
 app.use('/discussionResults', isLoggedIn);
+app.use('/searchDiscussions', isLoggedIn);
 app.use('/protected', isLoggedIn);
 
 app.use('/login', (req, res, next) => {

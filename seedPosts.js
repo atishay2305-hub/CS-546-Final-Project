@@ -1,7 +1,7 @@
-import postsData from "./data/posts.js"
+import postData from "./data/posts.js"
 
 try {
-    let postDataCreation = await postsData.createPost("sports", "")
+    let postDataCreation = await postData.createPost("sports", "./images/default.jpg", "Nice Photo", "test123", "")
     console.log(postDataCreation)
 } catch(error){
     console.log(error);
