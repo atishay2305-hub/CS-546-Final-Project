@@ -4,8 +4,6 @@
     <div class="container center">
         <h1>Registration</h1>
 
-
-
         <div class="inf">
             <div class="sec-1">
                 <label for="FN">First Name: </label>
@@ -81,7 +79,8 @@
             </div>
             <div class="sec-2">
                 {{!-- <ion-icon name="calendar-outline"></ion-icon> --}}
-                <input type="date" name="DOB" id="DOB" value="{{DOB}}" required>
+
+                <input type="date" name="DOB" id="DOB"  value="{{DOB}}">
 
             </div>
         </div>
@@ -89,12 +88,12 @@
         <div class="inf">
             <div class="sec-1">
                 <label for="role">Role: </label>
-                <select name="role" id="role" required>
 
-                    <option value=""></option>
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
-                </select>
+            <select name="role" id="role">
+                <option value="" label="Please select a role"></option>
+                <option value="user" label="User">User</option>
+                <option value="admin" label="Admin">Admin</option>
+            </select>
             </div>
 
         </div>
@@ -123,11 +122,9 @@
                 <label for="department">Department: </label>
                 <select id="department" name="department" required>
 
-                    <option value=""></option>
+                    <option value="" label="Select a Department"></option>
                 </select>
             </div>
-
-
 
 
             <script>

@@ -13,6 +13,7 @@ import {ObjectId} from 'mongodb';
 
 const router = Router();
 
+
 const eventStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "./public/images");
@@ -166,6 +167,7 @@ router
                 success: false,
                 message: "Something went wrong. Please try again later."
             });
+
         }
     });
 
@@ -192,6 +194,7 @@ router
 router
     .route("/registration/confirm/:id")
     .get(async (req, res) => {
+
 
         const eventId = req.params.id;
         const event = await eventsData.getEventByID(eventId);
@@ -240,8 +243,8 @@ router.route('/events/:id').delete(async (req, res) => {
         console.log(e);
     }
 
-
 });
+
 
 
 export default router;

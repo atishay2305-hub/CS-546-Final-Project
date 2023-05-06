@@ -70,8 +70,6 @@
   }
   
   .discussion {
-    margin: 20px;
-    padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #fff;
@@ -90,7 +88,7 @@
     color: #333;
     margin-bottom: 10px;
   }
-  
+/*   
   .discussion button {
     background-color: #4CAF50;
     color: white;
@@ -103,7 +101,7 @@
     font-size: 16px;
     margin-top: 20px;
     cursor: pointer;
-  }
+  } */
   
   .reply-form textarea {
     width: 100%;
@@ -115,7 +113,7 @@
     margin-bottom: 10px;
   }
   
-  .reply-form button[type="submit"] {
+  /* .reply-form button[type="submit"] {
     background-color: #4CAF50;
     color: white;
     border: none;
@@ -127,17 +125,17 @@
     font-size: 16px;
     margin-top: 10px;
     cursor: pointer;
-  }
+  } */
   
   .replies {
     margin-top: 10px;
   }
   
-  .reply {
+  /* .reply {
     margin-top: 10px;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     background-color: #f5f5f5;
-  }
+  } */
   

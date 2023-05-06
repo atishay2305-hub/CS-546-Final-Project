@@ -1,5 +1,7 @@
 import express from "express";
 import session from 'express-session';
+import MongoDBStoreConnector from 'connect-mongodb-session'
+import { mongoConfig  } from "./config/settings.js";
 
 const app = express();
 import configRoutes from './routes/index.js';
@@ -19,7 +21,14 @@ app.use(express.json());
 app.use('/public', staticDir);
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
+
 import {userData} from "./data/index.js";
+
+import eventsRoutes from './routes/events.js';
+import { title } from "process";
+
+app.use('/', eventsRoutes);
+
 
 const hbs = exphbs.create({
     defaultLayout: 'main',
@@ -55,11 +64,23 @@ app.use((req, res, next) => {
 });
 
 
+const MongoDBStore =  MongoDBStoreConnector(session)
+const store = new MongoDBStore({
+    uri: `${mongoConfig.serverUrl}/${mongoConfig.database}`,
+    collection: 'user_sessions'
+})
+
+
 app.use(session({
     name: 'AuthCookie',
     secret: 'myKeySecret',
     saveUninitialized: true,
     resave: false
+
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7 
+      },
+    store: store,
 }));
 
 
@@ -67,6 +88,7 @@ const isLoggedIn = (req, res, next) => {
     if (!req.session.user) {
         return res.redirect('/login');
     }
+    
     next();
 };
 
@@ -80,6 +102,9 @@ app.use('/search', isLoggedIn)
 app.use('/searchResults', isLoggedIn);
 app.use('/allComments', isLoggedIn);
 app.use('/discussionResults', isLoggedIn);
+
+app.use('/searchDiscussions', isLoggedIn);
+
 app.use('/protected', isLoggedIn);
 
 app.use('/login', (req, res, next) => {

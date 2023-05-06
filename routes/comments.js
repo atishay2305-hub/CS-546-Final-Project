@@ -30,7 +30,7 @@ router
  
     try{
       const commentList = await commentData.getAllComment(req.params.postId);
-      res.render('comments/comments', {comments: commentList});
+      return res.render('comments/comments', {comments: commentList});
       
     }catch(e){
       return res.status(404).json({error:e.message});

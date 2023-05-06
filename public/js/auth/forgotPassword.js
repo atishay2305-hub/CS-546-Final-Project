@@ -29,8 +29,10 @@ import authCheck from "../validtionChecker.js";
                         email: email,
                     }),
                 }).then((res) => {
-                    if(!res.ok){
-                        return res.json();
+                    // console.log(res)
+                    if (!res.ok) {
+                      alert("Email ID does not exist");
+                      location.reload();
                     }
                 }).then((data) => {
                     if (data) {

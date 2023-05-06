@@ -10,9 +10,9 @@ import path from "path";
 let exportedMethods = {
     async createPost(category, image, postedContent, userName, address) {
         category = validation.checkCategory(category, "category");
-        postedContent = validation.checkPhrases(postedContent);
-        // postedContent = validation.checkPhrases(postedContent, "PostedContent");
+        postedContent = validation.checkPhrases(postedContent, "PostedContent");
         userName = validation.checkName(userName);
+
         const userCollection = await users();
         const user = await userCollection.findOne({userName: userName});
         let userId = user._id;
@@ -27,7 +27,8 @@ let exportedMethods = {
         let post = {
             category: category,
             content: postedContent,
-            image: image,
+            // image: image,
+            image: image.replace(/\\/g, "/"),
             userId: userId,
             userName: userName,
             address: address,
@@ -72,13 +73,12 @@ let exportedMethods = {
     async getPostByUserId(userId) {
         userId = await validation.checkId(userId);
         const postCollection = await posts();
-        const post = await postCollection.findOne({_id: new ObjectId(userId)});
+        const post = await postCollection.findOne({ userId: new ObjectId(userId) });
         if (post === null) {
-            throw `No post found with that ID ${userId}`;
+          throw `No post found with that ID ${userId}`;
         }
-        post._id = new ObjectId(post._id).toString();
         return post;
-    },
+      },
 
     async getPostByUserIdTop(userId){
         const id = await validation.checkId(userId);
@@ -184,15 +184,15 @@ let exportedMethods = {
         return await postCollection.findOne({_id: new ObjectId(id)});
     },
 
-    async getPostByEmail(email) {
-        email = validation.checkEmail(email);
-        let postIdList = await userData.getPostList(email);
-        return await Promise.all(
-            postIdList.map(async (eventId) => {
-                return await this.getEventByID(eventId);
-            })
-        );
-    },
+    // async getPostByEmail(email) {
+    //     email = validation.checkEmail(email);
+    //     let postIdList = await userData.getPostList(email);
+    //     return await Promise.all(
+    //         postIdList.map(async (eventId) => {
+    //             return await this.getPostById(postId);
+    //         })
+    //     );
+    // },
 
     async increaseLikes(postId) {
         const post = await this.getPostById(postId);
@@ -291,7 +291,7 @@ let exportedMethods = {
         return {likes: post.likes, dislikes: post.dislikes};
     }
 };
-//express session,handlebars
+
 export default exportedMethods;
 
 
