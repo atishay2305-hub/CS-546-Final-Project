@@ -215,7 +215,7 @@
             <button class="comment-btn" id="commentBtn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
     <ion-icon name="chatbox-ellipses"></ion-icon>
 </button>
-<label for="commentBtn-{{this._id}}">Button Label Text</label>
+<label for="commentBtn-{{this._id}}">Comments</label>
 
 
             {{#if deletable}}
@@ -265,31 +265,6 @@
   </div>
 </div>
 
-{{!-- <script src="/public/js/post/sort.js"></script>
-<script src="/public/js/post/map.js"></script>
-<script src="/public/js/post/commentBtn.js" ></script>
-<script src="/public/js/post/like&dislike.js"></script>
-<script src="/public/js/post/posts.js" type="module"></script>
-<link rel="stylesheet" href="/public/css/posts.css">
- --}}
-
-
-
-
-
-
-
-    <div id="posts-container">
-        <div class="sort-container">
-            <label for="sortCriteria">Sort By:</label>
-            <select id="sortCriteria" onchange="sortPosts(this.value)">
-                <option value=""> </option>
-                <option value="a-z">A-Z</option>
-                <option value="created_date">Created Date</option>
-                <option value="most_likes">Most Likes</option>
-            </select>
-        </div>
-    </div>
 
     <script src="/public/js/post/sort.js"></script>
     <script src="/public/js/post/map.js"></script>
