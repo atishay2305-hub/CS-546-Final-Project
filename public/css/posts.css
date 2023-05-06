@@ -15,9 +15,9 @@ body {
 }
 
 .post-container img {
-  width: 100%; /* set image width to 100% of the container */
-  height: auto; /* set height to auto to maintain aspect ratio */
-  margin-bottom: 10px; /* add some margin at the bottom of the image */
+  width: 100%; 
+  height: auto; 
+  margin-bottom: 10px; 
 }
 .comments-container,
 .comment-form {
@@ -27,7 +27,6 @@ body {
     width: 100%;
 }
 
-/* style comment form */
 .comment-form input[type="text"] {
     margin-right: 10px;
     padding: 10px;

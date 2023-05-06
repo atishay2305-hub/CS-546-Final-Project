@@ -1,4 +1,4 @@
-
+{{!-- 
     {{#each results}}
         <h2>Event Name: {{eventName}}</h2><br>
         <p>Description: {{description}}</p><br>
@@ -12,4 +12,20 @@
 </form>
     {{/each}}
 
+ --}}
+
+{{#each results}}
+    <div>
+        <h2>Event Name: {{eventName}}</h2>
+        <p>Description: {{description}}</p>
+        <p>Building Name: {{buildingName}}</p>
+        <p>Seating Capacity: {{seatingCapacity}}</p>
+        <form method="POST" action="/capacity/{{_id}}" id="allevents-form">
+            <input type="hidden" id="seatingCapacity_{{_id}}" name="seatingCapacity" value="{{seatingCapacity}}">
+            <input type="hidden" name="formsub" id="formsub_{{_id}}" value="{{attenddone}}">
+            <button type="submit" id="attbtn_{{_id}}" name="attendance" value="attend">RSVP for Event</button>
+            <button type="submit" id="cancel_{{_id}}" name="attendance" value="cancel">Cancel RSVP</button>
+        </form>
+    </div>
+{{/each}}
 

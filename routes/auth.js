@@ -12,6 +12,8 @@ import xss from 'xss';
 import {comments, users, posts} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
 import { title } from 'process';
+import { error } from 'console';
+
 
 const router = Router();
 
@@ -97,7 +99,6 @@ router
     .post(async (req, res) => {
         try {
 
-            // removed dept
             let firstName = xss(req.body.firstName);
             let lastName = xss(req.body.lastName);
             let userName = xss(req.body.userName);
@@ -146,20 +147,9 @@ router
         }
     });
 
-// router.route('/updatePassword').get(async(req, res)=>{
-//     res.status(200).render('updatePassword');
-// },
-// router.route('/updatePassword').post(async (req, res) => {
-//     let email = xss(req.body.email);
-//     const userCollection = await users();
-//     userData.updatePassword(email, )
-
 router.route('/homepage').get(async (req, res) => {
     const userId = req.session.user.userId;
 
-
-    
-    //useremail from session and will just keep it
     //const user = await userData.getUserByID(userId);
     //const postList = await userData.getPostList(user.email);
 
@@ -272,8 +262,6 @@ router.route('/posts')
             }
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
-
-            console.log("The post is posted");
             return res.redirect('/homepage');
         } catch (e) {
             return res.status(400).json({
@@ -287,7 +275,6 @@ router.route('/posts')
 
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
-    // console.log(id);
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user, title: 'Profile'});
 });
@@ -405,7 +392,7 @@ router
     })
 
 router.route('/events/capacity/:id').post(async (req, res) => {
-    let id = req.params.id; // fix the id variable assignment
+    const id = req.params.id; 
     const {seatingCapacity, attendance,reaction} = req.body;
     const userId = req.session.user.userId;
     try {
@@ -431,7 +418,7 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 
 
 router.route('/posts/:id').delete(async (req, res) => {
-    console.log(req.params.id);
+    // console.log(req.params.id);
     try {
         const user = await userData.getUserByID(req.session.user.userId);
         if (!user) {
@@ -440,10 +427,9 @@ router.route('/posts/:id').delete(async (req, res) => {
         //console.log(user);
         const commentCollection = await comments();
         const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
-        console.log(post);
+        // console.log(post);
         if (post.length !== 0) {
             const responsePost = await commentData.removeCommentByPost(req.params.id);
-            console.log("hi", responsePost.deleted);
         }
         const response = await postData.removeById(req.params.id);
         // console.log("hi", response.deleted);
@@ -501,7 +487,7 @@ router.route('/events/:id')
         const responseEvent = await eventsData.removeEventById(req.params.id);
 
 
-        console.log("hi", responseEvent.deleted);
+        // console.log("hi", responseEvent.deleted);
 
         return res.sendStatus(200);
 
@@ -620,6 +606,7 @@ router
                 message: e,
                 email: req.body.email
             });
+        
         }
     });
 
@@ -677,13 +664,16 @@ router.route('/posts/:id').delete(async (req, res) => {
 router.route('/posts/:id/comment').post(async (req, res) => {
     try {
         const userId = req.session.user.userId;
-        const postId = req.params.id;
-        const {commentText} = req.body;
+        let postId = req.params.id;
+        let {commentText} = req.body;
+        commentText = validation.checkPhrases(commentText);
         const comment = await commentData.createComment(userId, null, postId, commentText, "post");
         const post = await postData.putComment(postId, comment.commentId);
         return res.redirect('/posts');
     } catch (e) {
-        return res.status(404).json({ error: 'Resource not found' });
+        // return res.sendStatus(404)
+        console.log(e)
+        // return res.render('error', {error: 'Either the comment is empty or we could not add it'});
     }
 });
 
@@ -708,7 +698,6 @@ router
             const user = await userData.putPost(id, post._id);
             return res.redirect('/homepage');
         } catch (e) {
-            // console.log(e)
             return res.render('posts', {Error: e});
         }
     });
@@ -770,100 +759,86 @@ router
     });
 
 
-router
-  .route('/search')
-  .get(async (req, res) => {
+router.route('/search').get(async (req, res) => {
+  try {
+    const searchTerm = xss(req.query.query); 
+    const searchResults = await eventsData.searchEvent(searchTerm);
+    res.render('searchResults', { results: searchResults, title: 'Search Results' });
+  } catch (e) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.route('/discuss').get(async (req, res) => {
+  const userCollection = await users();
+  const dbQuery = {};
+  if (req.query?.category && req.query.category !== 'All') {
+    dbQuery.category = req.query.category;
+  }
+
+  if (req.query?.search) {
+    dbQuery.description = { $regex: xss(req.query.search), $options: 'i' }; 
+  }
+
+  const discuss = await discussData.getAllDiscussions(dbQuery);
+  for (let x of discuss) {
+    const user = await userCollection.findOne({ _id: x.userId });
+    x.userName = user.userName;
+    x.result = [];
+    for (let y of x.replyId) {
+      const user = await userCollection.findOne({ _id: y.userId });
+      x.result.push({
+        userName: user.userName,
+        message: y.message,
+      });
+    }
+  }
+
+  return res.render('discuss', { newDiscussion: discuss, title: 'Discussion' });
+});
+
+router.route('/discuss').post(async (req, res) => {
+  const userId = req.session.user.userId;
+  description = validation.checkPhrases(description);
+category = validation.checkCategory()
+  const { category, description } = req.body;
+
+  const discuss = await discussData.createDiscussion(category, xss(description), userId); 
+  return res.redirect('/discuss');
+});
+
+
+router.route('/discussions/:id/replies').post(async (req, res) => {
     try {
-      const searchTerm = req.query.query;
-      const searchResults = await eventsData.searchEvent(searchTerm);
-      res.render('searchResults', { results: searchResults, title: 'Search Results' });
-    } catch (e) {
-      res.status(500).json({ error: 'Internal server error' });
+      const userId = req.session.user.userId;
+      const id = req.params.id;
+      const { message } = req.body;
+      const Message = xss(message);
+      Message = validation.checkPhrases(Message);
+  
+      if (Message.length > 300) {
+        return res.status(400).send('Reply exceeds the maximum character limit of 300.');
+      }
+  
+      const discuss = await discussData.updateDiscussion(id, userId, Message);
+      return res.sendStatus(200);
+    } catch (error) {
+
+      return res.status(500).send('An error occurred while processing the reply.');
     }
   });
+  
 
-    router.route('/discuss').get(async (req,res)=>{
-        const userCollection = await users();
-        const dbQuery = {}
-        if(req.query?.category && req.query.category !== 'All'){
-            dbQuery.category = req.query.category
-        }
 
-        if(req.query?.search){
-            dbQuery.description = {$regex: req.query.search, $options: "i"}
-        }
-    
-        const discuss = await discussData.getAllDiscussions(dbQuery);
-        for (let x of discuss){
-            const user = await userCollection.findOne({_id:x.userId});
-            x.userName = user.userName;
-            x.result=[];
-            for (let y of x.replyId){
-                const user = await userCollection.findOne({_id:y.userId});
-                x.result.push({
-                    userName:user.userName,
-                    message:y.message
-                });
-            }
-        }
-        
-        return res.render('discuss',{newDiscussion: discuss, title: 'Discussion' });
-    
-      });
-    
-      router.route('/discuss').post(async(req,res)=>{
-    
-        const userId = req.session.user.userId;
-        const {category,description} = req.body;
-    
-        const discuss = await discussData.createDiscussion(category,description,userId);
-        return res.redirect('/discuss');
-        //return res.status(200).render('discuss', { newDiscussion: discuss });
-    
-      });
-    
-    router.route('/discussions/:id/replies').post(async(req,res)=>{
-
-        const userId = req.session.user.userId;
-        const id = req.params.id;
-        const{ message } = req.body;
-        const discuss = await discussData.updateDiscussion(id,userId,message);
-        return res.sendStatus(200);
+    router.get('/searchDiscussions', async (req, res) => {
+    try {
+        let searchTerm = xss(req.query.query);
+        const searchResults = await discussData.searchDiscussion(searchTerm);
+        return res.render('discussionsResults', { results: searchResults, title: 'Discussion Results' });
+    } catch (e) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
     });
-
-    // router.route('/discussions/:id/replies').get(async (req, res) => {
-    //     const id = req.params.id;
-    //     const discuss = await discussData.getDiscussionById(id);
-    //     const replies = discuss.replyId;
-    //     const userCollection = await users();
-    //     //const usersMap = new Map();
-        
-    //     for (let reply of replies) {
-
-    //       //if (!usersMap.has(reply.userId.toString())) {
-
-    //         const user = await userCollection.findOne({_id: reply.userId});
-    //         reply.userName = user.userName;
-    //         //usersMap.set(reply.userId.toString(), user);
-    //       //}
-        
-    //     }
-    //     // console.log(replies);
-      
-    //     return res.render('allReplies',{replies:replies});
-    //   });
-
-      router.get('/searchDiscussions', async (req, res) => {
-        try {
-          const searchTerm = req.query.query;
-        //   console.log(searchTerm)
-          const searchResults = await discussData.searchDiscussion(searchTerm);
-        //   console.log(searchResults)
-          return res.render('discussionsResults', { results: searchResults, title: 'Discussion Results' });
-        } catch (e) {
-          res.status(500).json({ error: 'Internal server error' });
-        }
-      });
 
   
 export default router;

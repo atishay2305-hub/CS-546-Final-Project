@@ -27,6 +27,7 @@
     "nodemailer": "^6.9.1",
     "pakage.json": "^1.0.0",
     "passport": "^0.6.0",
+    "tota11y": "^0.1.6",
     "xss": "^1.0.14"
   }
 }

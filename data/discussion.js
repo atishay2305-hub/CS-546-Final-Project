@@ -114,10 +114,10 @@ let exportedMethods = {
         
         id = await validation.checkId(id);
         userId = await validation.checkId(userId);
+        message = await validation.checkComments(message);
 
         const userCollection = await users();
         const user = await userCollection.findOne({_id:new ObjectId(userId)});
-        console.log(user);
         if(!user){
             console.log('No user found!!');
         }
