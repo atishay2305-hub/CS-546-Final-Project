@@ -1,4 +1,4 @@
-<div>
+{{!-- <div>
     <div class="dicussion-panel row justify-content-center mt-5">
         <div class="col-12 col-md-6">
             <div class="my-3 text-right">
@@ -75,4 +75,82 @@
   </div>
 </div>
 <link rel="stylesheet" href="/public/css/discussion.css">
-<script src="../public/js/discuss/discuss.js"></script>
+<script src="../public/js/discuss/discuss.js"></script> --}}
+<div>
+    <div class="discussion-panel row justify-content-center mt-5">
+        <div class="col-12 col-md-6">
+            <div class="my-3 text-right">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDiscussionModal"> + New Discussion</button>
+            </div>
+            <div id="filters">
+                <form action="/discuss" method="GET">
+                    <div class="row">
+                        <div class="col form-group">
+                            <select class="form-control category m-0" name="category">
+                                <option value="All" selected>All</option>
+                            </select>
+                        </div>
+                        <div class="col form-group">
+                            <input class="form-control" type="text" id="search" name="search" placeholder="Search Discussions Here">
+                        </div>
+                        <div class="col form-group">
+                            <button class="btn btn-dark" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {{#each newDiscussion}}
+            <div class="discussion p-4 mb-3">
+                <span class="text-primary">Category: {{category}}</span>
+                <span> | </span>
+                <span class="text-secondary">Username: {{userName}}</span>
+                <p style="font-size: 30px;">{{description}}</p>
+                <div class="my-1 text-right">
+                    <button class="btn btn-info btn-sm" onclick="replyForm('{{this._id}}', this)">Show replies</button>
+                    <div class="replies text-left" style="display: none;">
+                        {{#each result}}
+                        <div class="reply p-2 my-2 bg-light">
+                            <p>{{this.userName}} - {{this.message}}</p>
+                        </div>
+                        {{/each}}
+                        <form class="reply-form">
+                            <textarea id="reply-textarea-{{this._id}}"></textarea>
+                            <button class="btn btn-success btn-sm" type="button" onclick="postReply(event, '{{_id}}', this)">Post Reply</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createDiscussionModal" tabindex="-1" role="dialog" aria-labelledby="createDiscussionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createDiscussionModalLabel">New Discussion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="/discuss" method="post">
+          <div class="form-group">
+            <select class="form-control category m-0" name="category">
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="description" class="col-form-label">Description:</label>
+            <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Send</button>
+          </div>
+        </form>
+        </div>
+    </div>
+  </div>
+</div>
+<link rel="stylesheet" href="/public/css/discussion.css">
+<script src="../public/js/discuss/discuss.js"></script> 

@@ -205,43 +205,6 @@ router.route('/homepage').get(async (req, res) => {
     });
 
 });
-// router.route('/homepage').get(async (req, res) => {
-//
-//
-//     
-//     console.log(userId);
-//     // console.log(userId)
-//     //useremail from session and will just keep it
-//     //const user = await userData.getUserByID(userId);
-//     //const postList = await userData.getPostList(user.email);
-//     //user info from ID
-//     //getpost list if true
-//     const userName = req.session.userName;
-//     console.log(userName)
-//     //const postList = await postData.getAllPosts();
-// // getpost by userId--> all the post by userID[]. should have delete createDate(5) and
-//     // for (let x of postList){
-//     //     let resId = x?.userId;
-//     //     //console.log(resId);
-//     //     let resString= resId.toString();
-//     //     const user = await userData.getUserByID(resString);
-//     //     x.name =user.userName;
-//     //     //console.log(user.userName);
-//     //     //console.log(x.userName);
-//     //     if(resString === userId){
-//     //         x.editable =true;
-//     //         x.deletable = true;
-//     //     }else{
-//     //         x.editable = false;
-//     //         x.deletable = false;
-//     //     }
-//     // }
-//     const postList = await postData.getPostByUserId(userId);
-//     // const listOfPosts = [{category: "education", content: "Anime"}]
-//     // posts: postList
-//     return res.render('homepage', {userId: userId, userName: userName, posts: postList});
-//
-// });
 
 
 router.route('/profile').get(async(req,res)=> {
@@ -660,6 +623,14 @@ router
         }
     });
 
+    router.use('/logout', (req, res) => {
+        if (!req.session.user) {
+            return res.render('login', {title: 'Login'});
+        }
+        req.session.destroy();
+        return res.render('logout', {title: 'logout'});
+    });
+
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
     const user = await userData.getUserByID(id);
@@ -737,7 +708,7 @@ router
             const user = await userData.putPost(id, post._id);
             return res.redirect('/homepage');
         } catch (e) {
-            console.log(e)
+            // console.log(e)
             return res.render('posts', {Error: e});
         }
     });

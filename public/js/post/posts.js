@@ -29,15 +29,17 @@ import authCheck from "../validtionChecker.js";
                         address = authCheck.checkAddress(address);
                     }
                 } catch (e) {
-                    document.getElementById("postCategory").value = category;
-                    document.getElementById("postContent").value = postContent;
+                    document.getElementById("postCategory").setAttribute("value", category);
+                    document.getElementById("postContent").setAttribute("value", postContent);
+                    // document.getElementById("postCategory").value = category;
+                    // document.getElementById("postContent").value = postContent;
                     return handleError(e || "Something went wrong");
                 }
 
                 const formData = new FormData();
                 formData.append("category", category);
                 formData.append("postContent", postContent);
-                formData.append("postImage", file); // Append the file
+                formData.append("postImage", file); 
                 formData.append("address", address);
 
                 fetch("/posts", {
@@ -62,7 +64,7 @@ import authCheck from "../validtionChecker.js";
                         location.href = "/posts";
                     })
                     .catch((e) => {
-                        alert(e || "Something went wrong.");
+                        alert(e.message || "Something went wrong.");
                     });
 
             });
@@ -95,3 +97,5 @@ import authCheck from "../validtionChecker.js";
         };
     });
 })();
+
+  

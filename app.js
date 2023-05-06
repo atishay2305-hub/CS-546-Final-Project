@@ -58,7 +58,7 @@ app.use(session({
     name: 'AuthCookie',
     secret: 'myKeySecret',
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
+        maxAge: 1000 * 60 * 60 * 24 * 7 
       },
     store: store,
     resave: true,
@@ -84,6 +84,7 @@ app.use('/search', isLoggedIn)
 app.use('/searchResults', isLoggedIn);
 app.use('/allComments', isLoggedIn);
 app.use('/discussionResults', isLoggedIn);
+app.use('/searchDiscussions', isLoggedIn);
 app.use('/protected', isLoggedIn);
 
 app.use('/login', (req, res, next) => {

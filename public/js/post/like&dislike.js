@@ -54,6 +54,7 @@ function toggleLike(postId, button) {
         });
 }
 
+
 function toggleDislike(postId, button) {
     const isLiked = button.classList.contains('liked');
     const isDisliked = button.classList.contains('disliked');
