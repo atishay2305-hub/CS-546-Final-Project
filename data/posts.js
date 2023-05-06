@@ -9,8 +9,8 @@ import path from "path";
 let exportedMethods = {
     async createPost(category, image, postedContent, userName, address) {
         category = validation.checkCategory(category, "category");
-        // postedContent = validation.checkPhrases(postedContent);
-        postedContent = validation.checkPhrases(postedContent, "PostedContent");
+        postedContent = validation.checkPhrases(postedContent);
+        // postedContent = validation.checkPhrases(postedContent, "PostedContent");
         userName = validation.checkName(userName);
         const userCollection = await users();
         const user = await userCollection.findOne({userName: userName});

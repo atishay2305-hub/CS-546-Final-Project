@@ -244,11 +244,11 @@ router.route('/homepage').get(async (req, res) => {
 // });
 
 
-// router.route('/profile').get(async(req,res)=> {
-//     const id = req.session.user.userId;
-//     const user = await userData.getUserByID(id);
-//     return res.render('profile',{user:user, title: 'Profile Page'});
-// });
+router.route('/profile').get(async(req,res)=> {
+    const id = req.session.user.userId;
+    const user = await userData.getUserByID(id);
+    return res.render('profile',{user:user, title: 'Profile Page'});
+});
 
 
 router.route('/posts')
@@ -282,7 +282,7 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
-        const userName = req.session.userName;
+        const userName = req.session.user.userName;
         const role = req.session.user.role;
         if (role === 'admin') {
             return res.status(401).json({
@@ -322,12 +322,12 @@ router.route('/posts')
         }
     });
 
-// router.route('/profile').get(async (req, res) => {
-//     const id = req.session.user.userId;
-//     // console.log(id);
-//     const user = await userData.getUserByID(id);
-//     return res.render('profile', {user: user, title: 'Profile'});
-// });
+router.route('/profile').get(async (req, res) => {
+    const id = req.session.user.userId;
+    // console.log(id);
+    const user = await userData.getUserByID(id);
+    return res.render('profile', {user: user, title: 'Profile'});
+});
 
 router.route('/events').get(async (req, res) => {
     try {
@@ -468,7 +468,7 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 
 
 router.route('/posts/:id').delete(async (req, res) => {
-    // console.log(req.params.id);
+    console.log(req.params.id);
     try {
         const user = await userData.getUserByID(req.session.user.userId);
         if (!user) {
@@ -477,10 +477,10 @@ router.route('/posts/:id').delete(async (req, res) => {
         //console.log(user);
         const commentCollection = await comments();
         const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
-        // console.log(post);
+        console.log(post);
         if (post.length !== 0) {
             const responsePost = await commentData.removeCommentByPost(req.params.id);
-            // console.log("hi", responsePost.deleted);
+            console.log("hi", responsePost.deleted);
         }
         const response = await postData.removeById(req.params.id);
         // console.log("hi", response.deleted);
@@ -489,7 +489,8 @@ router.route('/posts/:id').delete(async (req, res) => {
         //res.status(200).send(response);
         //res.send(response);
         return res.sendStatus(200);
-    } catch (e) {
+    } catch (e
+        ) {
         console.log(e);
     }
 });
@@ -659,6 +660,11 @@ router
         }
     });
 
+router.route('/profile').get(async (req, res) => {
+    const id = req.session.user.userId;
+    const user = await userData.getUserByID(id);
+    return res.render('profile', {user: user});
+});
 
 router
 .route('posts/:category')
@@ -807,8 +813,16 @@ router
 
     router.route('/discuss').get(async (req,res)=>{
         const userCollection = await users();
+        const dbQuery = {}
+        if(req.query?.category && req.query.category !== 'All'){
+            dbQuery.category = req.query.category
+        }
+
+        if(req.query?.search){
+            dbQuery.description = {$regex: req.query.search, $options: "i"}
+        }
     
-        const discuss = await discussData.getAllDiscussions();
+        const discuss = await discussData.getAllDiscussions(dbQuery);
         for (let x of discuss){
             const user = await userCollection.findOne({_id:x.userId});
             x.userName = user.userName;
@@ -880,14 +894,5 @@ router
         }
       });
 
-      router.route('/profile').get(async (req, res) => {
-        const id = req.session.user.userId;
-        console.log(id)
-        const user = await userData.getUserByID(id);
-        return res.render('profile', {user: user});
-    });
-
-
-export default router;
   
-
+export default router;
