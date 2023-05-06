@@ -612,6 +612,8 @@ router.route('/discuss').get(async (req, res) => {
 
 });
 
+
+
 router
     .route('/posts/:postId/allComments')
     .get(async (req, res) => {
