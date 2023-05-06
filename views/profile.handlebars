@@ -4,11 +4,12 @@
     
     
     <h2>Full Name : {{user.firstName}} {{user.lastName}}</h2>
-
+     <p>{{user._id}}</p>
     <p>User Name: {{user.userName}}</p>
     <p>Email:{{user.email}}</p>
     <p>DOB: {{user.DOB}}</p>
     <p>Department:{{user.department}}</p>
+    <button class="btn btn-dark" type=""button" onclick="window.location.href='http://localhost:3000/change-password/{{user._id}}';">Change password</button>
     {{!-- <input type="search">  --}}
 </div>
 

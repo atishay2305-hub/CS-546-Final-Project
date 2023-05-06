@@ -7,6 +7,7 @@ import discussData from '../data/discussion.js';
 import validation from '../validationchecker.js';
 import multer from "multer";
 import path from "path";
+import bcrypt from 'bcrypt';
 import {passwordResetByEmail} from "../email.js";
 import xss from 'xss';
 import {comments, users, posts} from '../config/mongoCollections.js';
@@ -578,6 +579,51 @@ router
             res.redirect('/login');
         } catch (e) {
             return res.status(400).render("/resetPassword", {
+                success: false,
+                id: req.body.id,
+                error: e
+            })
+        }
+    });
+
+    router
+    .route('/change-password/:id')
+    .get(async (req, res) => {
+        try {
+            return res.render('changePassword', {id: req.params.id, title: 'Change Password'})
+        } catch (e) {
+            return res.status(404).sendFile(path.resolve("public/static/404.html"));
+
+        }
+    })
+    .post(async (req, res) => {
+        try {
+          
+            let id = xss(req.params.id);
+            let newPassword = xss(req.body.newPassword);
+            let oldPassword = xss(req.body.oldPassword);
+            console.log(id);
+            id = validation.checkId(id);
+          
+            newPassword = validation.checkPassword(newPassword);
+            oldPassword = validation.checkPassword(oldPassword);
+            const user=await userData.getUserByID(id);
+            
+            const passwordMatch = await bcrypt.compare(oldPassword,user.password);
+            if(passwordMatch){
+                
+                const passwordUpdate = await userData.updatePassword(id, newPassword);
+            }else{
+                res.status(400).render("changePassword",{error:"Password did not match"});
+            }
+            // let result = validation.checkIdentify(newPassword, confirmNewPassword);
+            // if (result) {
+            //     const passwordUpdate = await userData.updatePassword(id, newPassword);
+            // }
+            res.redirect('/logout');
+        } catch (e) {
+            console.log(e);
+            return res.status(400).render("changePassword", {
                 success: false,
                 id: req.body.id,
                 error: e
