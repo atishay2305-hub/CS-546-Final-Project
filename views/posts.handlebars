@@ -9,7 +9,7 @@
             </div>
             <div class="sec-2">
                 <select name="postCategory" id="postCategory">
-                    <option value="">Choose a category</option>
+                    <option value=" "></option>
                     <option value="education">Education</option>
                     <option value="sports">Sports</option>
                     <option value="entertainment">Entertainment</option>
@@ -20,11 +20,12 @@
         <div class="inf">
             <div class="sec-1">
                 <label for="postContent">Post Content:</label>
-            </div>
-            <div class="sec-2">
-                <textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea><br>
+                <div class="sec-2">
+                    <textarea name="postContent" rows="6" maxlength="300" id="postContent" required></textarea><br>
+                </div>
             </div>
         </div>
+
         <div class="inf" id="address-input" style="display:none;">
             <div class="sec-1">
                 <label for="address">Location:</label>
@@ -39,10 +40,10 @@
         <div class="inf">
             <div class="sec-1">
                 <label for="postImage">Upload Image: </label>
-            </div>
-            <div class="sec-2">
-                <input type="file" name="postImage" id="postImage">
-                <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+                <div class="sec-2">
+                    <input type="file" name="postImage" id="postImage">
+                    <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+                </div>
             </div>
         </div>
         <button type="submit" class="postBtn" id="addPostBtn">Add Post</button>
@@ -73,7 +74,7 @@
                 <span class="dislike-count">{{this.dislikes}}</span>
             </button>
             <hr>
-            <div id="comments-{{this._id}}" class="comments-container" style="display: none;">
+            <div id="comments-{{this._id}}" class="comments-container" style="display: none">
                 <form class="comment-form" id="comment-form-{{this._id}}" action="/posts/{{this._id}}/comment" method="POST">
                     <input type="hidden" name="postId" value="{{this._id}}">
                     <label for="comment-text-{{this._id}}">Add a Comment:</label>
@@ -92,17 +93,16 @@
                             {{/each}}
                         {{/each}}
                     {{/if}}
+                    {{#if deletable}}
+                        <button class="delete-btn" onclick="deletePost('{{_id}}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    {{/if}}
                 {{/each}}
             </div>
             <button class="comment-btn" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
-                <ion-icon name="chatbox-ellipses"></ion-icon>
+                <ion-icon name="chatbox-ellipses"></ion-icon> Comments
             </button>
-
-            {{#if deletable}}
-                <button class="delete-btn" onclick="deletePost('{{_id}}')">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            {{/if}}
         </div>
     {{/each}}
 
@@ -123,7 +123,7 @@
 
 <script src="/public/js/post/sort.js"></script>
 <script src="/public/js/post/map.js"></script>
-<script src="/public/js/post/comments.js" ></script>
+<script src="/public/js/post/commentBtn.js" ></script>
 <script src="/public/js/post/like&dislike.js"></script>
 <script src="/public/js/post/posts.js" type="module"></script>
 <link rel="stylesheet" href="/public/css/posts.css">

@@ -45,6 +45,12 @@ const exportedMethods = {
         return password;
     },
 
+    checkRoom(roomNumber){
+        const regex = /^([0-9]+|lobby|1st|1th\s*floor)$/i;
+        if(!regex.test(roomNumber)) throw "Wrong format of roomNumber";
+        return roomNumber ;
+    },
+
     checkName(name, valName) {
         if (!name) throw `${valName} not provided`;
         if (typeof name !== "string" || name.trim().length === 0) throw `Please provide a valid input of ${valName}`
@@ -89,24 +95,26 @@ const exportedMethods = {
         const currentDate = new Date().toISOString().slice(0, 10);
 
         if (DOB > currentDate) {
-          throw "Date of birth must be in the past";
-        }
-    
-        const minAge = 13;
-        const minBirthYear = currentDate.getFullYear() - minAge;
-        const birthYear = parseInt(year, 10);
-    
-        const maxBirthYear = 1900;
-        if (birthYear < maxBirthYear) {
-          throw `Invalid year of birth. Please provide a year after ${maxBirthYear}`;
-        }
-    
-        if (birthYear > minBirthYear) {
-          throw `You must be at least ${minAge} years old to register`;
+            throw "Date of birth must be in the past";
         }
         return DOB;
     },
-    
+
+
+    checkDate(date) {
+        if (!date) throw "Date not provided";
+        if (typeof date !== "string" || date.trim().length === 0) throw "Please provide a valid date";
+        const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+        if (!dateRegex.test(date)) throw "Invalid date format, should be 'yyyy-mm-dd'";
+        const [_, year, month, day] = date.match(dateRegex);
+        const currentDate = new Date().toISOString().slice(0, 10);
+
+        if (date < currentDate) {
+            throw "Date of event must be in the future";
+        }
+        return date;
+    },
+
     checkRole(role) {
         if (!role) throw  "Role is not provided";
         if (typeof role !== "string" || role.trim().length === 0) throw "Role is not a valid type";
@@ -160,11 +168,7 @@ const exportedMethods = {
 
     checkCapacity(seatCapacity) {
         if (!seatCapacity) throw "seatCapacity not provided.";
-        if (typeof seatCapacity !== "number") throw "Please provide a number."
-        if (seatCapacity < 5)
-            throw "seatCapacity must greater than 10";
-        if (seatCapacity > 300)
-            throw "seatCapacity must less than 300";
+        seatCapacity = parseInt(seatCapacity);
         return seatCapacity;
     },
 

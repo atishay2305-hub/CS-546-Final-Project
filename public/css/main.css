@@ -1,4 +1,4 @@
-/* /* body {
+/* body {
   background: #fefefe;
   font-family: monospace;
   font-size: 15pt; */
@@ -12,14 +12,6 @@ min-height: 100vh;
   max-width: 75%;
   margin: auto;
 } */
-
-body {
-  font-family: monospace;
-  /* background-image: url('../background_img/background-img.jpg'); */
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
 
 header {
   border-bottom: 1px solid #be3144;
@@ -243,4 +235,3 @@ a {
 }
 
 #map { height: 180px; }
- 

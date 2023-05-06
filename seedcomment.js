@@ -19,12 +19,12 @@ const db= await dbConnection();
 //     console.log(e);
 // }
 
-try{
-const comment = await commentData.createComment("6441e0945ddc9d0a7a384283", "6453364a8bec1ce40f012f1f", "")
-console.log(comment);
-}catch(e){
-    console.log(e);
-}
+// try{
+// const comment = await commentData.createComment('643f3edec2137a9db93c1d5b',"6446f36afda8b12b0452adf7", "6442269732b1e3c891419771", "PixelPenguin22", "Hello how are you?");
+// console.log(comment);
+// }catch(e){
+//     console.log(e);
+// }
 
 // try {
 //     const getAllComments = await commentData.getAllComments();
