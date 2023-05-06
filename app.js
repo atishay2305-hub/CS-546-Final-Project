@@ -1,5 +1,7 @@
 import express from "express";
 import session from 'express-session';
+import MongoDBStoreConnector from 'connect-mongodb-session'
+import { mongoConfig  } from "./config/settings.js";
 
 const app = express();
 import configRoutes from './routes/index.js';
@@ -45,11 +47,22 @@ app.use((req, res, next) => {
 });
 
 
+const MongoDBStore =  MongoDBStoreConnector(session)
+const store = new MongoDBStore({
+    uri: `${mongoConfig.serverUrl}/${mongoConfig.database}`,
+    collection: 'user_sessions'
+})
+
+
 app.use(session({
     name: 'AuthCookie',
     secret: 'myKeySecret',
-    saveUninitialized: false,
-    resave: false
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
+      },
+    store: store,
+    resave: true,
+    saveUninitialized: true
 }));
 
 

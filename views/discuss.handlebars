@@ -1,66 +1,78 @@
-
-<div class="container center">
-    <h1 id="event-header">Discuss</h1>
-    <form method="POST" action="/discuss">
-        <div class="inf">
-            <div class="sec-1">
-                <label for="category">Category:</label>
+<div>
+    <div class="dicussion-panel row justify-content-center mt-5">
+        <div class="col-12 col-md-6">
+            <div class="my-3 text-right">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDiscussionModal"> + New Discussion</button>
             </div>
-
-            <div class="sec-2">
-                <select id="category" name="category"><br>
-                    <option value=""></option>
-                </select>
+            <div id="filters">
+                <form action="/discuss" method="GET">
+                    <div class="row">
+                        <div class="col form-group">
+                            <select class="form-control category m-0" name="category">
+                                <option value="All" selected="true">All</option>
+                            </select>
+                        </div>
+                        <div class="col form-group">
+                            <input class="form-control" type="text" id="search" name="search" placeholder="Search Discussions Here">
+                        </div>
+                        <div class="col form-group">
+                            <button class="btn btn-dark" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-        </div>
-
-        <div class="inf">
-            <div class="sec-1">
-
-                <label for="description">Discussion</label>
-            </div>
-            <div class="sec-2">
-                <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
-            </div>
-        </div>
-
-        <input type="submit" value="Submit">
-    </form>
-
-</div>
-
-{{#each newDiscussion}}
-<div class="discussion">
-    <h1>Category: {{category}}</h1>
-    <h2>userName: {{userName}}</h2>
-    <p>{{description}}</p>
-    <div>
-        <button class="dislike-btn" onclick="replyForm('{{this._id}}', this)">Show replies</button>
-        <div class="replies" style="display: none;">
-            {{#each result}}
-            <div class="reply">
-                <p>{{this.userName}} - {{this.message}}</p>
+            {{#each newDiscussion}}
+            <div class="discussion p-4 mb-3">
+                <span class="text-primary">Category: {{category}}</span>
+                <span> | </span>
+                <span class="text-secondary">Username: {{userName}}</span>
+                <p style="font-size: 30px;">{{description}}</p>
+                <div class="my-1 text-right">
+                    <button class="btn btn-info btn-sm" onclick="replyForm('{{this._id}}', this)">Show replies</button>
+                    <div class="replies text-left" style="display: none;">
+                        {{#each result}}
+                        <div class="reply p-2 my-2 bg-light">
+                            <p>{{this.userName}} - {{this.message}}</p>
+                        </div>
+                        {{/each}}
+                        <form class="reply-form">
+                            <textarea id="reply-textarea"></textarea>
+                            <button class="btn btn-success btn-sm" type="button" onclick="postReply(event, '{{_id}}', this)">Post Reply</button>
+                        </form>
+                    </div>
+                </div>
             </div>
             {{/each}}
         </div>
-
     </div>
-
-    <button onclick="showReplyForm(this)">Reply</button>
-    <form class="reply-form" style="display: none;">
-        <textarea id="reply-textarea"></textarea>
-        <button type="submit" onclick="postReply(event, '{{_id}}', this)">Post Reply</button>
-    </form>
-
 </div>
-{{/each}}
+
+<div class="modal fade" id="createDiscussionModal" tabindex="-1" role="dialog" aria-labelledby="createDiscussionModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">New Discussion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form action="/discuss" method="post">
+          <div class="form-group">
+            <select class="form-control category m-0" name="category">
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="description" class="col-form-label">Description:</label>
+            <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 <link rel="stylesheet" href="/public/css/discussion.css">
 <script src="../public/js/discuss/discuss.js"></script>
-
-
-<div id="search">
-    <form action="/searchDiscussions" method="GET">
-        <input type="text" name="query" placeholder="Search Discussions Here">
-        <button type="submit">Search</button>
-    </form>
-</div>
