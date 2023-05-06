@@ -1,20 +1,5 @@
 import authCheck from "../validtionChecker.js";
 
-const allowedDepartment = [
-    "Biomedical Engineering", "Chemistry and Chemical Biology", "Chemical Engineering and Materials Science",
-    "Civil, Environmental and Ocean Engineering", "Computer Science", "Electrical and Computer Engineering",
-    "Mathematical Sciences", "Mechanical Engineering", "Physics"];
-
-const selectElement = document.getElementById("department");
-
-allowedDepartment.forEach((department) => {
-    const option = document.createElement("option");
-    option.text = department;
-    option.value = department;
-    selectElement.appendChild(option);
-});
-
-
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const registerForm = document.getElementById("register-Form");

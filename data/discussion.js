@@ -38,9 +38,9 @@ let exportedMethods = {
         return insertInfo;
     },
 
-    async getAllDiscussions() {
+    async getAllDiscussions(dbQuery) {
         const discussionCollection = await discussion();
-        return await discussionCollection.find({}).sort({created_Date: -1}).toArray();
+        return await discussionCollection.find(dbQuery).sort({created_Date: -1}).toArray();
     },
 
     async getDiscussionByCategory(category){

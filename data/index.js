@@ -1,5 +1,5 @@
-import eventsDataFunctions from './events.js'
-import userDataFunctions from './users.js';
+import  eventsDataFunctions from './events.js'
+import  userDataFunctions from './users.js';
 import postDataFunction from './posts.js';
 import commentsFunctions from './comments.js';
 import discussFunctions from './discussion.js';
