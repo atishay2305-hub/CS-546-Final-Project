@@ -116,9 +116,9 @@ nav li a {
   margin-top: 10px;
 }
 
-nav li a:hover {
+/* nav li a:hover {
   background-color: #111;
-}
+} */
 
 #main-header {
   text-align: center;
