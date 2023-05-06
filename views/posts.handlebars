@@ -1,10 +1,10 @@
 {{#if (if_eq role "user")}}
-<form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
-    <div class="container center">
+{{!-- <form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
+    <div class="container center"> --}}
          <div class="my-3 text-right">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDiscussionModal"> + New Post</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createPostModal"> + New Post</button>
             </div>
-        <h1 class="title">Posts</h1>
+        {{!-- <h1 class="title">Posts</h1>
         <div class="inf">
             <div class="sec-1">
                 <label for="postCategory">Post Category:</label>
@@ -18,8 +18,8 @@
                     <option value="lost&found">Lost&found</option>
                 </select>
             </div>
-        </div>
-        <div class="inf">
+        </div> --}}
+        {{!-- <div class="inf">
             <div class="sec-1">
                 <label for="postContent">Post Content:</label>
             </div>
@@ -48,11 +48,11 @@
         </div>
         <button type="submit" class="postBtn" id="addPostBtn">Add Post</button>
         <ul class="error" id="postError" hidden></ul>
-    </div>
-</form>
-<br>
+    </div> --}}
+{{!-- </form>
+<br> --}}
 {{/if}}
-{{#if (if_eq role "user")}}
+{{!-- {{#if (if_eq role "user")}}
 <form method="POST" action="/posts" id="post-form" enctype="multipart/form-data">
     <div class="container center">
         <h1 class="title">Posts</h1>
@@ -104,10 +104,21 @@
     </div>
 </form>
 <br>
-{{/if}}
-
+{{/if}} --}}
+<div id="posts-container-1">
+    <div class="sort-container">
+        <label for="sortCriteria">Filter:</label>
+        <select id="sortCriteria" onchange="sortPosts(this.value)">
+            {{!-- <option value="" label="Sort by"> </option> --}}
+            <option value="" label="Select an option"> </option>
+            <option value="a-z">A-Z</option>
+            <option value="created_date">Created Date</option>
+            <option value="most_likes">Most Likes</option>
+        </select>
+    </div>
+</div>
 <div id="posts-container">
-
+    <h1>POSTS</h1>
     {{#each posts}}
         <div class="post-container">
             <h1>{{content}}</h1>
@@ -177,17 +188,39 @@
 
 </div>
 
-<div id="posts-container-1">
-    <div class="sort-container">
-        <label for="sortCriteria">Filter:</label>
-        <select id="sortCriteria" onchange="sortPosts(this.value)">
-            {{!-- <option value="" label="Sort by"> </option> --}}
-            <option value="" label="Select an option"> </option>
-            <option value="a-z">A-Z</option>
-            <option value="created_date">Created Date</option>
-            <option value="most_likes">Most Likes</option>
-        </select>
+
+<div class="modal fade" id="createPostModal" tabindex="-1" role="dialog" aria-labelledby="createPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title" id="createPostModalLabel">New Post</h1>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/posts" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="postCategory" class="col-form-label">Post Category:</label>
+                        <select id="postCategory" class="form-control category m-0" name="category">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="postContent" class="col-form-label">Post Content:</label>
+                        <textarea class="form-control" id="postContent" name="postContent" rows="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="postImage" class="col-form-label">Upload Image: </label>
+                        <input type="file" class="form-control form-control-lg" name="postImage" id="postImage">
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <script src="/public/js/post/sort.js"></script>
