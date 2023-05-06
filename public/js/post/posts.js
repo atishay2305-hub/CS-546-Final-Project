@@ -1,4 +1,34 @@
 import authCheck from "../validtionChecker.js";
+const categories = [
+     "Education", "Sports", "Entertainment","Lost&Found"
+];
+
+const categoryElement = document.getElementsByClassName("category");
+const urlSearchParams = new URLSearchParams(window.location.search);
+const params = Object.fromEntries(urlSearchParams.entries());
+
+let categoryParam;
+if (params.category && categories.includes(params.category)) {
+    categoryParam = params.category;
+}
+
+
+for (let i = 0; i < categoryElement.length; i++) {
+    categories.forEach((category) => {
+        const option = document.createElement("option");
+        option.text = category;
+        option.value = category;
+        if (category === categoryParam) {
+            option.selected = true;
+        }
+        categoryElement[i].appendChild(option);
+    });
+}
+console.log("postcategory",categoryElement);
+// function preview() {
+//     frame.src = URL.createObjectURL(event.target.files[0]);
+// }
+
 
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
