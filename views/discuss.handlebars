@@ -57,7 +57,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <form action="/discuss" method="post">
+        <form id ="form" class ="form" action="/discuss" method="post">
           <div class="form-group">
             <select class="form-control category m-0" name="category">
             </select>
@@ -66,13 +66,23 @@
             <label for="description" class="col-form-label">Description:</label>
             <textarea class="form-control" id="description" name="description" rows="5"></textarea>
           </div>
-          <div class="form-group">
-            <button type="submit" class="btn btn-primary">Send</button>
+
+          <div>
+            <span id="cmt-err" class="text-danger" style="display: none;"></span>
           </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary" id="submitBtn">Send</button>
+          </div>
+       
+          
         </form>
       </div>
     </div>
   </div>
 </div>
+
+ 
+
 <link rel="stylesheet" href="/public/css/discussion.css">
 <script src="../public/js/discuss/discuss.js"></script>

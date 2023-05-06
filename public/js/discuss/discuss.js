@@ -64,8 +64,8 @@ function postReply(event, discussionId, button) {
     const discussionElement = button.parentNode;
 
     const replyText = discussionElement.querySelector('#reply-textarea').value;
-    
 
+    
 
     fetch(`/discussions/${discussionId}/replies`, {
         method: 'POST',
@@ -87,3 +87,46 @@ function postReply(event, discussionId, button) {
         alert(error.message || "Something went wrong.");
     });
 }
+
+const form = document.getElementById('form');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault(); 
+
+
+  const category = form.category.value;
+  const description = form.description.value;
+  const cmtErrEle = document.getElementById('cmt-err');
+
+  if(!description.trim() || !description){
+
+    cmtErrEle.innerHTML='Please enter valid description'
+    cmtErrEle.style.display ='block';
+    return;
+  }
+   if(description.trim().length<5 || description.trim().length >300){
+    cmtErrEle.innerHTML='length must be between 5-300 characters'
+    cmtErrEle.style.display ='block';
+    return;
+  }
+
+  fetch('/discuss', {
+    method: 'POST',
+    body: JSON.stringify({ category, description }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then((response) => {
+      if (response.ok) {
+        window.location.href = '/discuss';
+      } else {
+        throw new Error('Failed to create discussion');
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      alert(error.message);
+    });
+});
