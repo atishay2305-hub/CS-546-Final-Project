@@ -157,7 +157,7 @@ router.route('/homepage').get(async (req, res) => {
 
     //user info from ID
     //getpost list if true
-    const userName = req.session.user.userName;
+    // const userName = req.session.user.userName;
     const userName = req.session.user.userName;
     // console.log(userName)
     // console.log(userName);
