@@ -9,7 +9,6 @@
         {{#each posts}}
         <div class="post-container col-4 border border-secondary">
             <h2>{{content}}</h2>
-
             {{!-- <img id="img-home" src="{{image}}" alt="Post image"> --}}
             <img id="img-home" src="{{image}}" alt="Post image">
             <p>Category: {{category}}</p>
@@ -24,7 +23,6 @@
                         onclick="likeFunc('{{this._id}}','home')"><i class="fa fa-thumbs-up">Like</i></button>
                     <span class="like-count" id="like-count-{{this._id}}">{{this.likes}}</span>
                 </div>
-
                 <div class="col">
                     <button class="dislike-btn-home" data-post-id="{{this._id}}"
                         onclick="dislikeFunc('{{this._id}}','home')"><i class="fa fa-thumbs-down">Dislike</i></button>
@@ -47,31 +45,21 @@
                             <button class="btn btn-success btn-sm" type="button"
                                 onclick="postReply(event, '{{_id}}', this)">Post
                                 Comment</button>
-
                         </form>
                     </div>
                 </div>
             </div>
-
-
             {{!-- {{#each result}}
             <div class="reply p-2 my-2 bg-light">
                 <p>{{this.commentUserName}} - {{this.commentContent}}</p>
             </div>
             {{/each}} --}}
-
             <div class="my-1 text-right">
-
-
             </div>
-
-
-
             {{!-- <button type="{{likes}}" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
             <button type="{{dislikes}}" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button> --}}
             {{!-- <button type="submit" class="btn"><i class="fa fa-thumbs-up">Like</i></button>
             <button type="submit" class="btn"><i class="fa fa-thumbs-down">Dislike</i></button> --}}
-
             {{!-- <div class="comments-container">
                 <h3>Comments:</h3>
                 {{#each comments}}
@@ -79,8 +67,6 @@
                     <p>{{text}}</p>
                     <p>Posted by: {{author}}</p>
                     <p>Posted at: {{created_Date}}</p>
-
-
                 </div>
                 {{/each}}<br>
                 <form class="comment-form" id="comment-form-{{_id}}" action="/posts/{{_id}}/comment" method="POST">
@@ -89,29 +75,19 @@
                     <input type="text" name="commentText" id="comment-text-{{_id}}">
                     <input type="submit" value="Submit">
                 </form>
-                <a href="/posts/{{_id}}/allComments" id="view-comments-{{_id}}">View Comments</a>
-
+                <a href="/posts/{{_id}}/allComments" id="view-comments">View Comments</a>
             </div> --}}
             {{#if deletable}}
             <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
             {{/if}}
         </div>
-
         {{/each}}
     </div>
 </div>
-
-
-
 <script>
-
-
-
 </script>
-
 <script src="../public/js/homepage/homepage.js"></script>
 {{!--
 <script src="../public/js/post/like&dislike.js"></script> --}}
-
 <link rel="stylesheet" href="/public/css/homepage.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
