@@ -111,6 +111,8 @@ form.addEventListener('submit', (event) => {
     return;
   }
 
+  
+
   fetch('/discuss', {
     method: 'POST',
     body: JSON.stringify({ category, description }),
