@@ -1,17 +1,29 @@
 body {
   font-family: Arial, sans-serif;
+  padding-top: 70px; /* Add padding to the top to avoid collision with the navbar */
 }
 
 .container {
-  max-width: 800px;
+  max-width: 900px; /* Adjust the max-width as per your preference */
   margin: 0 auto;
+}
+
+input[type="text"],
+textarea,
+select {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
 .center {
   text-align: center;
 }
 
-h1, h2 {
+h1,
+h2 {
   margin-top: 0;
   margin-bottom: 10px;
 }
@@ -22,35 +34,18 @@ label {
   font-weight: bold;
 }
 
-input[type="text"],
-textarea {
-  width: 100%;
-  padding: 5px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-select {
-  width: 100%;
-  padding: 5px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
 button {
   padding: 5px 10px;
   border-radius: 5px;
   border: none;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   cursor: pointer;
   margin-top: 10px;
 }
 
 button.registerbtn {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 10px 20px;
   font-size: 16px;
@@ -64,11 +59,33 @@ button.delete-btn {
   margin-left: 10px;
 }
 
-.eventPost-container {
-  margin-top: 30px;
-  border: 1px solid #ccc;
+.event-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 800px; /* Adjust the width as per your preference */
+  min-height: 300px; /* Adjust the height as per your preference */
   padding: 20px;
-  border-radius: 5px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin: 70px auto; /* Centers the container horizontally and adds space from the top */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.event-container h2 {
+  margin-bottom: 10px;
+}
+
+.event-container p {
+  margin-bottom: 10px;
+}
+
+.event-container img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
 }
 
 #error-message {

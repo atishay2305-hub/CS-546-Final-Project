@@ -29,12 +29,10 @@ const hbs = exphbs.create({
         },
 
         not_past_date: function (date) {
-            const eventDate = new Date(date);
-            const now = new Date();
-            const eventDateStr = `${eventDate.getFullYear()}-${eventDate.getMonth() + 1}-${eventDate.getDate()}`;
-            const nowStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-            return eventDateStr >= nowStr;
-          }
+            const eventDate = Date.parse(date);
+            const now = Date.now();
+            return eventDate >= now;
+        }
     }
 });
 
@@ -55,11 +53,6 @@ app.use(session({
     secret: 'myKeySecret',
     saveUninitialized: true,
     resave: false
-
-    // cookie: {
-    //     maxAge: 1000 * 60 * 60 * 24 * 7 
-    //   },
-    // store: store,
 }));
 
 
@@ -85,7 +78,7 @@ app.use('/protected', isLoggedIn);
 app.use('/login', (req, res, next) => {
     if (req.method === 'GET') {
         if (req.session.user) {
-            // console.log("here")
+            console.log("here")
             return res.redirect('/something')
         } else {
             return res.render('login');
