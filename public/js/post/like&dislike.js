@@ -6,6 +6,7 @@ function toggleLike(postId, button) {
 
     let liked, disliked;
     if (typeof localStorage !== 'undefined') {
+        const localStorageValue = localStorage.getItem(storageKey);
         if (localStorageValue === null) {
             liked = !isLiked;
             disliked = isDisliked;
@@ -25,11 +26,11 @@ function toggleLike(postId, button) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ liked, disliked }),
+        body: JSON.stringify({ liked: true, disliked }),
     })
         .then((response) => {
             if (!response.ok) {
-                throw new Error('Failed to update like');
+                return response.json();
             }
             return response.json();
         })
@@ -39,13 +40,13 @@ function toggleLike(postId, button) {
             const currentLikes = parseInt(likeCountElement.textContent);
             const currentDislikes = parseInt(dislikeCountElement.textContent);
 
-            likeCountElement.textContent = liked ? currentLikes + 1 : currentLikes - 1;
-            dislikeCountElement.textContent = disliked ? Math.max(currentDislikes - 1, 0) : currentDislikes;
+            likeCountElement.textContent = currentLikes + 1;
+            dislikeCountElement.textContent = Math.max(currentDislikes - 1, 0);
 
-            button.classList.toggle('liked', liked);
+            button.classList.add('liked');
             button.classList.remove('disliked');
 
-            const newLocalStorageValue = JSON.stringify({ liked, disliked: false });
+            const newLocalStorageValue = JSON.stringify({ liked: true, disliked });
             localStorage.setItem(storageKey, newLocalStorageValue);
         })
         .catch((e) => {
@@ -61,6 +62,7 @@ function toggleDislike(postId, button) {
 
     let liked, disliked;
     if (typeof localStorage !== 'undefined') {
+        const localStorageValue = localStorage.getItem(storageKey);
         if (localStorageValue === null) {
             liked = isLiked;
             disliked = !isDisliked;
@@ -81,13 +83,14 @@ function toggleDislike(postId, button) {
     fetch(`/posts/${postId}/dislike`, {
         method: 'POST',
         headers: {
+            Accept: 'application/json, text/plain, */*',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ liked, disliked: true }),
     })
         .then((response) => {
             if (!response.ok) {
-                throw new Error('Failed to update dislike');
+                return response.json();
             }
             return response.json();
         })
@@ -98,10 +101,9 @@ function toggleDislike(postId, button) {
             const currentDislikes = parseInt(dislikeCountElement.textContent);
 
             dislikeCountElement.textContent = currentDislikes + 1;
-            likeCountElement.textContent = disliked ? Math.max(currentLikes - 1, 0) : currentLikes;
+            likeCountElement.textContent = Math.max(currentLikes - 1, 0);
 
-            // button.classList.toggle('dis
-           button.classList.add('disliked');
+            button.classList.add('disliked');
             button.classList.remove('liked');
 
             const newLocalStorageValue = JSON.stringify({ liked, disliked: true });
