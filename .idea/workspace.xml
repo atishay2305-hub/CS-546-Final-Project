@@ -4,14 +4,185 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b83beeed-a037-47c4-9572-126a650aa47e" name="Changes" comment="" />
+    <list default="true" id="b83beeed-a037-47c4-9572-126a650aa47e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/background_img/background-img.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/background_img/background.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/css/event.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/css/login.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/public/js/homepage/homepage.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/seedDiscussion.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/views/changePassword.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/comments.js" beforeDir="false" afterPath="$PROJECT_DIR$/data/comments.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/discussion.js" beforeDir="false" afterPath="$PROJECT_DIR$/data/discussion.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/posts.js" beforeDir="false" afterPath="$PROJECT_DIR$/data/posts.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/discuss.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/discuss.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/discussion.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/discussion.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/events.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/forgotpassword.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/forgotpassword.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/homepage.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/homepage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/logout.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/logout.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/posts.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/posts.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682838202894-xbk6t9ccb4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682840874981-cekawqx0bim.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682883094773-flwreg14pwg.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682888760769-sf68zc0xg9s.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682889473142-y2rnqcrl8n9.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682889721240-ixcsy9ps4i.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682890010370-ft7pqvc5agu.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682890553264-lzpe97qpw8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682890784909-of47agfflp.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682900003517-jv29pephkg.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682903773343-zg7g1pr2ubs.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682905090635-w3njclc1fud.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682905222646-nvt8co85cs.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682922455864-6xljv2ut3w.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682923168601-leps59b9dsa.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682927166964-7qsi5j55zxj.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682930859982-57840ch9tsh.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682965283137-83kmvc0580h.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682966634162-z0dk3c27s79.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682966830826-udz0g7gku2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682968312283-0y7vk6zhwrb.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682972483717-6m4rjitpdsm.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1682976932957-r9o4q6yyjen.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683076084836-uypkqhlylgl.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683079506595-e986jjyygxq.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683079929988-0yxhrx0cgkjb.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683132073515-xezz20ajbpf.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683132626131-qnusa6qf06.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683132714540-nzff05w5m9t.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683132921546-9hqkvbunymg.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683138098491-qq6o5bxn9s8.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683138183657-pt5g3edr06g.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683138232464-q8t6sokn97.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683138282567-wtm51ptnvq.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683140884136-exweipo9eub.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683144787615-8qmnttiisx8.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683144795853-267rnjtqsj6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683145100081-zagvni9jzwa.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683145143933-az0e8ssme4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683145223922-7ask8qjcju9.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683145481392-r6wue2q5wws.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683145600032-qhumpjmo4is.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683145722446-i4occewr98m.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683145765075-l3x5zavtf4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683145835751-ysb8fx1f8yp.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683145942640-1ptdww4dgdf.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683146170365-fxjk01dtbfc.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683146560490-piuma6lwwz.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683146776201-7dbr6xhyzx2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683146872654-pmoncqrpmyt.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683153679313-6fsl1buvvjq.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683153968860-yy9rzm5w1e.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683154309341-bhqil1ji3y.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683154509057-lkibp8is7cj.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683154689982-i23lbqn5tsb.jpeg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683161318536-1lj3bofyj4y.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683161319831-tf9zkg5h1y9.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683161320425-kfatgv7iyrs.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683161323836-fhy506gi1t.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683161324259-179i8euyfl4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683161326583-dt7o6zip2lu.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683161415530-6dv4wdaw0xc.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683161786318-pkuergcy8uj.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683161946280-p880jsx3h1f.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683164808581-pt44kw9fehn.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683164860331-7ob6m172c8d.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683164884153-v72fw4svp6.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683164889930-85or96mzmmd.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683164914983-uq1xsqvo3c.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683165174343-h38v7kudna.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683165197325-omjsti65s9a.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683174326037-125kqzel4uk.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683174571615-6g9l91srksx.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683174688633-08zcvw3qutlw.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683174947577-qt9rb3dnfle.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683174986388-hwm6r3m5asr.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683175823105-vs011ghlbnd.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683176157041-uuq2jwslyuq.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683177995817-rvqb3rl4tx.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683178067979-7hi62enrb4j.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683178165850-vtygpjhyhj.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683178634678-ylwvlertpqr.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683178668618-qxoxowlp8b.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683178737683-06xfjmb33kr8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683178797966-9oykyagd0z.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683180880963-8991rrsxdsl.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683180955204-bulg7dfh6y.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683235759199-5oibm6bluff.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683240377648-f3gjj63xz0g.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683240390679-nhlz4uj5aoc.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683240636299-8u6uus4xmlf.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683241218942-b4nyymyy2v8.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683243610709-8hbanr604g5.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683252200866-5vkm2znwq0f.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683252289020-jo84b2o5jdb.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683254223022-mi99zwre6b.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683257081326-0u3oc00avulk.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683257086323-2g18v0kp2yh.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683257098353-m6uc7560l3.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683264974189-ps54nn6ohe8.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683438080684-071cw7deyllt.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683438098107-p63v2nydpnm.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683438114497-7vknf00zqho.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683438130988-plkpc8sir9.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683438155925-rdpeozj4zad.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683438879630-4bhsqivk2d4.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683438897376-tn1ztsg1esp.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683438921652-1pcyn457r9k.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683474587443-zrk9fswu5vn.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683474595872-1lkcp5175do.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683474608526-s4crtsj495.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683477065245-ia5gp2eb8x.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683477111942-2nrgam2at8j.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683477146169-pema5i1fkjs.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/images/1683477170935-7sbb214zsgd.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/discuss/discuss.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/discuss/discuss.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/post/comments.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/post/comments.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/post/editPost.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/post/posts.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/post/posts.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/post/viewComments.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/js/validtionChecker.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/validtionChecker.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/auth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/comments.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/comments.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/discussion.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/discussion.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/routes/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/validationchecker.js" beforeDir="false" afterPath="$PROJECT_DIR$/validationchecker.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/allComments.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/allComments.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/discuss.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/discuss.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/editPost.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/editPost.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/error.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/error.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/eventRegister.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/eventRegister.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/events.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/events.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/forgotPassword.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/forgotPassword.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/homepage.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/homepage.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/layouts/main.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/layouts/main.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/login.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/login.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/logout.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/logout.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/pageNotFound.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/pageNotFound.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/posts.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/posts.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/profile.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/profile.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/register.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/register.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/resetPassword.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/resetPassword.handlebars" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/updatePosts.handlebars" beforeDir="false" afterPath="$PROJECT_DIR$/views/updatePosts.handlebars" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="2P7yvPMLoetahlRg4LVDkhJCIMW" />
   <component name="ProjectViewState">
@@ -24,6 +195,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/czhen/repos/CS-546-Final-Project",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -42,10 +214,23 @@
       <updated>1682822644781</updated>
       <workItem from="1682822645858" duration="283000" />
       <workItem from="1682822939017" duration="471000" />
+      <workItem from="1683500265826" duration="3140000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/routes/index.js</url>
+          <line>4</line>
+          <properties lambdaOrdinal="-1" />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
