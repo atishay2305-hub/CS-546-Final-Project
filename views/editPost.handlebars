@@ -1,0 +1,25 @@
+<div class="post-container">
+    <h1>Edit Post</h1>
+    <form action={{url}} method="post" id="editPost-form">
+       Modify the post in below.
+
+        <label for="postCategory">Post Category:</label>
+        <div class="inf">
+            <div class="inf">
+                <label for="role">Category: </label>
+                <select name="postCategory" id="postCategory" required>
+                    <option value="education">Education</option>
+                    <option value="sports">sports</option>
+                    <option value="entertainment">Entertainment</option>
+                </select><br>
+            </div>
+
+            <div class="textContainer">
+                <label for="postContent">Post Content: </label>
+                <textarea name="postContent" rows="6" maxlength="300" id="postContent" content="{{postContent}}" required></textarea><br>
+            </div>
+            <button type="submit" value="Submit" class="post">Add Post</button>
+            <ul id="create-postError" class="error"  hidden></ul>>
+        </div>
+    </form>
+</div>

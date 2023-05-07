@@ -1,7 +1,5 @@
 import express from "express";
 import session from 'express-session';
-import MongoDBStoreConnector from 'connect-mongodb-session'
-import { mongoConfig  } from "./config/settings.js";
 
 const app = express();
 import configRoutes from './routes/index.js';
@@ -21,14 +19,7 @@ app.use(express.json());
 app.use('/public', staticDir);
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
-
 import {userData} from "./data/index.js";
-
-import eventsRoutes from './routes/events.js';
-import { title } from "process";
-
-// app.use('/', eventsRoutes);
-
 
 const hbs = exphbs.create({
     defaultLayout: 'main',
@@ -37,20 +28,11 @@ const hbs = exphbs.create({
             return val1 === val2;
         },
 
-        is_attendee: function (attendees, userId) {
-            if(!attendees) return false;
-            const attendeeList = attendees.split(',');
-            const attendeeIds = attendeeList.map(attendee => attendee.split('userId: ')[1].split(' ')[0]);
-            return attendeeIds.includes(userId);
-        },
-
         not_past_date: function (date) {
-            const eventDate = new Date(date);
-            const now = new Date();
-            const eventDateStr = `${eventDate.getFullYear()}-${eventDate.getMonth() + 1}-${eventDate.getDate()}`;
-            const nowStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-            return eventDateStr >= nowStr;
-          }
+            const eventDate = Date.parse(date);
+            const now = Date.now();
+            return eventDate >= now;
+        }
     }
 });
 
@@ -66,23 +48,11 @@ app.use((req, res, next) => {
 });
 
 
-const MongoDBStore =  MongoDBStoreConnector(session)
-const store = new MongoDBStore({
-    uri: `${mongoConfig.serverUrl}/${mongoConfig.database}`,
-    collection: 'user_sessions'
-})
-
-
 app.use(session({
     name: 'AuthCookie',
     secret: 'myKeySecret',
     saveUninitialized: true,
     resave: false
-
-    // cookie: {
-    //     maxAge: 1000 * 60 * 60 * 24 * 7 
-    //   },
-    // store: store,
 }));
 
 
@@ -90,7 +60,6 @@ const isLoggedIn = (req, res, next) => {
     if (!req.session.user) {
         return res.redirect('/login');
     }
-    
     next();
 };
 
@@ -104,15 +73,12 @@ app.use('/search', isLoggedIn)
 app.use('/searchResults', isLoggedIn);
 app.use('/allComments', isLoggedIn);
 app.use('/discussionResults', isLoggedIn);
-
-app.use('/searchDiscussions', isLoggedIn);
-
 app.use('/protected', isLoggedIn);
 
 app.use('/login', (req, res, next) => {
     if (req.method === 'GET') {
         if (req.session.user) {
-            // console.log("here")
+            console.log("here")
             return res.redirect('/something')
         } else {
             return res.render('login');

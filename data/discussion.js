@@ -148,4 +148,3 @@ let exportedMethods = {
 //express session,handlebars
 export default exportedMethods;
 
-

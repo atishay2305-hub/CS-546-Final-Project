@@ -35,10 +35,9 @@ h1 {
 }
 
 nav {
-  background-color: black;
+  background-color: #333;
   overflow: hidden;
 }
-
 
 nav ul {
   list-style-type: none;

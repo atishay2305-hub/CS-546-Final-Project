@@ -30,7 +30,7 @@ router
  
     try{
       const commentList = await commentData.getAllComment(req.params.postId);
-      return res.render('comments/comments', {comments: commentList});
+      res.render('comments/comments', {comments: commentList});
       
     }catch(e){
       return res.status(404).json({error:e.message});
@@ -121,4 +121,4 @@ router
   
   });
 
-export default router
+export default router;

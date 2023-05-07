@@ -5,13 +5,6 @@ document.addEventListener("DOMContentLoaded", function () {
             event.preventDefault(); // prevent form from submitting
             const eventId = event.target.dataset.event_id;
             const userId = document.querySelector('.container').dataset.userid;
-            const email = document.querySelector('.container').dataset.email;
-
-            const confirmationEmail = {
-                userId: userId,
-                email: email,
-                eventId: eventId
-            };
 
             // Make a fetch request to remove the user from the attendee list
             fetch(`/events/${eventId}/attendees/${userId}`, {
