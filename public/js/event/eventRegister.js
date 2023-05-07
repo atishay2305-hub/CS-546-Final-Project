@@ -38,17 +38,16 @@ import authCheck from "../validtionChecker.js";
                         if (!data.success) {
                             // document.getElementById("email").value = data.email;
                             document.getElementById("email").value = data.email;
-                            return handleError1(data || "Something went wrong.");
+                            return handleError1(data.message || "Something went wrong.");
                         }
                     }
-                    location.href = "/events";
+                    window.location.href = ("/events");
                 }).catch((e) => {
                     alert(e || "Something went wrong.");
                 });
 
             })
         }
-
         const handleError1 = (errorMsg) => {
             errorHandle.hidden = false;
             errorHandle.innerHTML = errorMsg;

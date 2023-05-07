@@ -6,7 +6,7 @@ import eventsData from '../data/events.js'
 import validation from '../validationchecker.js';
 import multer from "multer";
 import path from "path";
-import {passwordResetByEmail, registrationConfirmByEmail} from "../email.js";
+import {registrationConfirmByEmail} from "../email.js";
 import xss from 'xss';
 import {comments, users, posts, events} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
@@ -40,15 +40,16 @@ router
             events = await eventsData.getAllEvents();
 
             events = events.map(event => {
-                const attendeesList = Object.values(event.attendees).map(attendee => `userId: ${attendee.id.toString()} Name: ${attendee.name}`).join(', ');
-                const numAttendees = Object.values(event.attendees).length;
-                return {...event, _id: event._id.toString(), attendees: attendeesList, numAttendees: numAttendees};
+                const attendeeList = Object.values(event.attendees).map(attendee => ({userId: attendee.id.toString(), name: attendee.name}));
+                const registered = attendeeList.some(attendee => attendee.userId === req.session.user.userId.toString());
+                return {
+                    ...event,
+                    _id: event._id.toString(),
+                    attendees: attendeeList,
+                    registered: registered
+                };
             });
 
-
-            events = events.map(event => {
-                return {...event, _id: event._id.toString()};
-            });
             const getComments = events.map(event =>
                 commentData.getEventCommentById(event._id.toString())
             );
@@ -150,7 +151,7 @@ router
             eventId = validation.checkId(eventId);
             const event = await eventsData.getEventByID(eventId);
             const attendeesList = event.attendees;
-            const checkExist = attendeesList.length > 0 && attendeesList.find(a => a.userId === userId);
+            const checkExist = attendeesList.length > 0 && Object.values(attendeesList).some(attendee => attendee.id === userId);
             if (!checkExist) {
                 // user not already registered
                 await registrationConfirmByEmail({id: eventId, email: email}, res);
@@ -179,7 +180,13 @@ router
         const event = await eventsData.getEventByID(eventId);
         const attendees = await userData.removeAttendee(user._id, eventId);
         const eventAttended = await userData.removeEventAttended(user._id, eventId);
-        return res.redirect('/events');
+        if (!attendees.deleteInfo || !eventAttended) {
+            return res.status(404).json({
+                success: false,
+                message: "Fail to delete attendee or event attended list"
+            });
+        }
+        return res.json({success: true, message: "Cancel successful"})
     } catch (e) {
         console.log(e);
         res.sendStatus(500).json({

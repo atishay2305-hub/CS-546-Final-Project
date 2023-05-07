@@ -319,6 +319,10 @@ let exportedMethods = {
         const eventCollection = await events()
         const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Event with that ID${eventId} not found`;
+        const checkExist = Object.values(event.attendees).some(attendee => attendee.id === userId);
+        if(checkExist){
+            throw "The user already registered"
+        }
         const {attendees, seatingCapacity} = event;
         const length = seatingCapacity - Object.keys(attendees).length
         if (length <= 0) {
@@ -344,7 +348,6 @@ let exportedMethods = {
         }
 
         return {updateInfo: true, eventId: eventId};
-
     },
 
     async removeAttendee(userId, eventId) {

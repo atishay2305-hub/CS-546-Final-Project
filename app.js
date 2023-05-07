@@ -28,16 +28,9 @@ const hbs = exphbs.create({
             return val1 === val2;
         },
 
-        is_attendee: function (attendees, userId) {
-            if(!attendees) return false;
-            const attendeeList = attendees.split(',');
-            const attendeeIds = attendeeList.map(attendee => attendee.split('userId: ')[1].split(' ')[0]);
-            return attendeeIds.includes(userId);
-        },
-
         not_past_date: function (date) {
-            const eventDate = new Date(date).toISOString().slice(0, 10);
-            const now = new Date().toISOString().slice(0, 10);
+            const eventDate = Date.parse(date);
+            const now = Date.now();
             return eventDate >= now;
         }
     }

@@ -141,7 +141,7 @@ router
 
 router.route('/homepage').get(async (req, res) => {
     const userId = req.session.user.userId;
-    console.log(userId);
+
 
     // console.log(userId)
     //const email = req.session.email;
