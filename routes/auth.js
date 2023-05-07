@@ -545,7 +545,7 @@ router.route('/posts/:id/comment').post(async (req, res) => {
     try {
         const userId = req.session.user.userId;
         const postId = req.params.id;
-        console.log("here",postId);
+        // console.log("here",postId);
         const {commentText} = req.body;
         commentText = validation.checkComments(commentText);
 
@@ -649,7 +649,7 @@ router
 router.route('/discuss').get(async (req, res) => {
     const userCollection = await users();
 
-    const discuss = await discussData.getAllDiscussions();
+    const discuss = await discussData.getAllDiscussions()
     for (let x of discuss) {
         const user = await userCollection.findOne({_id: x.userId});
         x.userName = user.userName;
@@ -738,14 +738,14 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
       const userId = req.session.user.userId;
       const id = req.params.id;
       const { message } = req.body;
-      const Message = xss(message);
-      Message = validation.checkPhrases(Message);
-  
-      if (Message.length > 300) {
-        return res.status(400).send('Reply exceeds the maximum character limit of 300.');
-      }
+      let Message = xss(message);
+    Message = validation.checkComments(Message);
+    //   if (Message.length > 300) {
+    //     return res.status(400).send('Reply exceeds the maximum character limit of 300.');
+    //   }
   
       const discuss = await discussData.updateDiscussion(id, userId, Message);
+      console.log(discuss)
       return res.sendStatus(200);
     } catch (error) {
 

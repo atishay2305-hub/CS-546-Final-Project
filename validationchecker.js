@@ -80,8 +80,9 @@ const exportedMethods = {
         phrase = phrase.trim();
         if (phrase.length < 5)
             throw `${valName} length must greater than 5 characters`;
-        if (phrase.length > 300)
+        if (phrase.length > 300){
             throw `${valName} length must less than 300 characters`;
+        }
         return phrase;
     },
 
@@ -91,8 +92,9 @@ const exportedMethods = {
         phrase = phrase.trim();
         // if (phrase.length < 5)
         //     throw `${valName} length must greater than 5 characters`;
-        if (phrase.length > 300)
+        if (phrase.length > 300){
             throw `${valName} length must less than 300 characters`;
+        }
         return phrase;
     },
 

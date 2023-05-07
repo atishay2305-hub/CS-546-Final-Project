@@ -1,5 +1,5 @@
 <div>
-    <div class="discussion-panel row justify-content-center mt-5">
+    <div class="dicussion-panel row justify-content-center mt-5">
         <div class="col-12 col-md-6">
             <div class="my-3 text-right">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDiscussionModal"> + New Discussion</button>
@@ -9,12 +9,11 @@
                     <div class="row">
                         <div class="col form-group">
                             <select class="form-control category m-0" name="category">
-                                <option value="All" selected="selected">All</option>
+                                <option value="All" selected="true">All</option>
                             </select>
                         </div>
                         <div class="col form-group">
-                            <label for="search">Search Here:</label>
-                            <input class="form-control" type="text" id="search" name="search" placeholder="Discussions">
+                            <input class="form-control" type="text" id="search" name="search" placeholder="Search Discussions Here">
                         </div>
                         <div class="col form-group">
                             <button class="btn btn-dark" type="submit">Search</button>
@@ -37,7 +36,7 @@
                         </div>
                         {{/each}}
                         <form class="reply-form">
-                            <textarea id="reply-textarea-{{@index}}"></textarea>
+                            <textarea id="reply-textarea"></textarea>
                             <button class="btn btn-success btn-sm" type="button" onclick="postReply(event, '{{_id}}', this)">Post Reply</button>
                             <div class="error-message"></div>
                         </form>
@@ -50,32 +49,43 @@
 </div>
 
 <div class="modal fade" id="createDiscussionModal" tabindex="-1" role="dialog" aria-labelledby="createDiscussionModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title" id="createDiscussionModalLabel">New Discussion</h1>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="/discuss" method="post">
-                    <div class="form-group">
-                        <select class="form-control category m-0" name="category">
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="description" class="col-form-label">Description:</label>
-                        <textarea class="form-control" id="description" name="description" rows="5"></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Send</button>
-                </div>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">New Discussion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id ="form" class ="form" action="/discuss" method="post">
+          <div class="form-group">
+            <select class="form-control category m-0" name="category">
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="description" class="col-form-label">Description:</label>
+            <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+          </div>
+
+          <div>
+            <span id="cmt-err" class="text-danger" style="display: none;"></span>
+          </div>
+          
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary" id="submitBtn">Send</button>
+          </div>
+       
+          
         </form>
       </div>
     </div>
   </div>
 </div>
+
+ 
+
+
+
 <link rel="stylesheet" href="/public/css/discussion.css">
 <script src="../public/js/discuss/discuss.js"></script>
