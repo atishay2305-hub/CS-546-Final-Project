@@ -80,10 +80,24 @@ const exportedMethods = {
         phrase = phrase.trim();
         if (phrase.length < 5)
             throw `${valName} length must greater than 5 characters`;
-        if (phrase.length > 300)
+        if (phrase.length > 300){
             throw `${valName} length must less than 300 characters`;
+        }
         return phrase;
     },
+
+    checkComments(phrase, valName) {
+        if (!phrase) throw `${valName} not provided`;
+        if (typeof phrase !== "string" || phrase.trim().length === 0) throw `Please provide a valid input of ${valName}`
+        phrase = phrase.trim();
+        // if (phrase.length < 5)
+        //     throw `${valName} length must greater than 5 characters`;
+        if (phrase.length > 300){
+            throw `${valName} length must less than 300 characters`;
+        }
+        return phrase;
+    },
+
 
     checkDOB(DOB) {
         if (!DOB) throw "DOB not provided";

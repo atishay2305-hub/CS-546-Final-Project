@@ -151,29 +151,56 @@ router.route('/homepage').get(async (req, res) => {
 
     //user info from ID
     //getpost list if true
+    // const userName = req.session.user.userName;
     const userName = req.session.user.userName;
+    // console.log(userName)
     // console.log(userName);
     //console.log(postList);
-    const postList = await postData.getAllPosts();
+    const postList = await postData.getPostByUserIdTop(userId);
     // console.log(postList);
     //
     //console.log(postList);
+    const commentCollection = await comments();
     for (let x of postList) {
-        let resId = x?.userId;
 
-        let resString = resId.toString();
 
-        const user = await userData.getUserByID(resString);
-        x.name = user.userName;
-        if (resString === userId) {
-            x.editable = true;
-            x.deletable = true;
-        } else {
-            x.editable = false;
-            x.deletable = false;
+        x.editable = true;
+        x.deletable = true;
+
+        // let resId = x?.userId;
+
+        // // console.log(resId);
+
+        // let resString = resId.toString();
+
+        // const user = await userData.getUserByID(resString);
+        // x.name = user.userName;
+        if(x.category === 'lost&found'){
+            x.addressCheck = true;
         }
-    }
+        x.result=[];
+        for(let y of x.commentIds){
+            const comment = await commentCollection.findOne({_id:y});
+            x.result.push({commentUserName:comment.userName,
+                commentContent:comment.contents
+            })
+            //console.log(comment);
+        }
 
+
+        //const commentList = await commentData.getPostHomeCommentById(resString);
+        //console.log(commentList);
+        
+
+        // if (resString === userId) {
+        //     x.editable = true;
+        //     x.deletable = true;
+        // } else {
+        //     x.editable = false;
+        //     x.deletable = false;
+        // }
+    }
+    console.log(postList);
     // const listOfPosts = [{category: "education", content: "Anime"}]
     // posts: postList
     return res.render('homepage', {
@@ -386,6 +413,33 @@ router.route('/posts/:id/comment').post(async (req, res) => {
     }
 });
 
+// router.route('').delete(async (req, res) => {
+//     //console.log(req.params.id);
+//     console.log("entered delete event route");
+//     try {
+//         const user = await userData.getUserByID(req.session.user.userId);
+//         if (!user) {
+//             throw 'cannot find user';
+//         }
+//         if (user.role !== 'admin') throw "Only administrators can delete events.";
+
+
+//         const commentCollection = await comments();
+//         const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
+//         if (event.length !== 0) {
+//             const response = await commentData.removeCommentByEvent(req.params.id);
+//             console.log("hi", response.deleted);
+//         }
+//         if (!event) {
+//             throw "No events found!!"
+//         }
+
+//         const responseEvent = await eventsData.removeEventById(req.params.id);
+
+
+//         // console.log("hi", responseEvent.deleted);
+
+
 
 
 
@@ -477,12 +531,72 @@ router.route('/profile').get(async (req, res) => {
 });
 
 
+
+router.route('/posts/:id').delete(async (req, res) => {
+    try{
+        const user = await userData.getUserByID(req.session.user.userId);
+        if(!user){
+            throw 'cannot find user';
+        }
+        const commentCollection = await comments();
+        const post = await commentCollection.find({postId:new ObjectId(req.params.id)}).toArray();
+        if(post.length !== 0){
+            const responsePost = await commentData.removeCommentByPost(req.params.id);
+            console.log("hi",responsePost.deleted);
+        }
+        const response = await postData.removeById(req.params.id);
+        //const user = await userData.removePost()
+        //const postList = await postData.getAllPosts();
+        //res.status(200).send(response);
+        //res.send(response);
+        return res.sendStatus(200);
+    } catch(e)
+    {
+        return res.status(404).json({ error: 'Resource not found' });
+    }
+});
+
+router.route('/posts/:id/comment').post(async (req, res) => {
+    try {
+        const userId = req.session.user.userId;
+        const postId = req.params.id;
+        // console.log("here",postId);
+        const {commentText} = req.body;
+        commentText = validation.checkComments(commentText);
+
+        if(commentText ===''|| commentText.trim().length ===0){
+            console.log(commentText,commentText.length);
+            alert('cannot submit an empty comment');
+            return res.redirect('/posts');
+        }
+        else{
+            const comment = await commentData.createComment(userId, null, postId, commentText, "post");
+        const post = await postData.putComment(postId, comment.commentId);
+        console.log(post);
+        //return res.sendStatus(200);
+        return res.redirect('/posts');
+        }
+        
+    } catch (e) {
+        // return res.sendStatus(404)
+        console.log(e)
+        // return res.render('error', {error: 'Either the comment is empty or we could not add it'});
+    }
+});
+
 router
     .route('/posts/:postId/like')
     .post(async (req, res) => {
         try {
-            const {postId} = req.params;
-            const {liked, disliked} = req.body;
+            const { postId } = req.params;
+            console.log("hereee",postId);
+            const userId = req.session.user.userId;
+            const userName = req.session.user.userName;
+            const liked =true;
+            const disliked = false;
+            //const { liked, disliked } = req.body;
+            const postCollection = await posts();
+        
 
             const result = await postData.updateLikes(postId, liked, disliked);
             if (typeof localStorage !== 'undefined') {
@@ -504,24 +618,30 @@ router
     .route('/posts/:postId/dislike')
     .post(async (req, res) => {
         try {
-            const {postId} = req.params;
-            const {liked, disliked} = req.body;
+            const { postId } = req.params;
+            const userId = req.session.user.userId;
+            const userName = req.session.user.userName;
+            const liked =false;
+            const disliked = true;
+            //const { liked, disliked } = req.body;
+            const postCollection = await posts();
+        
 
-            // Update the dislike status in the server-side storage
-            const result = await postData.updateDisLikes(postId, liked, disliked);
+            const result = await postData.updateLikes(postId, userId,liked,disliked);
+            return res.json(result);
 
-            const storageKey = `post-${postId}-state`;
-            const localStorageValue = localStorage.getItem(storageKey);
-            const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : {liked: false, disliked: false};
-            parsedValue.liked = false;
-            parsedValue.disliked = disliked;
-            localStorage.setItem(storageKey, JSON.stringify(parsedValue));
-
-            return res.json({likes: result.likes, dislikes: result.dislikes});
+            //return res.json({ likes: result.likes, dislikes: result.dislikes });
         } catch (error) {
             console.error(error);
-            res.status(500).json({error: 'Server error'});
+            res.status(500).send(error.message);
         }
+    });
+
+router.route('/increaseLikes')
+    .post(async (req, res) => {
+        const postId = req.body.postId;
+        const updatedPost = await postData.increaseLikes(postId);
+        return res.json(updatedPost);
     });
 
 router
@@ -539,7 +659,7 @@ router
 router.route('/discuss').get(async (req, res) => {
     const userCollection = await users();
 
-    const discuss = await discussData.getAllDiscussions();
+    const discuss = await discussData.getAllDiscussions()
     for (let x of discuss) {
         const user = await userCollection.findOne({_id: x.userId});
         x.userName = user.userName;
@@ -557,16 +677,65 @@ router.route('/discuss').get(async (req, res) => {
 
 });
 
-router.route('/discuss').post(async (req, res) => {
+
+
+router
+    .route('/posts/:postId/allComments')
+    .get(async (req, res) => {
+        const postId = req.params.postId;
+        const comment = await commentData.getPostCommentById(postId)
+        return res.render('allComments', {comment: comment, title: 'All Comments'});
+    });
+
 
     const userId = req.session.user.userId;
     const {category, description} = req.body;
 
-    const discuss = await discussData.createDiscussion(category, description, userId);
-    return res.redirect('/discuss');
-    //return res.status(200).render('discuss', { newDiscussion: discuss });
+    // const discuss = await discussData.createDiscussion(category, description, userId);
+    // return res.redirect('/discuss');
+    // //return res.status(200).render('discuss', { newDiscussion: discuss });
 
+
+// });
+
+router.route('/discuss').get(async (req, res) => {
+  const userCollection = await users();
+  const dbQuery = {};
+  if (req.query?.category && req.query.category !== 'All') {
+    dbQuery.category = req.query.category;
+  }
+
+  if (req.query?.search) {
+    dbQuery.description = { $regex: xss(req.query.search), $options: 'i' }; 
+  }
+
+  const discuss = await discussData.getAllDiscussions(dbQuery);
+  for (let x of discuss) {
+    const user = await userCollection.findOne({ _id: x.userId });
+    x.userName = user.userName;
+    x.result = [];
+    for (let y of x.replyId) {
+      const user = await userCollection.findOne({ _id: y.userId });
+      x.result.push({
+        userName: user.userName,
+        message: y.message,
+      });
+    }
+  }
+
+  return res.render('discuss', { newDiscussion: discuss, title: 'Discussion' });
 });
+
+router.route('/discuss').post(async (req, res) => {
+  const userId = req.session.user.userId;
+//   description = validation.checkPhrases(description);
+// category = validation.checkCategory()
+  const { category, description } = req.body;
+
+  const discuss = await discussData.createDiscussion(category, xss(description), userId); 
+  return res.redirect('/discuss');
+});
+
 
 router.route('/discussions/:id/replies').post(async (req, res) => {
 

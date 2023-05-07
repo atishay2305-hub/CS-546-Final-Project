@@ -32,8 +32,8 @@ let exportedMethods = {
             userName: userName,
             address: address,
             created_Date: validation.getDate(),
-            likes: 0,
-            dislikes: 0,
+            likedBy:[],
+            dislikedBy:[],
             commentIds: []
         };
         const postCollection = await posts();
@@ -247,7 +247,7 @@ let exportedMethods = {
                     post.dislikes--;
                 }
             }
-
+            
 
             const updatedInfo = await postCollection.updateOne(
                 {_id: new ObjectId(postId)},
@@ -259,37 +259,63 @@ let exportedMethods = {
             return {likes: post.likes, dislikes: post.dislikes};
         },
 
-    async updateLikes(postId, liked, disliked){
+    async updateLikes(postId, userId,liked,disliked){
         postId = validation.checkId(postId);
+        //userId =validation
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(postId)});
         if(!post) `Error: ${post} not found`;
-        if (!liked && !disliked) {
-            if (post.likes > 0) {
-                post.likes--;
-            } else if (post.dislikes > 0) {
-                post.dislikes--;
+
+        if (liked && !post.likedBy.includes(userId)) {
+            // If the user has not already liked the post
+            post.likedBy.push(userId);
+            if (post.dislikedBy.includes(userId)) {
+                // If the user has already disliked the post, remove their dislike
+                post.dislikedBy = post.dislikedBy.filter((id) => id !== userId);
             }
-        } else {
-            if (liked) {
-                if (disliked && post.dislikes > 0) {
-                    post.dislikes--;
-                }
-                post.likes++;
-            } else {
-                post.likes--;
+            post.likes = post.likedBy.length;
+            post.dislikes = post.dislikedBy.length;
+
+        } else if (disliked && !post.dislikedBy.includes(userId)) {
+            // If the user has not already disliked the post
+            post.dislikedBy.push(userId);
+            if (post.likedBy.includes(userId)) {
+                // If the user has already liked the post, remove their like
+                post.likedBy = post.likedBy.filter((id) => id !== userId);
             }
+            post.likes = post.likedBy.length;
+            post.dislikes = post.dislikedBy.length;
         }
 
-        const updatedInfo = await postCollection.updateOne(
-            {_id: new ObjectId(postId)},
-            { $set: { likes: post.likes, dislikes: post.dislikes }}
-        );
-        if (updatedInfo.modifiedCount === 0) {
-            throw  `Error: Failed to update likes and dislikes for post ${postId}`;
-        }
-        return {likes: post.likes, dislikes: post.dislikes};
+        const updatedPost = await postCollection.updateOne({ _id: post._id }, { $set: post });
+        return post;
     }
+        // if (!liked && !disliked) {
+        //     if (post.likes > 0) {
+        //         post.likes--;
+        //     } else if (post.dislikes > 0) {
+        //         post.dislikes--;
+        //     }
+        // } else {
+        //     if (liked) {
+        //         if (disliked && post.dislikes > 0) {
+        //             post.dislikes--;
+        //         }
+        //         post.likes++;
+        //     } else {
+        //         post.likes--;
+        //     }
+        // }
+
+        // const updatedInfo = await postCollection.updateOne(
+        //     {_id: new ObjectId(postId)},
+        //     { $set: { likes: post.likes, dislikes: post.dislikes }}
+        // );
+        // if (updatedInfo.modifiedCount === 0) {
+        //     throw  `Error: Failed to update likes and dislikes for post ${postId}`;
+        // }
+        // return {likes: post.likes, dislikes: post.dislikes};
+    
 };
 //express session,handlebars
 export default exportedMethods;
