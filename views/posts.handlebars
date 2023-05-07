@@ -125,14 +125,15 @@
     <div class="sort-container">
         <label for="sortCriteria">Filter:</label>
         <select id="sortCriteria" onchange="sortPosts(this.value)">
-            {{!-- <option value="" label="Sort by"> </option> --}}
-            <option value="" label="Select an option"> </option>
+            <option value=""> </option>
+            {{!-- <option value="" label="Select an option"> </option> --}}
             <option value="a-z">A-Z</option>
             <option value="created_date">Created Date</option>
             <option value="most_likes">Most Likes</option>
         </select>
     </div>
 </div>
+
 <div id="posts-container">
     <h1>POSTS</h1>
     {{#each posts}}
