@@ -28,7 +28,7 @@ function postReply(event, postId, button) {
 
     const discussionElement = button.parentNode;
     const cmtErrEle = document.getElementById('cmt-err')
-    const replyText = discussionElement.querySelector('#reply-textarea').value;
+    const replyText = discussionElement.querySelector('#Sreply-textarea').value;
     if(!replyText || !replyText.trim()){
         cmtErrEle.style.display ='block';
         return;

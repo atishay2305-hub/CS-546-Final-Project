@@ -8,7 +8,7 @@
     <div class="sort-container">
         <label for="sortCriteria">Filter:</label>
         <select id="sortCriteria" onchange="sortPosts(this.value)">
-            <option value=""> </option>
+            <option value="" label="Select an Option"> </option>
             {{!-- <option value="" label="Select an option"> </option> --}}
             <option value="a-z">A-Z</option>
             <option value="created_date">Created Date</option>
@@ -30,36 +30,18 @@
             {{/if}}
             <p class="create_date" data-created_Date="{{created_Date}}">Created at: {{created_Date}}</p>
 
-            {{!-- <form class="like-form" id="like-form" action="/posts/{{this._id}}/like" method="post">
-                <button class="like-btn" type="submit" data-post-id="{{this._id}}">Like</button>
-                <span class="like-count" id="like-count-{{this._id}}">{{this.likes}}</span>
-            </form>
 
-            <form class="dislike-form" id="dislike-form" action="/posts/{{this._id}}/dislike" method="post">
-                <button class="dislike-btn" type="submit" data-post-id="{{this._id}}">Dislike</button>
-                <span class="dislike-count" id="dislike-count-{{this._id}}">{{this.dislikes}}</span>
-            </form> --}}
-
-            <form class="like-form" id="like-form">
+            <form class="like-form" id="like-form-{{this._id}}">
                 <button class="like-btn-home" data-post-id="{{this._id}}" onclick="likeFunc('{{this._id}}','post')"><i
                         class="fa fa-thumbs-up">Like</i></button>
                 <span class="like-count" id="like-count-{{this._id}}">{{this.likes}}</span>
             </form>
 
-            <form class="dislike-form" id="dislike-form">
+            <form class="dislike-form" id="dislike-form-{{this._id}}">
                 <button class="dislike-btn-home" data-post-id="{{this._id}}"
                     onclick="dislikeFunc('{{this._id}}','post')"><i class="fa fa-thumbs-down">Dislike</i></button>
                 <span class="dislike-count" id="dislike-count-{{this._id}}">{{this.dislikes}}</span>
             </form>
-
-            {{!-- <button class="like-btn" onclick="toggleLike('{{this._id}}', this)">
-                <ion-icon name="thumbs-up"></ion-icon>
-                <span class="like-count" data-likes="{{this.likes}}">{{this.likes}}</span>
-            </button>
-            <button class="dislike-btn" onclick="toggleDislike('{{this._id}}', this)">
-                <ion-icon name="thumbs-down"></ion-icon>
-                <span class="dislike-count">{{this.dislikes}}</span>
-            </button> --}}
 
 
             <hr>
@@ -91,9 +73,6 @@
                 {{/each}}
             </div>
 
-            {{!-- <button class="comment-btn" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
-                <ion-icon name="chatbox-ellipses"></ion-icon>
-            </button> --}}
             <button class="comment-btn" id="commentBtn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
     <ion-icon name="chatbox-ellipses"></ion-icon>
 </button>
@@ -159,4 +138,4 @@
     <script src="/public/js/homepage/homepage.js"></script>
     <script src="/public/js/post/posts.js" type="module"></script>
     <link rel="stylesheet" href="/public/css/posts.css">
-</body> 
+ 
