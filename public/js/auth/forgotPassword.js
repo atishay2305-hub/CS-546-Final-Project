@@ -4,7 +4,6 @@ import authCheck from "../validtionChecker.js";
         const forgotPassForm = document.getElementById("forgotPassword-form");
         const errorHandle = document.getElementById("forgetPasswordError");
         if (forgotPassForm) {
-
             forgotPassForm.addEventListener("submit", (event) => {
                 event.stopPropagation();
                 event.stopImmediatePropagation();
@@ -12,11 +11,9 @@ import authCheck from "../validtionChecker.js";
                 const elements = event.target.elements;
                 errorHandle.hidden = true;
                 let email = document.getElementById("email").value;
-
                 try {
                     email = authCheck.checkEmail(email);
-
-                } catch (e) {
+                }catch(e) {
                     document.getElementById("email").setAttribute("value", email);
                     return handleError(e || "Something went wrong");
                 }

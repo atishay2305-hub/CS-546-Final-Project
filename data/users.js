@@ -97,8 +97,6 @@ let exportedMethods = {
         );
         if (!checkPassword) throw "You may have entered the wrong email address or password.";
         const userId = checkExist._id.toString();
-        // console.log(userId);
-        // console.log(checkExist.firstName,checkExist.lastName,checkExist.userName, checkExist._id, checkExist.email, checkExist.role, checkExist.department);
         return {
             firstName: checkExist.firstName,
             lastName: checkExist.lastName,

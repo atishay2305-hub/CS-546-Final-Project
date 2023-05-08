@@ -229,15 +229,12 @@ router.route('/profile').get(async (req, res) => {
 
 router.route('/posts')
     .get(async (req, res) => {
-        // Retrieve posts and comments
         let posts = await postData.getAllPosts();
         posts = posts.map(post => {
             return { ...post, _id: post._id.toString() };
         });
         const getComments = posts.map(post => commentData.getPostCommentById(post._id.toString()));
         const allComment = await Promise.all(getComments);
-
-        // Separate comments by postId
         const comments = allComment.reduce((acc, comment, index) => {
             const postId = posts[index]._id.toString();
             if (acc[postId]) {
@@ -253,9 +250,7 @@ router.route('/posts')
             commentArr.sort((a, b) => b.created_Date - a.created_Date);
         });
 
-        // Render the 'posts' template with posts and commentsByPostId
-
-        return res.render('posts', { role: req.session.user.role, posts: posts, comments: comments, title: 'Posts' });
+        return res.render('posts', {role: req.session.user.role, posts: posts, comments: comments, title: 'Posts'});
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
@@ -305,15 +300,12 @@ router.route('/posts')
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
 
-    // console.log(id);
-
     const user = await userData.getUserByID(id);
     return res.render('profile', { user: user, title: 'Profile' });
 });
 
 
 router.route('/posts/:id').delete(async (req, res) => {
-    // console.log(req.params.id);
     try {
         const user = await userData.getUserByID(req.session.user.userId);
         if (!user) {
@@ -339,9 +331,6 @@ router.route('/posts/:id').delete(async (req, res) => {
             const responsePost = await commentData.removeCommentByPost(req.params.id);
         }
         const response = await postData.removeById(req.params.id);
-        // console.log("hi", response.deleted);
-        //const user = await userData.removePost()
-        //const postList = await postData.getAllPosts();
         //res.status(200).send(response);
         //res.send(response);
         return res.sendStatus(200);
@@ -361,7 +350,6 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         const comment = await commentData.createComment(userId, null, postId, commentText, "post");
         console.log("349", comment);
         const post = await postData.putComment(postId, comment.commentId);
-        // console.log(post);
         console.log('The comment is added');
         return res.sendStatus(200);
         return res.redirect('/posts');
@@ -370,47 +358,6 @@ router.route('/posts/:id/comment').post(async (req, res) => {
     }
 
 });
-
-// router.route('').delete(async (req, res) => {
-//     //console.log(req.params.id);
-//     console.log("entered delete event route");
-//     try {
-//         const user = await userData.getUserByID(req.session.user.userId);
-//         if (!user) {
-//             throw 'cannot find user';
-//         }
-//         if (user.role !== 'admin') throw "Only administrators can delete events.";
-
-
-//         const commentCollection = await comments();
-//         const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
-//         if (event.length !== 0) {
-//             const response = await commentData.removeCommentByEvent(req.params.id);
-//             console.log("hi", response.deleted);
-//         }
-//         if (!event) {
-//             throw "No events found!!"
-//         }
-
-//         const responseEvent = await eventsData.removeEventById(req.params.id);
-
-
-//         // console.log("hi", responseEvent.deleted);
-
-
-
-
-
-// router.route('/logout')
-//   .get(async (req, res) => {
-//     if (req.cookies.AuthCookie) {
-//       res.clearCookie('AuthCookie');
-//     }
-//     res.redirect('/');
-//   });
-
-// router.route('/add-comment').post(async(req,res)=>{
-
 
 router
     .route('/reset-password/:id')
@@ -562,8 +509,7 @@ router.route('/posts/:id/comment').post(async (req, res) => {
     try {
         const userId = req.session.user.userId;
         const postId = req.params.id;
-        // console.log("here",postId);
-        const { commentText } = req.body;
+        const {commentText} = req.body;
         commentText = validation.checkComments(commentText);
 
         if (commentText === '' || commentText.trim().length === 0) {
@@ -599,9 +545,7 @@ router
             //const { liked, disliked } = req.body;
             const postCollection = await posts();
 
-
-            const result = await postData.updateLikes(postId, userId, liked, disliked);
-            //console.log(result);
+            const result = await postData.updateLikes(postId, userId, liked,disliked);
             return res.json(result);
             // if (typeof localStorage !== 'undefined') {
             //     const storageKey = `post-${postId}-state`;
@@ -651,18 +595,29 @@ router.route('/increaseLikes')
         return res.json(updatedPost);
     });
 
-router
-    .route('/search')
-    .get(async (req, res) => {
-        try {
-            const searchTerm = req.query.query;
-            console.log("searchTerm:", searchTerm);
-            const searchResults = await eventsData.searchEvent(searchTerm);
-            res.render('searchResults', { results: searchResults, title: 'Search Results' });
-        } catch (e) {
-            res.status(500).json({ error: 'Internal server error' });
-        }
-    });
+// router
+//     .route('/search')
+//     .get(async (req, res) => {
+//         try {
+//             const searchTerm = req.query.query;
+//             console.log("searchTerm:",searchTerm);
+//             const searchResults = await eventsData.searchEvent(searchTerm);
+//             res.render('searchResults', {results: searchResults, title: 'Search Results'});
+//         } catch (e) {
+//             res.status(500).json({error: 'Internal server error'});
+//         }
+//     });
+router.get('/search', async (req, res) => {
+    try {
+      const searchTerm = req.query.query;
+      console.log("searchTerm:", searchTerm);
+      const searchResults = await eventsData.searchEvent(searchTerm);
+      res.render('searchResults', { results: searchResults, title: 'Search Results' });
+    } catch (e) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
 
 router.route('/discuss').get(async (req, res) => {
     const userCollection = await users();
@@ -680,13 +635,12 @@ router.route('/discuss').get(async (req, res) => {
             });
         }
     }
-
-    if (Object.keys(req.query).length != 0) {
-        let category = req.query.category;
-        let search = req.query.search;
-        category = category.toLowerCase();
-        search = search.toLowerCase().trim();
-        // console.log(search);
+    
+    if(Object.keys(req.query).length!=0){
+        let category=req.query.category;
+        let search=req.query.search;
+        category=category.toLowerCase();
+        search=search.toLowerCase().trim();
 
         if (category && category == "all") {
             discuss = discuss.filter(d => d.description.toLowerCase().includes(search));

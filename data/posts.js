@@ -188,7 +188,6 @@ let exportedMethods = {
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(postId)});
         if (!post) throw `Error: ${post} not found`;
-        // console.log(post) 
         let commentIdList = post.commentIds;
         commentIdList.push(new ObjectId(commentId));
         const updatedInfo = await postCollection.updateOne(
@@ -291,7 +290,7 @@ let exportedMethods = {
         // return {likes: post.likes, dislikes: post.dislikes};
     
 };
-//express session,handlebars
+
 export default exportedMethods;
 
 

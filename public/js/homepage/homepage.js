@@ -2,7 +2,6 @@
 function toggleComments(button) {
     const replies = button.nextElementSibling;
 
-    // Toggle the display of the replies
     if (replies.style.display === 'block') {
         replies.style.display = 'none';
         button.innerText = 'View Comments';

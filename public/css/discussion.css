@@ -1,20 +1,16 @@
-/* Override Bootstrap styles */
 .discussion-panel .btn-primary {
-  /* Add your custom styles here */
   color: #fff;
   background-color: blue;
   border-color: blue;
 }
 
 #filters .btn-dark {
-  /* Add your custom styles here */
   color: #fff;
   background-color: #343a40;
   border-color: #343a40;
 }
 
 .discussion {
-  /* Add your custom styles here */
   color: #333;
 }
 .discussion-panel .discussion .text-primary {
@@ -31,29 +27,23 @@
   border-color: green !important;
 }
 
-
-
 .replies .btn-info {
-  /* Add your custom styles here */
   color: #fff;
   background-color: green;
   border-color: green;
 }
 
 .reply-form .btn-success {
-  /* Add your custom styles here */
   color: #fff;
   background-color: #28a745;
   border-color: #28a745;
 }
 
 .modal-content .btn-primary {
-  /* Add your custom styles here */
   color: #fff;
   background-color: blue;
   border-color: blue;
 }
-
 
 .container {
   max-width: 600px;

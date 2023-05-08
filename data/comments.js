@@ -10,7 +10,6 @@ let exportedMethods = {
         contents = validation.checkComments(contents);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        //const user = await userData.getUserByID(userId);
         if (!user) {
             throw "No user found!";
         }
@@ -103,12 +102,8 @@ let exportedMethods = {
             throw `No comment with that id ${commentId}`;
         }
         const user = userData.getUserByUserName(comment.userName);
-        console.log(user);
-        // TODO: IT can return the user who commented that comment whose comment ID is provided.
-        // but we return that comment
         return comment;
     },
-    // remove comments by a particular ID
     async removeCommentById(commentId) {
         commentId = validation.checkId(commentId);
         const commentCollection = await comments();
@@ -152,20 +147,6 @@ let exportedMethods = {
         return `The comment ${commentId} delete successfully`;
     },
 
-    // get all comments that the user did
-    // async getUserCommentById(userId){
-    //     userId = await validation.checkId(userId)
-    //     const user = await userData.getUserByID(userId);
-    //     if(!user) throw `No event with that id ${userId}`;
-    //     const commentList = userId.commentIds || [];
-    //     const comments = [];
-    //     for(let i = 0; i < commentList.length; i++){
-    //         const comment = await this.getCommentById(commentList[i]);
-    //     }
-    //     return comments;
-    // },
-
-    // get all comments that the events had
     async getEventCommentById(eventId) {
         eventId = await validation.checkId(eventId);
         // const post = await postData.getPostById(postId);
@@ -185,20 +166,13 @@ let exportedMethods = {
         return commentList;
         // return comments;
     },
-    // get all comments that the posts had
     async getPostCommentById(postId) {
         postId = await validation.checkId(postId);
         // const post = await postData.getPostById(postId);
         // if(!post) throw `No  post with that id ${postId}`;
         const commentCollection = await comments();
         const userCollection = await users();
-        return await commentCollection
-            .find({postId: new ObjectId(postId)}).toArray();
-        // for (let x of commentList) {
-        //   const user = await userCollection.findOne({ _id: x.userId });
-        //   x.userName = user.userName;
-        // }
-        // return comments;
+        return await commentCollection.find({postId: new ObjectId(postId)}).toArray();
     },
 
   async getPostHomeCommentById(postId){
@@ -215,8 +189,6 @@ let exportedMethods = {
       const user = await userCollection.findOne({ _id: x.userId });
       x.userName = user.userName;
     }
-    console.log(comments);
-
   },
 
   async removeCommentByEvent(eventId) {

@@ -3,7 +3,6 @@ import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {commentData, userData} from "./index.js";
 import multer from "multer";
-//import commentData  from "./commentBtn.js";
 
 let exportedMethods = {
     async createEvent(

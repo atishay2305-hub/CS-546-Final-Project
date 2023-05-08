@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const registerButtons = document.querySelectorAll(".register-btn");
     registerButtons.forEach(registerButton => {
         registerButton.addEventListener("click", async function (event) {
-            event.preventDefault(); // prevent form from submitting
+            event.preventDefault(); 
             const eventId = event.target.dataset.event_id;
             const userId = document.querySelector('.container').dataset.userid;
             const email = document.querySelector('.container').dataset.email;
