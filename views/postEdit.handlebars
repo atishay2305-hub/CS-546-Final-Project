@@ -1,0 +1,61 @@
+<div id="posts-container">
+    <div class="post-container">
+        {{#if deletable}}
+            <button class="delete-btn" onclick="deletePost('{{post._id}}')" data-event_id="{{post._id}}">
+                <i class="fas fa-trash"></i> Delete Post
+            </button>
+        {{/if}}
+        <h2>{{post.content}}</h2>
+        <img id="img-home" src="{{post.image}}" alt="Post image">
+        <p>Category: {{post.category}}</p>
+        <p>Created by: {{post.userName}}</p>
+        {{#if (if_eq category "lost&found")}}
+            <p>Address: {{post.address}}</p>
+        {{/if}}
+        <p class="create_date" data-created_Date="{{created_Date}}">Created at: {{post.created_Date}}</p>
+        <button class="like-btn" onclick="toggleLike('{{post._id}}', this)">
+            <ion-icon name="thumbs-up"></ion-icon>
+            <span class="like-count" data-likes="{{post.likes}}">{{post.likes}}</span>
+            <span>Likes</span>
+        </button>
+        <button class="dislike-btn" onclick="toggleDislike('{{post._id}}', this)">
+            <ion-icon name="thumbs-down"></ion-icon>
+            <span class="dislike-count">{{post.dislikes}}</span>
+            <span>DisLikes</span>
+        </button>
+        <hr>
+        <div id="comments-{{post._id}}" class="comments-container">
+            <form class="comment-form" id="comment-form-{{post._id}}" action="/posts/{{post._id}}/comment"
+                  method="POST">
+                <input type="hidden" name="postId" value="{{post._id}}">
+                <label for="comment-text-{{post._id}}">Add a Comment:</label>
+                <input type="text" name="commentText" id="comment-text-{{post._id}}">
+                <button type="button" onclick="addComment(event, '{{post._id}}', this)">Submit</button>
+            </form>
+            {{#each comments}}
+                <div class="comment">
+                    <p>Comment: {{contents}} - User Name: {{userName}} - Created
+                        Date: {{created_Date}}</p>
+                </div>
+
+                {{#if ../deletable}}
+                    <button class="delete-comment-btn" onclick="deleteComment('{{this._id}}', '{{../post._id}}')">
+                        <i class="fas fa-trash"></i> Delete Comment
+                    </button>
+                {{/if}}
+                <hr>
+            {{/each}}
+        </div>
+        <button class="comment-btn" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
+            <ion-icon name="chatbox-ellipses"></ion-icon>
+            Comments
+        </button>
+    </div>
+    <script src="/public/js/delete.js"></script>
+    <script src="/public/js/post/map.js"></script>
+    <script src="/public/js/post/commentBtn.js"></script>
+    <script src="/public/js/post/comments.js"></script>
+    <script src="/public/js/post/like&dislike.js"></script>
+    <script src="/public/js/post/posts.js" type="module"></script>
+    <link rel="stylesheet" href="/public/css/posts.css">
+</div>

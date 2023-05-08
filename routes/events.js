@@ -10,7 +10,6 @@ import {registrationConfirmByEmail} from "../email.js";
 import xss from 'xss';
 import {comments, users, posts, events} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
-import { title } from 'process';
 
 const router = Router();
 
@@ -35,7 +34,7 @@ const eventUploadImage = eventUpload.single("eventImage");
 router
     .route('/')
     .get(async (req, res) => {
-        let events = []; 
+        let events = []; // Declare and initialize events variable
 
         if (req.session.user) {
             events = await eventsData.getAllEvents();
@@ -75,8 +74,7 @@ router
                 email: req.session.user.email,
                 role: req.session.user.role,
                 events: events,
-                comments: comments,
-                title: 'Events'
+                comments: comments
             });
         }
     })
@@ -133,12 +131,37 @@ router
         const post = await eventsData.putComment(eventId, comment.commentId);
 
         console.log('The comment is added');
-        return res.redirect("/events")
+        return res.redirect(`/events/${eventId}`)
     } catch (e) {
         console.log(e);
         return res.json({success: false, message: e.message});
     }
 });
+
+router
+    .route('/:eventId/attendees/:id')
+    .delete(async (req, res) => {
+        try {
+            const eventId = req.params.eventId;
+            const userId = req.params.id;
+            const attendees = await userData.removeAttendee(userId, eventId);
+            const eventAttended = await userData.removeEventAttended(userId, eventId);
+            if (!attendees.deleteInfo || !eventAttended) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Fail to delete attendee or event attended list"
+                });
+            }
+            return res.json({success: true, message: "Cancel successful"})
+        } catch (e) {
+            console.log(e);
+            res.sendStatus(500).json({
+                success: false,
+                message: "Something went wrong."
+            });
+        }
+    });
+
 
 router
     .route('/event-register')
@@ -155,8 +178,10 @@ router
             const attendeesList = event.attendees;
             const checkExist = attendeesList.length > 0 && Object.values(attendeesList).some(attendee => attendee.id === userId);
             if (!checkExist) {
+                // user not already registered
                 await registrationConfirmByEmail({id: eventId, email: email}, res);
             } else {
+                // user already registered
                 return res.status(400).json({
                     success: false,
                     message: "You have already registered for this event."
@@ -171,30 +196,30 @@ router
     });
 
 router
-    .route('/:eventId/attendees/:id')
+    .route('/:eventId/comments/:id')
     .delete(async (req, res) => {
-    try {
-        const eventId = req.params.eventId;
-        const userId = req.params.id;
-        const user = await userData.getUserByID(userId);
-        const event = await eventsData.getEventByID(eventId);
-        const attendees = await userData.removeAttendee(user._id, eventId);
-        const eventAttended = await userData.removeEventAttended(user._id, eventId);
-        if (!attendees.deleteInfo || !eventAttended) {
-            return res.status(404).json({
-                success: false,
-                message: "Fail to delete attendee or event attended list"
+        try {
+            const eventId = req.params.eventId;
+            const commentId = req.params.id;
+            const comments = await commentData.removeCommentById(commentId);
+            if (!comments.deleteInfo) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Fail to delete attendee or event attended list"
+                });
+            }
+            return res.status(200).json({
+                success: true,
+                message: "Comment deleted successfully"
             });
-        }
-        return res.json({success: true, message: "Cancel successful"})
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500).json({
+        } catch (e) {
+            console.log(e);
+            res.status(500).json({
                 success: false,
                 message: "Something went wrong."
-        });
-    }
-});
+            });
+        }
+    });
 
 router
     .route("/registration/confirm/:id")
@@ -230,38 +255,37 @@ router
         }
     });
 
-router.route('/events/:id').delete(async (req, res) => {
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
+router
+    .route('/:id')
+    .get(async (req, res) => {
+        const event = await eventsData.getEventByID(req.params.id);
+        const deletable = req.session.user.role === 'admin';
+        const registered = Object.values(event.attendees).some(attendee => attendee.id === req.session.user.userId);
+        const comments = await commentData.getEventCommentById(req.params.id);
+        res.render("eventEdit", {
+            userId: req.session.user.userId,
+            email: req.session.user.email,
+            deletable: deletable,
+            registered: registered,
+            event: event,
+            comments: comments
+        });
 
-        const deleteEvent = await eventsData.getEventByID(req.params.id);
-        console.log(deleteEvent);
-        if (deleteEvent.image !== 'images/default.jpg') {
-            // Delete the image file from the file system
-            console.log(deleteEvent.image);
-            fs.unlink(`./public${deleteEvent.image}`, err => {
-              if (err) {
-                console.log(err);
-                console.error(`Error deleting image file: ${err}`);
-              }
-            });
+    })
+    .delete(async (req, res) => {
+        //console.log(req.params.id);
+        try {
+
+            const removeComments = await commentData.removeCommentByEvent(req.params.id)
+            const responseEvent = await eventsData.removeEventById(req.params.id);
+            if (!responseEvent.deleted || !removeComments.deleted) {
+                return res.status(400).json("Unable to delete")
+            }
+            return res.sendStatus(200);
+        } catch (e) {
+            console.log(e);
         }
 
-        const commentCollection = await comments();
-        const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
-        if (event.length !== 0) {
-            const response = await commentData.removeCommentByEvent(req.params.id);
-        }
-
-        const responseEvent = await eventsData.removeEventById(req.params.id);
-        return res.sendStatus(200);
-
-    } catch (e) {
-        console.log(e);
-    }
-
-
-});
-
+    });
 
 export default router;

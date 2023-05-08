@@ -36,7 +36,6 @@ const upload = multer({ storage: storage });
 const uploadImage = upload.single("postImage");
 
 
-
 router.route('/').get(async (req, res) => {
 
     if (req.session.user) {
@@ -45,6 +44,7 @@ router.route('/').get(async (req, res) => {
         return res.status(200).render('login', { title: 'Login' });
     }
 });
+
 router
     .route('/login')
     .get(async (req, res) => {
@@ -61,14 +61,12 @@ router
             email = validation.checkEmail(email);
             password = validation.checkPassword(password);
             const sessionUser = await userData.checkUser(email, password);
-
             req.session.user = {
                 userName: sessionUser.userName,
                 email: sessionUser.emailAddress,
                 userId: sessionUser.userId,
                 role: sessionUser.role
             };
-
             return res.redirect('/homepage');
         }
 
@@ -254,7 +252,7 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
-
+        console.log(id);
         const userName = req.session.user.userName;
         const role = req.session.user.role;
         if (role === 'admin') {
@@ -283,10 +281,8 @@ router.route('/posts')
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
 
-
             console.log("The post is posted");
             return res.redirect('/posts');
-
         } catch (e) {
             return res.status(400).json({
                 success: false,
@@ -299,10 +295,14 @@ router.route('/posts')
 
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
-
+    // console.log(id);
     const user = await userData.getUserByID(id);
-    return res.render('profile', { user: user, title: 'Profile' });
+    return res.render('profile', {user: user});
 });
+
+
+
+
 
 
 router.route('/posts/:id').delete(async (req, res) => {
@@ -467,19 +467,11 @@ router
 
 router.use('/logout', (req, res) => {
     if (!req.session.user) {
-        return res.render('login', { title: 'Login' });
+        return res.render('login', {title: 'Login'});
     }
     req.session.destroy();
-    return res.render('logout', { title: 'logout' });
+    return res.render('logout', {title: 'logout'});
 });
-
-router.route('/profile').get(async (req, res) => {
-    const id = req.session.user.userId;
-
-    const user = await userData.getUserByID(id);
-    return res.render('profile', { user: user });
-});
-
 
 
 router.route('/posts/:id').delete(async (req, res) => {
@@ -489,7 +481,7 @@ router.route('/posts/:id').delete(async (req, res) => {
             throw 'cannot find user';
         }
         const commentCollection = await comments();
-        const post = await commentCollection.find({ postId: new ObjectId(req.params.id) }).toArray();
+        const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
         if (post.length !== 0) {
             const responsePost = await commentData.removeCommentByPost(req.params.id);
             console.log("hi", responsePost.deleted);
@@ -501,7 +493,7 @@ router.route('/posts/:id').delete(async (req, res) => {
         //res.send(response);
         return res.sendStatus(200);
     } catch (e) {
-        return res.status(404).json({ error: 'Resource not found' });
+        return res.status(404).json({error: 'Resource not found'});
     }
 });
 
@@ -526,10 +518,9 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         }
 
     } catch (e) {
-        // return res.sendStatus(404)
-        console.log(e)
-        // return res.render('error', {error: 'Either the comment is empty or we could not add it'});
+        console.log(e);
     }
+
 });
 
 router
@@ -561,7 +552,8 @@ router
             // return res.redirect('/homepage');
         } catch (e) {
             console.log(e)
-            res.status(500).send(e.message);;
+            res.status(500).send(e.message);
+            ;
         }
     });
 
@@ -569,7 +561,7 @@ router
     .route('/posts/:postId/dislike')
     .post(async (req, res) => {
         try {
-            const { postId } = req.params;
+            const {postId} = req.params;
             const userId = req.session.user.userId;
             const userName = req.session.user.userName;
             const liked = false;
@@ -655,7 +647,6 @@ router.route('/discuss').get(async (req, res) => {
 });
 
 
-
 router
     .route('/posts/:postId/allComments')
     .get(async (req, res) => {
@@ -663,7 +654,6 @@ router
         const comment = await commentData.getPostCommentById(postId)
         return res.render('allComments', { comment: comment, title: 'All Comments' });
     });
-
 
 
 // const discuss = await discussData.createDiscussion(category, description, userId);
@@ -741,15 +731,89 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
 });
 
 
-
 router.get('/searchDiscussions', async (req, res) => {
     try {
         let searchTerm = xss(req.query.query);
         const searchResults = await discussData.searchDiscussion(searchTerm);
-        return res.render('discussionsResults', { results: searchResults, title: 'Discussion Results' });
+        return res.render('discussionsResults', {results: searchResults, title: 'Discussion Results'});
     } catch (e) {
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({error: 'Internal server error'});
     }
 });
+
+router
+    .route('/posts/:id')
+    .get(async (req, res) => {
+        const post = await postData.getPostById(req.params.id);
+        const deletable = (req.session.user.role === 'admin' || req.session.user.userId === post.userId);
+        const comments = await commentData.getPostCommentById(req.params.id);
+        res.render("postEdit", {
+            userId: req.session.user.userId,
+            email: req.session.user.email,
+            deletable: deletable,
+            post: post,
+            comments: comments
+        });
+    })
+    .delete(async (req, res) => {
+        try{
+            const removeComments = await commentData.removeCommentByPost(req.params.id);
+            const responsePost = await postData.removePostById(req.params.id);
+            if(!responsePost.deleted || !removeComments.deleted){
+                return res.status(400).json("Unable to delete")
+            }
+            return res.sendStatus(200);
+        } catch (e) {
+            console.log(e);
+        }
+    });
+
+
+
+router
+    .route('/posts/:id/comment')
+    .post(async (req, res) => {
+        try {
+            const userId = req.session.user.userId;
+            const postId = req.params.id.toString();
+            const {commentText} = req.body;
+            // console.log(postId);
+            // console.log(commentText);
+            const comment = await commentData.createComment(userId, null, postId, commentText, "post");
+            console.log(comment);
+            const post = await postData.putComment(postId, comment.commentId);
+            // console.log(post);
+            console.log('The comment is added');
+            return res.sendStatus(200);
+        } catch (e) {
+            console.log(e);
+        }
+    });
+
+router
+    .route('/posts/:postId/comments/:id')
+    .delete(async (req, res) => {
+        try {
+            const postId = req.params.postId;
+            const commentId = req.params.id;
+            const comments = await commentData.removeCommentById(commentId);
+            if (!comments.deleteInfo) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Fail to delete attendee or event attended list"
+                });
+            }
+            return res.status(200).json({
+                success: true,
+                message: "Comment deleted successfully"
+            });
+        } catch (e) {
+            console.log(e);
+            res.status(500).json({
+                success: false,
+                message: "Something went wrong."
+            });
+        }
+    });
 
 export default router;

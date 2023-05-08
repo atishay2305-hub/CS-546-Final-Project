@@ -36,6 +36,7 @@ import authCheck from "../validtionChecker.js";
                 }).then((data) => {
                     if (data) {
                         if (!data.success) {
+                            // document.getElementById("email").value = data.email;
                             document.getElementById("email").value = data.email;
                             return handleError1(data.message || "Something went wrong.");
                         }
