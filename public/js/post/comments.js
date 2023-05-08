@@ -29,32 +29,62 @@ function showCommentsPopup(postId) {
         document.addEventListener('click', closeCommentsPopup);
         commentsPopup.addEventListener('click', preventPopupClose);
 
-        // Validate and handle comment form submission
-        const commentForm = document.getElementById(`comment-form-${postId}`);
-        const commentText = document.getElementById(`comment-text-${postId}`);
-        const commentError = document.getElementById(`comment-error-${postId}`);
+        
+//         const commentForm = document.getElementById(`comment-form-${postId}`);
+//         const commentText = document.getElementById(`comment-text-${postId}`);
+//         const commentError = document.getElementById(`comment-error-${postId}`);
 
-        commentForm.addEventListener('submit', (event) => {
-            event.preventDefault();
+//         commentForm.addEventListener('submit', (event) => {
+//             event.preventDefault();
             
-            const comment = commentText.value.trim();
+//             const comment = commentText.value.trim();
+//             console.log("hereeeeeeeeeeeeeeeeeee------>>>>", comment);
 
-            if (comment === '') {
-                commentError.innerText = 'Comment cannot be empty.';
-                commentError.style.display = 'block';
-                return;
-            }
+//             if (comment === '') {
+//                 commentError.innerText = 'Comment cannot be empty.';
+//                 commentError.style.display = 'block';
+//                 return;
+//             }
 
-            if (comment.length > 300) {
-                commentError.innerText = 'Comment should not exceed 300 characters.';
-                commentError.style.display = 'block';
-                return;
-            }
+//             if (comment.length > 300) {
+//                 commentError.innerText = 'Comment should not exceed 300 characters.';
+//                 commentError.style.display = 'block';
+//                 return;
+//             }
 
-            // Submit the comment form if it passes validation
-            commentError.style.display = 'none';
-            commentForm.submit();
-        });
+//             // Submit the comment form if it passes validation
+//             commentError.style.display = 'none';
+//             commentForm.submit();
+//         });
+//     }
+// }
+
+
+  function validateForm(event) {
+    event.preventDefault(); // prevent the form from submitting
+    const commentInput = document.getElementById(`comment-text-${this._id}`);
+    console.log("there", commentInput);
+    const commentText = commentInput.value.trim();
+    if (!commentText) {
+      alert('Please enter a comment');
+      return;
+    }
+    // if the input is valid, submit the form using fetch
+    fetch(`/posts/${this._id}/comment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId: this._id, commentText })
+    })
+    .then(response => response.json())
+    .then(data => {
+      // handle the response from the server
+      console.log(data);
+    })
+    .catch(error => {
+      // handle any errors that occur during the request
+      console.error(error);
+    });
+  }
     }
 }
 

@@ -10,7 +10,9 @@ import authCheck from "../validtionChecker.js";
                 event.preventDefault();
                 errorHandle.hidden = true;
                 let newPassword = document.getElementById("newPassword").value;
+                console.log("13", newPassword)
                 let confirmNewPassword = document.getElementById("confirmNewPassword").value;
+                console.log("15", confirmNewPassword);
 
                 try {
                     newPassword = authCheck.checkPassword(newPassword);
