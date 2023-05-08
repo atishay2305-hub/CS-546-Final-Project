@@ -32,8 +32,8 @@ let exportedMethods = {
             userName: userName,
             address: address,
             created_Date: validation.getDate(),
-            likes: 0,
-            dislikes: 0,
+            likedBy:[],
+            dislikedBy:[],
             commentIds: []
         };
         const postCollection = await posts();
@@ -105,7 +105,7 @@ let exportedMethods = {
     //     if (user.isAdmin === undefined || !user.isAdmin) {
     //         if(!user.postIDs.includes(id)){
     //             throw "Only administrators or the poster can delete posts.";
-    //         } 
+    //         }
     //     }
 
     //     const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
@@ -142,7 +142,7 @@ let exportedMethods = {
             throw `Could not delete band with id of ${id}`;
         }
         await userData.removePost(post.userId.toString(), id);
-    
+
         return {
             eventId: id,
             deleted: true
@@ -199,22 +199,22 @@ let exportedMethods = {
         post.likes++;
         await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
         return post;
-      },
-      
-      async increaseDislikes(postId) {
+    },
+
+    async increaseDislikes(postId) {
         const post = await this.getPostById(postId);
         post.dislikes++;
         await this.updatePost(post._id, post.userId, post.category, post.content, post.likes, post.dislikes, post.commentIds);
         return post;
-      },  
-      
-      async putComment(postId, commentId) {
+    },
+
+    async putComment(postId, commentId) {
         postId = validation.checkId(postId);
         commentId = validation.checkId(commentId);
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(postId)});
         if (!post) throw `Error: ${post} not found`;
-        // console.log(post) 
+        // console.log(post)
         let commentIdList = post.commentIds;
         commentIdList.push(new ObjectId(commentId));
         const updatedInfo = await postCollection.updateOne(
@@ -223,75 +223,75 @@ let exportedMethods = {
         );
         if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put comment with that ID ${postId}`;
         return true;
-        },
+    },
 
-        async updateDisLikes(postId, liked, disliked){
-            postId = validation.checkId(postId);
-            const postCollection = await posts();
-            const post = await postCollection.findOne({_id: new ObjectId(postId)});
-
-            if(!post) `Error: ${post} not found`;
-            if (!liked && !disliked) {
-                if (post.dislikes > 0) {
-                    post.dislikes--;
-                } else if (post.likes > 0) {
-                    post.likes--;
-                }
-            } else {
-                if (disliked) {
-                    if (liked && post.likes > 0) {
-                        post.likes--;
-                    }
-                    post.dislikes++;
-                } else {
-                    post.dislikes--;
-                }
-            }
-
-
-            const updatedInfo = await postCollection.updateOne(
-                {_id: new ObjectId(postId)},
-                { $set: { likes: post.likes, dislikes: post.dislikes}}
-            );
-            if (updatedInfo.modifiedCount === 0) {
-                throw `Error: Failed to update likes and dislikes for post ${postId}`;
-            }
-            return {likes: post.likes, dislikes: post.dislikes};
-        },
-
-    async updateLikes(postId, liked, disliked){
+    async updateDisLikes(postId, liked, disliked){
         postId = validation.checkId(postId);
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(postId)});
+
         if(!post) `Error: ${post} not found`;
         if (!liked && !disliked) {
-            if (post.likes > 0) {
-                post.likes--;
-            } else if (post.dislikes > 0) {
+            if (post.dislikes > 0) {
                 post.dislikes--;
+            } else if (post.likes > 0) {
+                post.likes--;
             }
         } else {
-            if (liked) {
-                if (disliked && post.dislikes > 0) {
-                    post.dislikes--;
+            if (disliked) {
+                if (liked && post.likes > 0) {
+                    post.likes--;
                 }
-                post.likes++;
+                post.dislikes++;
             } else {
-                post.likes--;
+                post.dislikes--;
             }
         }
+
 
         const updatedInfo = await postCollection.updateOne(
             {_id: new ObjectId(postId)},
-            { $set: { likes: post.likes, dislikes: post.dislikes }}
+            { $set: { likes: post.likes, dislikes: post.dislikes}}
         );
         if (updatedInfo.modifiedCount === 0) {
-            throw  `Error: Failed to update likes and dislikes for post ${postId}`;
+            throw `Error: Failed to update likes and dislikes for post ${postId}`;
         }
         return {likes: post.likes, dislikes: post.dislikes};
+    },
+
+    async updateLikes(postId, userId,liked,disliked){
+        postId = validation.checkId(postId);
+        //userId =validation
+        const postCollection = await posts();
+        const post = await postCollection.findOne({_id: new ObjectId(postId)});
+        if(!post) `Error: ${post} not found`;
+
+        if (liked && !post.likedBy.includes(userId)) {
+            // If the user has not already liked the post
+            post.likedBy.push(userId);
+            if (post.dislikedBy.includes(userId)) {
+                // If the user has already disliked the post, remove their dislike
+                post.dislikedBy = post.dislikedBy.filter((id) => id !== userId);
+            }
+            post.likes = post.likedBy.length;
+            post.dislikes = post.dislikedBy.length;
+
+        } else if (disliked && !post.dislikedBy.includes(userId)) {
+            // If the user has not already disliked the post
+            post.dislikedBy.push(userId);
+            if (post.likedBy.includes(userId)) {
+                // If the user has already liked the post, remove their like
+                post.likedBy = post.likedBy.filter((id) => id !== userId);
+            }
+            post.likes = post.likedBy.length;
+            post.dislikes = post.dislikedBy.length;
+        }
+
+        const updatedPost = await postCollection.updateOne({ _id: post._id }, { $set: post });
+        return post;
     }
+
 };
 //express session,handlebars
 export default exportedMethods;
-
 

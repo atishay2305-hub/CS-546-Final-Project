@@ -80,10 +80,24 @@ const exportedMethods = {
         phrase = phrase.trim();
         if (phrase.length < 5)
             throw `${valName} length must greater than 5 characters`;
-        if (phrase.length > 300)
+        if (phrase.length > 300){
             throw `${valName} length must less than 300 characters`;
+        }
         return phrase;
     },
+
+    checkComments(phrase, valName) {
+        if (!phrase) throw `${valName} not provided`;
+        if (typeof phrase !== "string" || phrase.trim().length === 0) throw `Please provide a valid input of ${valName}`
+        phrase = phrase.trim();
+        // if (phrase.length < 5)
+        //     throw `${valName} length must greater than 5 characters`;
+        if (phrase.length > 300){
+            throw `${valName} length must less than 300 characters`;
+        }
+        return phrase;
+    },
+
 
     checkDOB(DOB) {
         if (!DOB) throw "DOB not provided";
@@ -100,23 +114,6 @@ const exportedMethods = {
         return DOB;
     },
 
-    checkComment(comment) {
-        // Check if the comment is empty or only contains whitespace
-        if (!comment || /^\s*$/.test(comment)) {
-            return false;
-        }
-
-        // Check if the comment contains any inappropriate language
-        const inappropriateWords = ['bad', 'hate', 'stupid', 'ugly', 'disgusting', 'offensive'];
-        for (const word of inappropriateWords) {
-            if (comment.toLowerCase().includes(word)) {
-                comment = comment.replaceAll(word, '***');
-            }
-        }
-
-        // Return the updated comment
-        return comment;
-    },
 
     checkDate(date) {
         if (!date) throw "Date not provided";

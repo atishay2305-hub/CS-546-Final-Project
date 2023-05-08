@@ -51,6 +51,7 @@ let exportedMethods = {
             email: email,
             password: await bcrypt.hash(password, 10),
             DOB: DOB,
+            commentIDs: [],
             eventAttend: [],
             role: role,
             department: department,
