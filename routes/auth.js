@@ -639,6 +639,7 @@ router
     .get(async (req, res) => {
         try {
             const searchTerm = req.query.query;
+            console.log("searchTerm:",searchTerm);
             const searchResults = await eventsData.searchEvent(searchTerm);
             res.render('searchResults', {results: searchResults, title: 'Search Results'});
         } catch (e) {
@@ -648,8 +649,8 @@ router
 
 router.route('/discuss').get(async (req, res) => {
     const userCollection = await users();
-
-    const discuss = await discussData.getAllDiscussions()
+   
+    var discuss = await discussData.getAllDiscussions()
     for (let x of discuss) {
         const user = await userCollection.findOne({_id: x.userId});
         x.userName = user.userName;
@@ -662,7 +663,22 @@ router.route('/discuss').get(async (req, res) => {
             });
         }
     }
+    
+    if(Object.keys(req.query).length!=0){
+        let category=req.query.category;
+        let search=req.query.search;
+        category=category.toLowerCase();
+        search=search.toLowerCase().trim();
+        // console.log(search);
 
+        if(category && category=="all"){
+            discuss=discuss.filter(d =>d.description.toLowerCase().includes(search));
+        }else{
+            discuss=discuss.filter(d => d.category.toLowerCase()==category && d.description.toLowerCase().includes(search)); 
+        }
+      
+    }
+  
     return res.render('discuss', {newDiscussion: discuss, title: 'Discussion'});
 
 });
