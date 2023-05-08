@@ -10,7 +10,6 @@ const router = Router();
 router
   .route('/:postId')
   .get(async (req, res) => {
-    //code here for GET
     try{
       if (!req.params.postId||typeof req.params.postId !=='string'||req.params.postId.trim().length===0){
         throw new Error('Id must be a non empty string');
@@ -38,7 +37,6 @@ router
 
   })
   .post(async (req, res) => {
-    //code here for POST
 
     let createcmt = req.body;
     let{comment} = createcmt;
@@ -69,7 +67,6 @@ router
 router
   .route('/comment/:commentId')
   .get(async (req, res) => {
-    //code here for GET
     try{
       if (!req.params.commentId||typeof req.params.commentId !=='string'||req.params.commentId.trim().length===0){
         throw new Error('Id must be a non empty string');
@@ -96,9 +93,7 @@ router
   
   })
   .delete(async (req, res) => {
-    //code here for DELETE
        try{
-        //validateFunc.checkId(req.params.id);
         if (!req.params.commentId||typeof req.params.commentId !=='string'||req.params.commentId.trim().length===0){
           throw new Error('Id must be a non empty string');
       }

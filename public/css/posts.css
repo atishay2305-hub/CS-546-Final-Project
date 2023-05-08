@@ -1,5 +1,5 @@
 body {
-  padding-top: 50px; /* add 50 pixels of padding to the top of the body */
+  padding-top: 50px; 
 }
 
 .post-container {
@@ -10,8 +10,8 @@ body {
   margin: 10px;
   border: 1px solid gray;
   padding: 10px;
-  width: 600px; /* adjust this value as needed */
-  text-align: center; /* center the text within the container */
+  width: 600px;
+  text-align: center; 
 }
 
 .post-container img {
@@ -49,7 +49,6 @@ body {
     background-color: #3e8e41;
 }
 
-/* style comments */
 .comment {
     margin: 10px 0;
     padding: 10px;
@@ -62,7 +61,6 @@ body {
     margin: 0;
 }
 
-/* style show comments button */
 .comment-btn {
     background-color: #fff;
     border: none;

@@ -76,7 +76,6 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(discuss.userId)});
-        //console.log(user.postID);
         if (user.isAdmin === undefined || !user.isAdmin) {
             if(!user.postIDs.includes(id)){
                 throw "Only administrators or the poster can delete the discussion.";
@@ -117,7 +116,7 @@ let exportedMethods = {
         const userCollection = await users();
         const user = await userCollection.findOne({_id:new ObjectId(userId)});
         if(!user){
-            console.log('No user found!!');
+            throw ('No user found!!');
         }
         
         const discussCollection = await discussion();
@@ -130,7 +129,6 @@ let exportedMethods = {
             userId:user._id,
             message:message
         };
-        //discussion.replyId.push(reply);
         const discussUpdate = await discussCollection.updateOne({_id:new ObjectId(id)},{$push:{replyId:reply}});
         if(discussUpdate.modifiedCount === 0){
             throw new Error("unable to add reply to discussion");
@@ -145,6 +143,5 @@ let exportedMethods = {
 
     }
 };
-//express session,handlebars
 export default exportedMethods;
 

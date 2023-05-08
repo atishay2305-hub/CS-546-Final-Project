@@ -35,7 +35,7 @@ const eventUploadImage = eventUpload.single("eventImage");
 router
     .route('/')
     .get(async (req, res) => {
-        let events = []; // Declare and initialize events variable
+        let events = []; 
 
         if (req.session.user) {
             events = await eventsData.getAllEvents();
@@ -155,10 +155,8 @@ router
             const attendeesList = event.attendees;
             const checkExist = attendeesList.length > 0 && Object.values(attendeesList).some(attendee => attendee.id === userId);
             if (!checkExist) {
-                // user not already registered
                 await registrationConfirmByEmail({id: eventId, email: email}, res);
             } else {
-                // user already registered
                 return res.status(400).json({
                     success: false,
                     message: "You have already registered for this event."
@@ -233,7 +231,6 @@ router
     });
 
 router.route('/events/:id').delete(async (req, res) => {
-    //console.log(req.params.id);
     try {
         const user = await userData.getUserByID(req.session.user.userId);
         const commentCollection = await comments();

@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
             let roomNumber = document.getElementById("roomNumber").value;
             let organizer = document.getElementById("organizer").value;
             let seatingCapacity = document.getElementById("seatingCapacity").value;
-            let file = eventImageInput.files[0]; // FIX: should be files not file
+            let file = eventImageInput.files[0]; 
 
             try {
                 eventName = authCheck.checkName(eventName);
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("buildingName").setAttribute("value", buildingName);
                 document.getElementById("roomNumber").setAttribute("value", roomNumber);
                 document.getElementById("organizer").setAttribute("value", organizer);
-                document.getElementById("seatingCapacity").setAttribute("value", seatingCapacity); // FIX: attribute name was wrong
+                document.getElementById("seatingCapacity").setAttribute("value", seatingCapacity); 
                 return handleError(e || "Something went wrong");
             }
 
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             document.getElementById("buildingName").value = data.buildingName;
                             document.getElementById("roomNumber").value = data.roomNumber;
                             document.getElementById("organizer").value = data.organizer;
-                            document.getElementById("seatingCapacity").value = data.seatingCapacity; // FIX: element id was wrong
+                            document.getElementById("seatingCapacity").value = data.seatingCapacity;
                             return handleError(data.message || "Something went wrong.");
                         }
                     }

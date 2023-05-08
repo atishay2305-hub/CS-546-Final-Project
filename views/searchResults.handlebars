@@ -1,0 +1,88 @@
+{{!-- 
+    {{#each results}}
+        <h2>Event Name: {{eventName}}</h2><br>
+        <p>Description: {{description}}</p><br>
+        <p>Building Name: {{buildingName}}</p><br>
+        <p>Seating Capacity{{seatingCapacity}}</p><br>
+        <form method="POST" action="/capacity/{{_id}}" id="allevents-form">
+<input type="hidden" id="seatingCapacity" name="seatingCapacity" value="{{seatingCapacity}}">
+<input type="hidden" name="formsub" id="formsub_{{_id}}" value="{{attenddone}}">
+<button type="submit" id="attbtn_{{_id}}" name="attendance" value="attend">Attend</button>
+<button type="submit" id="cancel" name="attendance" value="cancel">Cancel</button>
+</form>
+    {{/each}}
+ --}}
+ {{# each results}}
+<div id="events-container">
+
+    {{#each events}}
+        <div class="event-container">
+        <h2>{{eventName}}</h2>
+        <img id="img-home-{{this._id}}" src="{{image}}" alt="Post image">
+        <p class="date" data-date="{{date}}">Date: {{date}}</p>
+        <p>Organizer: {{organizer}}</p>
+        <div id="attendees-container-{{this._id}}" class="attendees-container" style="display: none">
+        <p class="event-attendees">Attendee: {{attendees}}<br></p>
+        </div>
+            <button class="list-btn" data-event_id="{{this._id}}" onclick="showAttendeesPopup('{{this._id}}')">
+                <ion-icon name="people-outline"></ion-icon>
+                Attendee List
+            </button>
+            <hr>
+            {{#if registered}}
+                {{#if (not_past_date date)}}
+                    <button class="cancel-btn" data-event_id="{{this._id}}">
+                        <ion-icon name="close-outline"></ion-icon>
+                        Cancel
+                    </button>
+                {{else}}
+                    <p class="event-over">You cannot cancel registration for this event.</p>
+                {{/if}}
+            {{else}}
+                {{#if (not_past_date date)}}
+                    <button class="register-btn" data-event_id="{{this._id}}">
+                        <ion-icon name="person-add-outline"></ion-icon>
+                        Register
+                    </button>
+                {{else}}
+                    <p class="event-over">Registration for this event is closed.</p>
+                {{/if}}
+            {{/if}}
+            <hr>
+
+            <div id="comments-{{this._id}}" class="comments-container" style="display: none">
+                <form class="comment-form" id="comment-form-{{this._id}}" action="/events/{{this._id}}/comment"
+                      method="POST">
+                    <input type="hidden" name="postId" value="{{this._id}}">
+                    <label for="comment-text-{{this._id}}">Add a Comment:</label>
+                    <input type="text" name="commentText" id="comment-text-{{this._id}}">
+                    <input type="submit" value="Submit">
+                </form>
+                {{#each ../ comments}}
+                    {{#if (if_eq @key ../_id)}}
+                        {{#each this}}
+                            {{#each this}}
+                                <div class="comment">
+                                    <p>Comment: {{contents}} /User Name: {{userName}} - Created
+                                        Date: {{created_Date}}</p>
+                                </div>
+                                <hr>
+                            {{/each}}
+                        {{/each}}
+                    {{/if}}
+                    {{#if deletable}}
+                        <button class="delete-btn" onclick="deletePost('{{_id}}')" data-event_id="{{this._id}}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    {{/if}}
+                {{/each}}
+            </div>
+            <p>SeatCapacity: {{seatingCapacity}}</p>
+            <button class="comment-btn" onclick="showCommentsPopup('{{this._id}}', this)" data-_id="{{this._id}}">
+                <ion-icon name="chatbox-ellipses"></ion-icon>
+            </button>
+        </div>
+    {{/each}}
+</div>
+
+{{/each}}

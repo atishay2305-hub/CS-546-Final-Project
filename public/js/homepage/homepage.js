@@ -2,7 +2,6 @@
 function toggleComments( button) {
     const replies = button.nextElementSibling;
 
-    // Toggle the display of the replies
     if (replies.style.display === 'block') {
         replies.style.display = 'none';
         button.innerText = 'View Comments';
@@ -95,7 +94,6 @@ async function dislikeFunc (postId,type){
 
     const response = await fetch(`/posts/${postId}/dislike`, { method: 'POST' });
       if (response.ok) {
-        //location.reload();
         type ==='home'?window.location.href='/homepage':window.location.href='/posts'
       }
       else{

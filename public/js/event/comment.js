@@ -24,10 +24,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
 
             if (data.status === 'success') {
-                // Refresh the page
                 location.reload();
             } else {
-                // Display an error message
                 const errorMessage = document.createElement('p');
                 errorMessage.innerText = data.message;
                 commentForm.appendChild(errorMessage);

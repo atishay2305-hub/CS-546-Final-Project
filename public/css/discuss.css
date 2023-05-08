@@ -14,7 +14,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: #ffffff; 
-  color: #000000; 
+  color: black; 
   padding: 20px;
   z-index: 1000;
 }
