@@ -1,5 +1,5 @@
 import {events, posts, users, comments} from "../config/mongoCollections.js";
-import {userData, postData, commentData} from "./index.js";
+import {userData} from "./index.js";
 import validation from '../validationchecker.js';
 import {ObjectId} from "mongodb";
 
@@ -160,8 +160,6 @@ let exportedMethods = {
     //     }
     //     return comments;
     // },
-
-    // get all comments that the events had
     async getEventCommentById(eventId) {
         eventId = await validation.checkId(eventId);
         // const post = await postData.getPostById(postId);
@@ -197,6 +195,25 @@ let exportedMethods = {
         // return comments;
     },
 
+
+    async getPostHomeCommentById(postId) {
+
+        postId = await validation.checkId(postId);
+
+        // const post = await postData.getPostById(postId);
+        // if(!post) throw `No  post with that id ${postId}`
+
+        const commentCollection = await comments();
+        const commentList = await commentCollection.find({postId: new ObjectId(postId)}).toArray();
+        const userCollection = await users();
+        for (let x of commentList) {
+            const user = await userCollection.findOne({_id: x.userId});
+            x.userName = user.userName;
+        }
+        console.log(comments);
+
+    },
+
     async removeCommentByEvent(eventId) {
         eventId = await validation.checkId(eventId);
         const commentCollection = await comments();
@@ -230,13 +247,6 @@ let exportedMethods = {
             console.log(e);
         }
     },
-
-    async removeEventCommentByUserId(userId, eventId){
-        userId = await validation.checkId(userId);
-        eventId = await validation.checkId(eventId);
-
-
-    }
 };
 
 export default exportedMethods;

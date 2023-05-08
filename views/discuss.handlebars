@@ -1,80 +1,91 @@
-
-   <div class="container center">
-<h1 id="event-header">Discuss</h1>
-<form method="POST" action="/discussion">
-<div class="inf">
-<div class="sec-1">
-<label for="category">Category:</label>
-</div>
-
-</div>
-<div class="sec-2">
-<select id="category" name="category"><br>
-<option value=""></option>
-</select>
-</div>
-
-    <script>
-      const categories = [
-"events", "education", "sports", "food", "random", "books", "anime", "games", "TV", "Programming" ];
-
-      const selectElement = document.getElementById("category");
-
-      categories.forEach((category) => {
-        const option = document.createElement("option");
-        option.text = category;
-        option.value = category;
-        selectElement.appendChild(option);
-      });
-    </script>
-
-<div class="inf">
-          <div class="sec-1">
-  <label for="discussionTopic">Topic</label>
-  </div>
-          <div class="sec-2">
-  <input id="discussionTopic" type="text" name="discussionTopic">
-  </div>
-      </div>
-       <div class="inf">
-          <div class="sec-1">
-
-  <label for="discussion">Discussion</label>
-  </div>
-   <div class="sec-2">
-  <textarea id="description" name="description" rows="6" maxlength="300"></textarea>
-     </div>
-        </div>
-    <form class="comment-form" id="comment-form" action="/add-comment" method="POST">
-    <input type="hidden" name="postId" value="{{_id}}">
-    <label for="comment-text"></label>
-    <input type="text" name="commentText" id="comment-text">
-    <input type="submit" value="Comment">
-    </form>
-    <a href="#" id="view-comments">View Comments</a>
-    </div>
-
-
-{{#each discussions}}
-    <div class="discussion-container">
-        <h2>{{topic}}</h2>
-        <p>Category: {{category}}</p>
-        <p>Created by: {{topic}}</p>
-        <p>Created by: {{discussion}}</p>
-        <p>Created at: {{created_Date}}</p>
-                  
-        <div class="comments-container">
-            <h3>Comments:</h3>
-            {{#each comments}}
-                <div class="comment-container">
-                <p>{{text}}</p>
-                <p>Posted by: {{author}}</p>
-                <p>Posted at: {{created_Date}}</p>
+<div>
+    <div class="dicussion-panel row justify-content-center mt-5">
+        <div class="col-12 col-md-6">
+            <div class="my-3 text-right">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDiscussionModal"> + New Discussion</button>
+            </div>
+            <div id="filters">
+                <form action="/discuss" method="GET">
+                    <div class="row">
+                        <div class="col form-group">
+                            <select class="form-control category m-0" name="category">
+                                <option value="All" selected="true">All</option>
+                            </select>
+                        </div>
+                        <div class="col form-group">
+                            <input class="form-control" type="text" id="search" name="search" placeholder="Search Discussions Here">
+                        </div>
+                        <div class="col form-group">
+                            <button class="btn btn-dark" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            {{#each newDiscussion}}
+                <div class="discussion p-4 mb-3">
+                    <span class="text-primary">Category: {{category}}</span>
+                    <span> | </span>
+                    <span class="text-secondary">Username: {{userName}}</span>
+                    <p style="font-size: 30px;">{{description}}</p>
+                    <div class="my-1 text-right">
+                        <button class="btn btn-info btn-sm" onclick="replyForm('{{this._id}}', this)">Show replies</button>
+                        <div class="replies text-left" style="display: none;">
+                            {{#each result}}
+                                <div class="reply p-2 my-2 bg-light">
+                                    <p>{{this.userName}} - {{this.message}}</p>
+                                </div>
+                            {{/each}}
+                            <form class="reply-form">
+                                <textarea id="reply-textarea"></textarea>
+                                <button class="btn btn-success btn-sm" type="button" onclick="postReply(event, '{{_id}}', this)">Post Reply</button>
+                                <div class="error-message"></div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-        {{/each}}
-
-{{#if deletable}}
-            <button class="delete-btn" onClick ="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
-        {{/if}}
+            {{/each}}
+        </div>
     </div>
-{{/each}}
+</div>
+
+<div class="modal fade" id="createDiscussionModal" tabindex="-1" role="dialog" aria-labelledby="createDiscussionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">New Discussion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id ="form" class ="form" action="/discuss" method="post">
+                    <div class="form-group">
+                        <select class="form-control category m-0" name="category">
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="col-form-label">Description:</label>
+                        <textarea class="form-control" id="description" name="description" rows="5"></textarea>
+                    </div>
+
+                    <div>
+                        <span id="cmt-err" class="text-danger" style="display: none;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">Send</button>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<link rel="stylesheet" href="/public/css/discussion.css">
+<script src="../public/js/discuss/discuss.js"></script>

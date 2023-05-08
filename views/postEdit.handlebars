@@ -30,7 +30,7 @@
                 <input type="hidden" name="postId" value="{{post._id}}">
                 <label for="comment-text-{{post._id}}">Add a Comment:</label>
                 <input type="text" name="commentText" id="comment-text-{{post._id}}">
-                <input type="submit" value="Submit">
+                <button type="button" onclick="addComment(event, '{{post._id}}', this)">Submit</button>
             </form>
             {{#each comments}}
                 <div class="comment">
@@ -54,6 +54,7 @@
     <script src="/public/js/delete.js"></script>
     <script src="/public/js/post/map.js"></script>
     <script src="/public/js/post/commentBtn.js"></script>
+    <script src="/public/js/post/comments.js"></script>
     <script src="/public/js/post/like&dislike.js"></script>
     <script src="/public/js/post/posts.js" type="module"></script>
     <link rel="stylesheet" href="/public/css/posts.css">

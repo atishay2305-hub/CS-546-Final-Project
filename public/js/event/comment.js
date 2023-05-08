@@ -1,7 +1,7 @@
 import authCheck from "../validtionChecker.js";
 
 document.addEventListener("DOMContentLoaded", function () {
-    const commentForm = document.getElementById(`comment-form-${eventId}`);
+    const commentForm = document.getElementById('comment-form');
 
     commentForm.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -11,38 +11,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             const checkedComment = authCheck.checkComment(commentText);
+            const response = await fetch(`/events/${eventId}/comment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    commentText: checkedComment
+                })
+            });
 
-            if (checkedComment) {
-                const response = await fetch(`/events/${eventId}/comment`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        commentText: checkedComment
-                    })
-                });
+            const data = await response.json();
 
-                const data = await response.json();
-
-                if (data.success) {
-                    // Refresh the page
-                    location.reload();
-                } else {
-                    // Display an error message
-                    const errorMessage = document.createElement('p');
-                    errorMessage.innerText = data.message;
-                    commentForm.appendChild(errorMessage);
-                }
+            if (data.status === 'success') {
+                // Refresh the page
+                window.location.href=`/events/${eventId}`
             } else {
                 // Display an error message
                 const errorMessage = document.createElement('p');
-                errorMessage.innerText = "Invalid comment";
+                errorMessage.innerText = data.message;
                 commentForm.appendChild(errorMessage);
             }
         } catch (e) {
             console.log(e);
         }
-
     })
-})
+});
