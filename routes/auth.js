@@ -39,6 +39,7 @@ router.route('/').get(async (req, res) => {
         return res.status(200).render('login', {title: 'Login'});
     }
 });
+
 router
     .route('/login')
     .get(async (req, res) => {
@@ -301,18 +302,6 @@ router.route('/profile').get(async (req, res) => {
     return res.render('profile', {user: user});
 });
 
-router
-    .route('/events/registration/:id')
-    .get(async (req, res) => {
-        try {
-            return res.render("eventRegister", {id: req.params.id});
-        } catch (e) {
-            return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
-        }
-    })
-    .post(async (req, res) => {
-
-    })
 
 router.route('/events/capacity/:id').post(async (req, res) => {
     let id = req.params.id; // fix the id variable assignment
@@ -340,51 +329,7 @@ router.route('/events/capacity/:id').post(async (req, res) => {
 });
 
 
-router.route('/posts/:id').delete(async (req, res) => {
-    console.log(req.params.id);
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
-        if (!user) {
-            throw 'cannot find user';
-        }
-        //console.log(user);
-        const commentCollection = await comments();
-        const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
-        console.log(post);
-        if (post.length !== 0) {
-            const responsePost = await commentData.removeCommentByPost(req.params.id);
-            console.log("hi", responsePost.deleted);
-        }
-        const response = await postData.removeById(req.params.id);
-        console.log("hi", response.deleted);
-        //const user = await userData.removePost()
-        //const postList = await postData.getAllPosts();
-        //res.status(200).send(response);
-        //res.send(response);
-        return res.sendStatus(200);
-    } catch (e
-        ) {
-        console.log(e);
-    }
-});
 
-router.route('/posts/:id/comment').post(async (req, res) => {
-    try {
-        const userId = req.session.user.userId;
-        const postId = req.params.id;
-        const {commentText} = req.body;
-        // console.log(postId);
-        // console.log(commentText);
-        const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-        console.log(comment);
-        const post = await postData.putComment(postId, comment.commentId);
-        // console.log(post);
-        console.log('The comment is added');
-        return res.redirect('/posts');
-    } catch (e) {
-        console.log(e);
-    }
-});
 
 
 
@@ -469,14 +414,6 @@ router
         }
     });
 
-router.route('/profile').get(async (req, res) => {
-    const id = req.session.user.userId;
-    console.log(id);
-    const user = await userData.getUserByID(id);
-    return res.render('profile', {user: user});
-});
-
-
 router
     .route('/posts/:postId/like')
     .post(async (req, res) => {
@@ -499,6 +436,7 @@ router
             res.status(500).json({error: 'Server error'});
         }
     });
+
 
 router
     .route('/posts/:postId/dislike')

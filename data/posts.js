@@ -119,7 +119,7 @@ let exportedMethods = {
     //     };
 
     // },
-    async removeById(id) {
+    async removePostById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(id)});

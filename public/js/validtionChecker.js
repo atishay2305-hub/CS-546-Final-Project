@@ -36,6 +36,7 @@ const authCheck = {
         // Return the updated comment
         return comment;
     },
+
     checkLoginPass(password) {
         if (!password) throw "Password not provided";
         if (password.length < 8 || password.length > 25) throw "Password must be at least 8 characters and less than 25 characters";

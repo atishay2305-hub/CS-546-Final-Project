@@ -100,6 +100,23 @@ const exportedMethods = {
         return DOB;
     },
 
+    checkComment(comment) {
+        // Check if the comment is empty or only contains whitespace
+        if (!comment || /^\s*$/.test(comment)) {
+            return false;
+        }
+
+        // Check if the comment contains any inappropriate language
+        const inappropriateWords = ['bad', 'hate', 'stupid', 'ugly', 'disgusting', 'offensive'];
+        for (const word of inappropriateWords) {
+            if (comment.toLowerCase().includes(word)) {
+                comment = comment.replaceAll(word, '***');
+            }
+        }
+
+        // Return the updated comment
+        return comment;
+    },
 
     checkDate(date) {
         if (!date) throw "Date not provided";

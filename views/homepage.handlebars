@@ -37,29 +37,7 @@
         x.classList.toggle("fa-thumbs-down");
     }
 
-    function deletePost(id) {
-        fetch(`/posts/${id}`, {
-            method: "delete",
-            headers: {
-                Accept: 'application/json, text/plain, */*',
-                "Content-type": 'application/json'
-            },
-        })
-                .then(response => {
-                    if (response.ok) {
-                        alert('Post deleted successfully');
-                        window.location.href = '/homepage';
-                    } else {
-                        throw new Error('Network response was not ok');
-                    }
-                })
-                .catch(error => {
-                    alert(error.message || "Something went wrong.");
-                })
-                .then(() => {
-                    console.log('This will run after either success or failure');
-                });
-    }
+
 
     document.querySelectorAll('.comment-form').forEach(form => {
         form.addEventListener('submit', function (event) {

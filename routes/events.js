@@ -1,15 +1,12 @@
 import {Router} from 'express';
 import commentData from '../data/comments.js';
 import userData from '../data/users.js';
-import postData from '../data/posts.js';
 import eventsData from '../data/events.js'
 import validation from '../validationchecker.js';
 import multer from "multer";
 import path from "path";
 import {registrationConfirmByEmail} from "../email.js";
 import xss from 'xss';
-import {comments, users, posts, events} from '../config/mongoCollections.js';
-import {ObjectId} from 'mongodb';
 
 const router = Router();
 
@@ -30,7 +27,6 @@ const eventStorage = multer.diskStorage({
 const eventUpload = multer({storage: eventStorage});
 const eventUploadImage = eventUpload.single("eventImage");
 
-
 router
     .route('/')
     .get(async (req, res) => {
@@ -40,7 +36,10 @@ router
             events = await eventsData.getAllEvents();
 
             events = events.map(event => {
-                const attendeeList = Object.values(event.attendees).map(attendee => ({userId: attendee.id.toString(), name: attendee.name}));
+                const attendeeList = Object.values(event.attendees).map(attendee => ({
+                    userId: attendee.id.toString(),
+                    name: attendee.name
+                }));
                 const registered = attendeeList.some(attendee => attendee.userId === req.session.user.userId.toString());
                 return {
                     ...event,
@@ -122,22 +121,21 @@ router
 router
     .route('/:id/comment')
     .post(async (req, res) => {
-    try {
-        const userId = req.session.user.userId;
-        const eventId = req.params.id;
-        const {commentText} = req.body;
+        try {
+            const userId = req.session.user.userId;
+            const eventId = req.params.id;
+            const commentText = req.body.commentText;
 
-        const comment = await commentData.createComment(userId, eventId, null, commentText, "event");
-        const post = await eventsData.putComment(eventId, comment.commentId);
+            const checkedComment = validation.checkComment(commentText);
+            const comment = await commentData.createComment(userId, eventId, null, checkedComment, "event");
+            const event = await eventsData.putComment(eventId, comment.commentId);
 
-        console.log('The comment is added');
-        return res.redirect("/events")
-    } catch (e) {
-        console.log(e);
-        return res.json({success: false, message: e.message});
-    }
-});
-
+            return res.redirect('/events');
+        } catch (e) {
+            console.log(e);
+            return res.json({success: false, message: e.message});
+        }
+    });
 router
     .route('/event-register')
     .post(async (req, res) => {
@@ -173,28 +171,52 @@ router
 router
     .route('/:eventId/attendees/:id')
     .delete(async (req, res) => {
-    try {
-        const eventId = req.params.eventId;
-        const userId = req.params.id;
-        const user = await userData.getUserByID(userId);
-        const event = await eventsData.getEventByID(eventId);
-        const attendees = await userData.removeAttendee(user._id, eventId);
-        const eventAttended = await userData.removeEventAttended(user._id, eventId);
-        if (!attendees.deleteInfo || !eventAttended) {
-            return res.status(404).json({
-                success: false,
-                message: "Fail to delete attendee or event attended list"
-            });
-        }
-        return res.json({success: true, message: "Cancel successful"})
-    } catch (e) {
-        console.log(e);
-        res.sendStatus(500).json({
+        try {
+            const eventId = req.params.eventId;
+            const userId = req.params.id;
+            const attendees = await userData.removeAttendee(userId, eventId);
+            const eventAttended = await userData.removeEventAttended(userId, eventId);
+            if (!attendees.deleteInfo || !eventAttended) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Fail to delete attendee or event attended list"
+                });
+            }
+            return res.json({success: true, message: "Cancel successful"})
+        } catch (e) {
+            console.log(e);
+            res.sendStatus(500).json({
                 success: false,
                 message: "Something went wrong."
-        });
-    }
-});
+            });
+        }
+    });
+
+router
+    .route('/:eventId/comments/:id')
+    .delete(async (req, res) => {
+        try {
+            const eventId = req.params.eventId;
+            const commentId = req.params.id;
+            const comments = await commentData.removeCommentById(commentId);
+            if (!comments.deleteInfo) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Fail to delete attendee or event attended list"
+                });
+            }
+            return res.status(200).json({
+                success: true,
+                message: "Comment deleted successfully"
+            });
+        } catch (e) {
+            console.log(e);
+            res.status(500).json({
+                success: false,
+                message: "Something went wrong."
+            });
+        }
+    });
 
 router
     .route("/registration/confirm/:id")
@@ -230,25 +252,39 @@ router
         }
     });
 
-router.route('/events/:id').delete(async (req, res) => {
-    //console.log(req.params.id);
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
-        const commentCollection = await comments();
-        const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
-        if (event.length !== 0) {
-            const response = await commentData.removeCommentByEvent(req.params.id);
+
+router
+    .route('/:id')
+    .get(async (req, res) => {
+        const event = await eventsData.getEventByID(req.params.id);
+        const deletable = req.session.user.role === 'admin';
+        const registered = Object.values(event.attendees).some(attendee => attendee.id === req.session.user.userId);
+        const comments = await commentData.getEventCommentById(req.params.id);
+        res.render("eventEdit", {
+            userId: req.session.user.userId,
+            email: req.session.user.email,
+            deletable: deletable,
+            registered: registered,
+            event: event,
+            comments: comments
+        });
+
+    })
+    .delete(async (req, res) => {
+        //console.log(req.params.id);
+        try {
+
+            const removeComments = await commentData.removeCommentByEvent(req.params.id)
+            const responseEvent = await eventsData.removeEventById(req.params.id);
+            if (!responseEvent.deleted || !removeComments.deleted) {
+                return res.status(400).json("Unable to delete")
+            }
+            return res.sendStatus(200);
+        } catch (e) {
+            console.log(e);
         }
 
-        const responseEvent = await eventsData.removeEventById(req.params.id);
-        return res.sendStatus(200);
-
-    } catch (e) {
-        console.log(e);
-    }
-
-
-});
+    });
 
 
 export default router;
