@@ -33,6 +33,8 @@ let exportedMethods = {
             throw "You are unable to create event";
         }
 
+        image = image.replace(/\\/g, '/');
+        
         let event = {
             eventName: eventName,
             description: description,
@@ -139,7 +141,7 @@ let exportedMethods = {
         if (!image || image.trim().length === 0) {
             path = "public/images/default.png";
         } else {
-            path = validation.createImage(image);
+            path = validation.createImage(image).replace(/\//g, "\\");;
         }
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});

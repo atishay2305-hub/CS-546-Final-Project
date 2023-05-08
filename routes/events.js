@@ -10,6 +10,7 @@ import {registrationConfirmByEmail} from "../email.js";
 import xss from 'xss';
 import {comments, users, posts, events} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
+import { title } from 'process';
 
 const router = Router();
 
@@ -74,7 +75,8 @@ router
                 email: req.session.user.email,
                 role: req.session.user.role,
                 events: events,
-                comments: comments
+                comments: comments,
+                title: 'Events'
             });
         }
     })

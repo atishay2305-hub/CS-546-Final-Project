@@ -3,7 +3,7 @@
   <p>{{description}}</p>
 {{/each}} --}}
 {{!-- <div class="event-card"> --}}
-<body>
+
 {{#if (if_eq role "admin")}}
     <form method="POST" action="/events" id="event-form" enctype="multipart/form-data">
         <div class="container center" data-userId="{{userId}}" data-email="{{email}}">
@@ -41,7 +41,7 @@
                     <label for="buildingName">Select Building :</label>
                     <div class="sec-2">
                         <select id="buildingName" name="buildingName">
-                            <option value=""></option>
+                            <option value="" label="Select"></option>
                         </select>
 
                         <script>
@@ -116,13 +116,13 @@
 
     {{#each events}}
         <div class="event-container">
-            <h2>{{eventName}}</h2>
-            <img id="img-home" src="{{image}}" alt="Post image">
-            <p class="date" data-date="{{date}}">Date: {{date}}</p>
-            <p>Organizer: {{organizer}}</p>
-            <div id="attendees-container-{{this._id}}" class="attendees-container" style="display: none">
-                <p class="event-attendees">Attendee: {{attendees}}<br></p>
-            </div>
+        <h2>{{eventName}}</h2>
+        <img id="img-home-{{this._id}}" src="{{image}}" alt="Post image">
+        <p class="date" data-date="{{date}}">Date: {{date}}</p>
+        <p>Organizer: {{organizer}}</p>
+        <div id="attendees-container-{{this._id}}" class="attendees-container" style="display: none">
+        <p class="event-attendees">Attendee: {{attendees}}<br></p>
+        </div>
             <button class="list-btn" data-event_id="{{this._id}}" onclick="showAttendeesPopup('{{this._id}}')">
                 <ion-icon name="people-outline"></ion-icon>
                 Attendee List
@@ -187,7 +187,7 @@
 <div class="sort-container">
     <label for="sort-criteria">Sort By:</label>
     <select id="sort-criteria" onchange="sortEvents(this.value)">
-        <option value=""></option>
+        <option value="" label="Select an Option"></option>
         <option value="a-z">A-Z</option>
         <option value="created_date_asc">Created Date in ascending order</option>
         <option value="created_date_desc">Created Date in descending order</option>
@@ -202,4 +202,4 @@
 <script src="/public/js/event/event.js" type="module"></script>
 <script src="/public/js/event/eventRegister.js" type="module"></script>
 <link rel="stylesheet" href="/public/css/event.css">
-</body>
+

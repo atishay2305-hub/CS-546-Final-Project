@@ -148,7 +148,7 @@ footer {
 }
 
 .registerbtn {
-  background-color: #04AA6D;
+  background-color: blue;
   color: white;
   padding: 16px 20px;
   margin: 8px 0;
@@ -163,8 +163,13 @@ footer {
 }
 
 a {
-  color: dodgerblue;
+  color: blue;
 }
+
+.blue-link {
+  color: blue;
+}
+
 
 .hlink {
   width: 100%;
