@@ -1,25 +1,25 @@
 body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
-  
-  .alertPage {
-    text-align: center;
-    padding: 20px;
-    border-radius: 10px;
-    font-size: 20px; /* Increase text size to 20px */
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
 
-  #btn {
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-  }
+.alertPage {
+  text-align: center;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 20px; /* Increase text size to 20px */
+}
+
+#btn {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}

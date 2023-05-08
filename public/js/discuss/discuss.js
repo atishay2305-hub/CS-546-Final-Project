@@ -67,6 +67,20 @@ function postReply(event, discussionId, button) {
 
     
 
+    
+    const errorElement = discussionElement.querySelector('.error-message');
+    // Check if reply text is empty
+    if (replyText.trim() === '') {
+        errorElement.innerHTML = 'Please enter a reply.';
+        return;
+    }
+    if (replyText.length > 300) {
+        errorElement.innerHTML = 'Reply exceeds the maximum character limit of 300.';
+        return;
+      }
+
+    
+
     fetch(`/discussions/${discussionId}/replies`, {
         method: 'POST',
         headers: {  
@@ -111,7 +125,7 @@ form.addEventListener('submit', (event) => {
     return;
   }
 
-  
+
 
   fetch('/discuss', {
     method: 'POST',

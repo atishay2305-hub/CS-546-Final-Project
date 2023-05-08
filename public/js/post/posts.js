@@ -1,4 +1,33 @@
 import authCheck from "../validtionChecker.js";
+
+const categories = [
+  "Education",
+  "Sports",
+  "Entertainment",
+  "lost&found",
+];
+
+const categoryElements = document.getElementsByClassName("category");
+const urlSearchParams = new URLSearchParams(window.location.search);
+const params = Object.fromEntries(urlSearchParams.entries());
+
+let categoryParam;
+if (params.category && categories.includes(params.category)) {
+  categoryParam = params.category;
+}
+
+Array.from(categoryElements).forEach((categoryElement) => {
+  categories.forEach((category) => {
+    const option = document.createElement("option");
+    option.text = category;
+    option.value = category;
+    if (category === categoryParam) {
+      option.selected = true;
+    }
+    categoryElement.appendChild(option);
+  });
+});
+
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const postForm = document.getElementById("post-form");
@@ -7,16 +36,29 @@ import authCheck from "../validtionChecker.js";
         const imagePreview = document.getElementById("image-preview");
         const categorySelect = document.getElementById("postCategory");
         const addressInput = document.getElementById("address-input");
+
+        // Function to handle the category change event
+        const handleCategoryChange = () => {
+            const selectedValue = categorySelect.value;
+            if (selectedValue === "lost&found") {
+                addressInput.style.display = "block";
+            } else {
+                addressInput.style.display = "none";
+            }
+        };
+
         if (postForm) {
             postForm.addEventListener("submit", (event) => {
                 event.stopPropagation();
                 event.stopImmediatePropagation();
                 event.preventDefault();
                 errorHandle.hidden = true;
-                let address = '';
+                let address = "";
+
                 let category = categorySelect.value;
                 let postContent = document.getElementById("postContent").value;
                 let file = postImageInput.files[0];
+
                 try {
                     category = authCheck.checkCategory(category);
                     postContent = authCheck.checkPhrases(postContent, "Post Content");
@@ -25,17 +67,17 @@ import authCheck from "../validtionChecker.js";
                         address = authCheck.checkAddress(address);
                     }
                 } catch (e) {
-                    document.getElementById("postCategory").setAttribute("value", category);
-                    document.getElementById("postContent").setAttribute("value", postContent);
-                    // document.getElementById("postCategory").value = category;
-                    // document.getElementById("postContent").value = postContent;
+                    document.getElementById("postCategory").value = category;
+                    document.getElementById("postContent").value = postContent;
                     return handleError(e || "Something went wrong");
                 }
+
                 const formData = new FormData();
                 formData.append("category", category);
                 formData.append("postContent", postContent);
-                formData.append("postImage", file);
+                formData.append("postImage", file); 
                 formData.append("address", address);
+
                 fetch("/posts", {
                     method: "post",
                     body: formData,
@@ -54,30 +96,32 @@ import authCheck from "../validtionChecker.js";
                                 return handleError(data.message || "Something went wrong.");
                             }
                         }
+
                         location.href = "/posts";
                     })
                     .catch((e) => {
-                        alert(e.message || "Something went wrong.");
+                        alert(e || "Something went wrong.");
                     });
             });
         }
+
         postImageInput.addEventListener("change", function () {
             const file = this.files[0];
             const reader = new FileReader();
+
             reader.addEventListener("load", function () {
                 imagePreview.src = reader.result;
                 imagePreview.style.display = "block";
             });
+
             reader.readAsDataURL(file);
         });
-        categorySelect.addEventListener("change", () => {
-            const selectedValue = categorySelect.value;
-            if (selectedValue === "lost&found") {
-                addressInput.style.display = "block";
-            } else {
-                addressInput.style.display = "none";
-            }
-        });
+
+        categorySelect.addEventListener("change", handleCategoryChange);
+
+        // Handle initial category selection on page load
+        handleCategoryChange();
+
         const handleError = (errorMsg) => {
             errorHandle.hidden = false;
             errorHandle.innerHTML = errorMsg;

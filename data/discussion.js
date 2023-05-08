@@ -5,9 +5,7 @@ import {userData } from "./index.js";
 
 
 let exportedMethods = {
-
     async createDiscussion(category, description,userId) {
-
         category = validation.checkLegitName(category, "category");
         description = validation.checkPhrases(description, "Description");
         // const userId = validation.checkId(userId);
@@ -19,7 +17,6 @@ let exportedMethods = {
         if (user.isAdmin) {
           throw "Discussion can only be created by users."
         }
-      
         let discuss = {
           category: category,
           description: description,
@@ -32,7 +29,6 @@ let exportedMethods = {
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
           throw "Could not add discussion.";
         }
-      
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
         return insertInfo;
@@ -51,7 +47,7 @@ let exportedMethods = {
 
     async getDiscussionById(id) {
         id = await validation.checkId(id);
-        const discussionCollection = await discussion();
+        const discussionCollection = await posts();
         const discuss = await discussionCollection.findOne({_id: new ObjectId(id)});
         if (discuss === null) {
             throw `No discussion was found with that ID ${id}`;
@@ -80,6 +76,7 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(discuss.userId)});
+        //console.log(user.postID);
         if (user.isAdmin === undefined || !user.isAdmin) {
             if(!user.postIDs.includes(id)){
                 throw "Only administrators or the poster can delete the discussion.";
@@ -95,6 +92,7 @@ let exportedMethods = {
             eventId: id,
             deleted: true
         };
+
 
     },
     
@@ -114,10 +112,10 @@ let exportedMethods = {
         
         id = await validation.checkId(id);
         userId = await validation.checkId(userId);
+        message = await validation.checkComments(message);
 
         const userCollection = await users();
         const user = await userCollection.findOne({_id:new ObjectId(userId)});
-        console.log(user);
         if(!user){
             console.log('No user found!!');
         }
@@ -147,7 +145,6 @@ let exportedMethods = {
 
     }
 };
-
+//express session,handlebars
 export default exportedMethods;
-
 

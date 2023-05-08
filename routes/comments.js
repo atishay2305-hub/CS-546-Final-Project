@@ -1,6 +1,10 @@
+// Import the express router as shown in the lecture code
+// Note: please do not forget to export the router!
+
 import { commentData } from "../data/index.js";
 import { Router } from "express";
 import {ObjectId} from "mongodb";  
+//import {validateFunc} from '../helpers.js';
 const router = Router();
 
 router
@@ -26,7 +30,7 @@ router
  
     try{
       const commentList = await commentData.getAllComment(req.params.postId);
-      return res.render('comments/comments', {comments: commentList});
+      res.render('comments/comments', {comments: commentList});
       
     }catch(e){
       return res.status(404).json({error:e.message});
@@ -54,6 +58,9 @@ router
      
         res.redirect(`/comments/comment/${comment._id}`);
     }catch(e){
+
+    console.log(e);
+
         return res.status(400).json({error:e.message});
     }
 
@@ -103,7 +110,7 @@ router
       return res.status(400).json({error:e.message});
     }
     try{
-      const deleRecord = await commentData.removeCommentByEvent(req.params.eventId);
+      const deleRecord = await commentData.removeComment(req.params.commentId);
       if(!deleRecord){
         throw new Error('No post with the ID found');
       }
@@ -114,4 +121,4 @@ router
   
   });
 
-export default router
+export default router;

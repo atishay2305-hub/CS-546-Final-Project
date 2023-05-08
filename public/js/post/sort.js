@@ -1,13 +1,19 @@
 let sortingCriteria = [];
 
+document.getElementById('sortCriteria').addEventListener('change', function(event) {
+    event.preventDefault();
+    sortPosts();
+});
 function sortPosts(criteria) {
     let postsContainer = document.getElementById('posts-container');
     let posts = Array.from(postsContainer.getElementsByClassName('post-container'));
 
-    // Add the new criteria to the sortingCriteria array
-    if (criteria) {
-        sortingCriteria.push(criteria);
+    // Check if the sorting criteria already exists in the array and move it to the front
+    let index = sortingCriteria.indexOf(criteria);
+    if (index > -1) {
+        sortingCriteria.splice(index, 1);
     }
+    sortingCriteria.unshift(criteria);
 
     // Apply all the sorting criteria
     posts.sort((a, b) => {
@@ -36,6 +42,7 @@ function sortPosts(criteria) {
                         return dateComparison;
                     }
                     break;
+
                 case 'most_likes':
                     let likesAElement = a.querySelector('span.like-count');
                     let likesBElement = b.querySelector('span.like-count');
@@ -61,4 +68,4 @@ function sortPosts(criteria) {
     posts.forEach((post) => {
         postsContainer.appendChild(post);
     });
-}   
+}

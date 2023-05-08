@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 
 
+
 let exportedMethods = {
     async createPost(category, image, postedContent, userName, address) {
         category = validation.checkCategory(category, "category");
@@ -22,6 +23,7 @@ let exportedMethods = {
             throw "You are unable to create post";
         }
 
+        image = image.replace(/\\/g, '/');
 
         let post = {
             category: category,
@@ -83,6 +85,7 @@ let exportedMethods = {
         const id = await validation.checkId(userId);
         const postCollection = await posts();
         const postList = await postCollection.find({userId:new ObjectId(userId)}).sort({created_Date: -1}).limit(5).toArray();
+        console.log(postList);
         for(let x of postList){
             x.deletable = true;
         }
@@ -99,6 +102,8 @@ let exportedMethods = {
         }
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(post.userId.toString())});
+        // console.log(user);
+        // console.log("hello macha!!",user.postIDs);
         let postIdList = user.postIDs.map(post => post.toString());
         // console.log(postIdList);
         // if (user.isAdmin === undefined || !user.isAdmin){
@@ -130,7 +135,7 @@ let exportedMethods = {
         if (!image || image.trim().length === 0) {
             path = "public/images/default.png";
         } else {
-            path = validation.createImage(image);
+            path = validation.createImage(image).replace(/\//g, "\\");
         }
         const userCollection = await users();
         const checkPostExist = userCollection.findOne({_id: new ObjectId(id)});
@@ -286,7 +291,7 @@ let exportedMethods = {
         // return {likes: post.likes, dislikes: post.dislikes};
     
 };
-
+//express session,handlebars
 export default exportedMethods;
 
 

@@ -1,7 +1,5 @@
 import express from "express";
 import session from 'express-session';
-import MongoDBStoreConnector from 'connect-mongodb-session'
-import { mongoConfig  } from "./config/settings.js";
 
 const app = express();
 import configRoutes from './routes/index.js';
@@ -16,25 +14,28 @@ import {dirname} from 'path';
 
 const __dirname = dirname(__filename);
 const staticDir = express.static(__dirname + '/public');
-app.use('/public', staticDir);
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+
 app.use('/public', staticDir);
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
-import eventsRoutes from './routes/events.js';
-import { title } from "process";
-
-app.use('/', eventsRoutes);
+import {userData} from "./data/index.js";
 
 const hbs = exphbs.create({
     defaultLayout: 'main',
     helpers: {
-        if_eq: function (val1, val2){
+        if_eq: function (val1, val2) {
             return val1 === val2;
+        },
+
+        not_past_date: function (date) {
+            const eventDate = Date.parse(date);
+            const now = Date.now();
+            return eventDate >= now;
         }
     }
 });
+
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
@@ -47,22 +48,11 @@ app.use((req, res, next) => {
 });
 
 
-const MongoDBStore =  MongoDBStoreConnector(session)
-const store = new MongoDBStore({
-    uri: `${mongoConfig.serverUrl}/${mongoConfig.database}`,
-    collection: 'user_sessions'
-})
-
-
 app.use(session({
     name: 'AuthCookie',
     secret: 'myKeySecret',
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
-      },
-    store: store,
-    resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    resave: false
 }));
 
 
@@ -70,7 +60,6 @@ const isLoggedIn = (req, res, next) => {
     if (!req.session.user) {
         return res.redirect('/login');
     }
-    
     next();
 };
 
@@ -113,7 +102,7 @@ app.use('/logout', (req, res) => {
     req.session.destroy();
     return res.render('logout', {title: 'logout'});
 });
-  
+
 
 configRoutes(app);
 

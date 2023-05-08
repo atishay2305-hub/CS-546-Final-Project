@@ -1,17 +1,23 @@
 <div class="container">
     <section class="body-wrapper con">
-        <form id="resetPassword-form" action="/event-register/{{id}}" method="post">
-            <div class="fp">
-                <h1>Event registration</h1>
-
-                <ul id="resetPasswordError" class="error" hidden></ul>
+        <form id="event-register-form" action="/registration/confirm/{{id}}" method="post" data-event-id="{{eventId}}">
+            <div class="re">
+                <h1>Event Register</h1>
+                <div class="inf">
+                    <label for="email">Email: </label>
+                    <div class="sec-2">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <input type="email" id="email" name="email" placeholder="firname.lastname@stevens.edu">
+                    </div>
+                </div>
+                <ul id="eventResisterError" class="error" hidden></ul>
                 <button type="submit" value="submit" class="login">Confirm</button>
                 <div class="footer">
-                    <a href="/login">Login</a>
+                    <a href="/homepage">Homepage</a>
                 </div>
             </div>
         </form>
     </section>
+    <script src="/public/js/event/eventRegister.js" type="module"> </script>
     <link rel="stylesheet" href="/public/css/main.css">
 </div>
-
