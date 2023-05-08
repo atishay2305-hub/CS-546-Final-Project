@@ -1,33 +1,5 @@
 import authCheck from "../validtionChecker.js";
 
-const categories = [
-  "Education",
-  "Sports",
-  "Entertainment",
-  "Lost&Found",
-];
-
-const categoryElements = document.getElementsByClassName("category");
-const urlSearchParams = new URLSearchParams(window.location.search);
-const params = Object.fromEntries(urlSearchParams.entries());
-
-let categoryParam;
-if (params.category && categories.includes(params.category)) {
-  categoryParam = params.category;
-}
-
-Array.from(categoryElements).forEach((categoryElement) => {
-  categories.forEach((category) => {
-    const option = document.createElement("option");
-    option.text = category;
-    option.value = category;
-    if (category === categoryParam) {
-      option.selected = true;
-    }
-    categoryElement.appendChild(option);
-  });
-});
-
 (function () {
     document.addEventListener("DOMContentLoaded", function () {
         const postForm = document.getElementById("post-form");
@@ -36,28 +8,18 @@ Array.from(categoryElements).forEach((categoryElement) => {
         const imagePreview = document.getElementById("image-preview");
         const categorySelect = document.getElementById("postCategory");
         const addressInput = document.getElementById("address-input");
-
-        // Function to handle the category change event
-        const handleCategoryChange = () => {
-            const selectedValue = categorySelect.value;
-            if (selectedValue === "lost&found") {
-                addressInput.style.display = "block";
-            } else {
-                addressInput.style.display = "none";
-            }
-        };
-
         if (postForm) {
             postForm.addEventListener("submit", (event) => {
                 event.stopPropagation();
                 event.stopImmediatePropagation();
                 event.preventDefault();
                 errorHandle.hidden = true;
-                let address = "";
+                let address = '';
 
                 let category = categorySelect.value;
                 let postContent = document.getElementById("postContent").value;
                 let file = postImageInput.files[0];
+
 
                 try {
                     category = authCheck.checkCategory(category);
@@ -75,7 +37,7 @@ Array.from(categoryElements).forEach((categoryElement) => {
                 const formData = new FormData();
                 formData.append("category", category);
                 formData.append("postContent", postContent);
-                formData.append("postImage", file); 
+                formData.append("postImage", file); // Append the file
                 formData.append("address", address);
 
                 fetch("/posts", {
@@ -100,6 +62,7 @@ Array.from(categoryElements).forEach((categoryElement) => {
                     .catch((e) => {
                         alert(e || "Something went wrong.");
                     });
+
             });
         }
 
@@ -115,10 +78,14 @@ Array.from(categoryElements).forEach((categoryElement) => {
             reader.readAsDataURL(file);
         });
 
-        categorySelect.addEventListener("change", handleCategoryChange);
-
-        // Handle initial category selection on page load
-        handleCategoryChange();
+        categorySelect.addEventListener("change", () => {
+            const selectedValue = categorySelect.value;
+            if (selectedValue === "lost&found") {
+                addressInput.style.display = "block";
+            } else {
+                addressInput.style.display = "none";
+            }
+        });
 
         const handleError = (errorMsg) => {
             errorHandle.hidden = false;

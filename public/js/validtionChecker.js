@@ -36,6 +36,7 @@ const authCheck = {
         // Return the updated comment
         return comment;
     },
+
     checkLoginPass(password) {
         if (!password) throw "Password not provided";
         if (password.length < 8 || password.length > 25) throw "Password must be at least 8 characters and less than 25 characters";
@@ -107,18 +108,6 @@ const authCheck = {
         const regex = /^([0-9]+|lobby|1st|1th\s*floor)$/i;
         if (!regex.test(roomNumber)) throw "Wrong format of roomNumber";
         return roomNumber;
-    },
-
-    checkComments(phrase, valName) {
-        if (!phrase) throw `${valName} not provided`;
-        if (typeof phrase !== "string" || phrase.trim().length === 0) throw `Please provide a valid input of ${valName}`
-        phrase = phrase.trim();
-        // if (phrase.length < 5)
-        //     throw `${valName} length must greater than 5 characters`;
-        if (phrase.length > 300){
-            throw `${valName} length must less than 300 characters`;
-        }
-        return phrase;
     },
 
 

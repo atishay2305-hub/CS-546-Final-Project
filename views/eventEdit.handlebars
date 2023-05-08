@@ -1,0 +1,91 @@
+<body>
+<div id="events-container">
+    <div class="container center" data-userId="{{userId}}" data-email="{{email}}">
+        {{#if deletable}}
+            <button class="delete-btn" onclick="deleteEvent('{{event._id}}')" data-event_id="{{event._id}}">
+                <i class="fas fa-trash"></i> Delete Event
+            </button>
+        {{/if}}
+
+        <h2>{{event.eventName}}</h2>
+        <img id="img-home" src="{{event.image}}" alt="Post image">
+        <p class="date" data-date="{{event.date}}">Date: {{event.date}}</p>
+        <p>Description: {{event.description}}</p>
+        <p>Organizer: {{event.organizer}}</p>
+        <div id="attendees-container-{{event._id}}" class="attendees-container" style="display: none">
+            {{#each event.attendees}}
+                <li>User Id: {{id}} - Name: {{name}}</li>
+            {{/each}}
+            {{#if deletable}}
+                <button class="delete-attendee-btn" onclick="deleteAttendee('{{userId}}', '{{event._id}}')"
+                        data-attendee_id="{{userId}}">
+                    <i class="fas fa-trash"></i> Delete Attendee
+                </button>
+            {{/if}}
+        </div>
+        <button class="list-btn" data-event_id="{{event._id}}" onclick="showAttendeesPopup('{{event._id}}')">
+            <ion-icon name="people-outline"></ion-icon>
+            Attendee List
+        </button>
+        <br>
+        {{#if registered}}
+            {{#if (not_past_date event.date)}}
+                <button class="cancel-btn" data-event_id="{{event._id}}">
+                    <ion-icon name="close-outline"></ion-icon>
+                    Cancel
+                </button>
+            {{else}}
+                <p class="event-over">You cannot cancel registration for this event.</p>
+            {{/if}}
+        {{else}}
+            {{#if (not_past_date event.date)}}
+                <button class="register-btn" data-event_id="{{event._id}}">
+                    <ion-icon name="person-add-outline"></ion-icon>
+                    Register
+                </button>
+            {{else}}
+                <p class="event-over">Registration for this event is closed.</p>
+            {{/if}}
+        {{/if}}
+        <br>
+
+        <div id="comments-{{event._id}}" class="comments-container">
+            <form class="comment-form" id="comment-form-{{this._id}}" action="/events/{{event._id}}/comment"
+                  method="POST">
+                <input type="hidden" name="postId" value="{{this._id}}">
+                <label for="comment-text-{{this._id}}">Add a Comment:</label>
+                <input type="text" name="commentText" id="comment-text-{{this._id}}">
+                <input type="submit" value="Submit">
+            </form>
+            {{#each comments}}
+                <div class="comment">
+                    <p>Comment: {{contents}} -User Name: {{userName}} - Created
+                        Date: {{created_Date}}</p>
+                </div>
+
+                {{#if ../deletable}}
+                    <button class="delete-comment-btn" onclick="deleteComment('{{this._id}}', '{{../event._id}}')">
+                        <i class="fas fa-trash"></i> Delete Comment
+                    </button>
+                {{/if}}
+                <hr>
+            {{/each}}
+        </div>
+        <p>SeatCapacity: {{event.seatingCapacity}}</p>
+        <button class="comment-btn" id="comment-btn-{{event._id}}" onclick="showCommentsPopup('{{event._id}}')">
+            <ion-icon name="chatbox-ellipses"></ion-icon>
+            <span>Show Comments</span>
+        </button>
+    </div>
+    <a href="/events">Back to Events</a>
+</div>
+<script src="/public/js/delete.js"></script>
+<script src="/public/js/event/eventCancel.js"></script>
+<script src="/public/js/event/comment.js"></script>
+<script src="/public/js/event/commentBtn.js"></script>
+<script src="/public/js/event/sendEmail.js"></script>
+<script src="/public/js/event/attendees.js"></script>
+<script src="/public/js/event/event.js" type="module"></script>
+<script src="/public/js/event/eventRegister.js" type="module"></script>
+<link rel="stylesheet" href="/public/css/events.css">
+</body>
