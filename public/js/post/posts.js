@@ -4,7 +4,7 @@ const categories = [
   "Education",
   "Sports",
   "Entertainment",
-  "Lost&Found",
+  "lost&found",
 ];
 
 const categoryElements = document.getElementsByClassName("category");
