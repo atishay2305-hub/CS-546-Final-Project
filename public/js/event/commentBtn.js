@@ -30,6 +30,7 @@ function showCommentsPopup(eventId) {
     }
 }
 function addComment(event, id, button) {
+    
     event.preventDefault();
 
     const discussionElement = button.parentNode;

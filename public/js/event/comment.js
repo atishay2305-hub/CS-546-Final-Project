@@ -13,6 +13,7 @@ import authCheck from "../validtionChecker.js";
 //             const checkedComment = authCheck.checkComment(commentText);
 //             const response = await fetch(`/events/${eventId}/comment`, {
 //                 method: 'POST',
+
 //                 headers: {
 //                     'Content-Type': 'application/json'
 //                 },
