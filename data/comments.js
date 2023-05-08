@@ -114,23 +114,23 @@ let exportedMethods = {
             throw `No comment with that id ${commentId}`;
         }
         let userId = comment.userId.toString();
-        if (comment.evenId) {
+        if (comment.eventId) {
             const eventCollection = await events();
             const updateEvent = await eventCollection.updateOne(
-                {_id: new ObjectId(commentId.evenId)},
+                {_id: new ObjectId(comment.eventId)},
                 {$pull: {commentIds: commentId}}
             );
-            if (!updateEvent.matchedCount || !updateEvent.modifiedCount) {
+            if (updateEvent.matchedCount === 0 && updateEvent.modifiedCount === 0) {
                 throw `Could not remove comment with id ${commentId} from event with id ${comment.eventId}`;
             }
         } else if (comment.postId) {
             const postCollection = await posts();
             const updatePost = await postCollection.updateOne(
-                {_id: new ObjectId(commentId.postId)},
+                {_id: new ObjectId(comment.postId)},
                 {$pull: {commentIds: commentId}}
             );
-            if (!updatePost.matchedCount || !updatePost.modifiedCount) {
-                throw `Could not remove comment with id ${commentId} from post with id ${comment.postId}`;
+            if (updatePost.matchedCount === 0 && updatePost.modifiedCount === 0) {
+                throw `Could not remove comment with id ${commentId} from event with id ${comment.eventId}`;
             }
         }
         const deleteInfo = await commentCollection.deleteOne({
@@ -140,11 +140,7 @@ let exportedMethods = {
             throw `Could not delete comment with id with ${commentId}`;
         }
 
-        const userComment = userData.removeComment(userId, commentId);
-        if (!userComment) {
-            throw `Either userId or commentId were stored incorrectly`;
-        }
-        return `The comment ${commentId} delete successfully`;
+        return {deleteInfo: true};
     },
 
     async getEventCommentById(eventId) {
@@ -175,12 +171,10 @@ let exportedMethods = {
         return await commentCollection.find({postId: new ObjectId(postId)}).toArray();
     },
 
-  async getPostHomeCommentById(postId){
 
-    postId = await validation.checkId(postId);
+    async getPostHomeCommentById(postId) {
 
-    // const post = await postData.getPostById(postId);
-    // if(!post) throw `No  post with that id ${postId}`
+        postId = await validation.checkId(postId);
 
     const commentCollection = await comments();
     const commentList = await commentCollection.find({ postId: new ObjectId(postId)}).toArray();
@@ -191,21 +185,24 @@ let exportedMethods = {
     }
   },
 
-  async removeCommentByEvent(eventId) {
-    eventId = await validation.checkId(eventId);
-    const commentCollection = await comments();
-    try {
-      const commentList = await commentCollection.deleteMany({
-        eventId: new ObjectId(eventId),
-      });
-      if (commentList.deletedCount === 0) {
-        throw "cannot delete comments for this event";
-      }
-      return { deleted: true };
-    } catch (e) {
-      return res.status(404).json({ error: 'Resource not found' });
-    }
-  },
+    // },
+
+    async removeCommentByEvent(eventId) {
+        eventId = await validation.checkId(eventId);
+        const commentCollection = await comments();
+        try {
+            const commentList = await commentCollection.deleteMany({
+                eventId: new ObjectId(eventId),
+            });
+            console.log(commentList);
+            if (commentList.deletedCount === 0) {
+                throw "cannot delete comments for this event";
+            }
+            return {deleted: true};
+        } catch (e) {
+            console.log(e);
+        }
+    },
 
     async removeCommentByPost(postId) {
         postId = await validation.checkId(postId);

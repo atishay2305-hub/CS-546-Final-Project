@@ -12,22 +12,22 @@ let exportedMethods = {
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) {
-          throw `The user does not exist with that Id &{id}`;
+            throw `The user does not exist with that Id &{id}`;
         }
         if (user.isAdmin) {
-          throw "Discussion can only be created by users."
+            throw "Discussion can only be created by users."
         }
         let discuss = {
-          category: category,
-          description: description,
-          userId: user._id,
-          created_Date: validation.getDate(),
-          replyId:[]
+            category: category,
+            description: description,
+            userId: user._id,
+            created_Date: validation.getDate(),
+            replyId:[]
         };
         const discussionCollection = await discussion();
         let insertInfo = await discussionCollection.insertOne(discuss);
         if (!insertInfo.acknowledged || !insertInfo.insertedId) {
-          throw "Could not add discussion.";
+            throw "Could not add discussion.";
         }
         insertInfo._id = insertInfo.insertedId.toString();
         insertInfo = Object.assign({_id: insertInfo._id}, insertInfo);
@@ -94,21 +94,21 @@ let exportedMethods = {
 
 
     },
-    
+
     async searchDiscussion(searchTerm) {
         const discussionCollection = await discussion();
         const searchRegex = new RegExp(searchTerm, 'i');
         const allDiscussions = await discussionCollection.find({
-          $or: [
-            { category: searchRegex },
-            { description: searchRegex }
-          ]
+            $or: [
+                { category: searchRegex },
+                { description: searchRegex }
+            ]
         }).toArray();
         return allDiscussions;
-      },
+    },
 
     async updateDiscussion(id,userId,message){
-        
+
         id = await validation.checkId(id);
         userId = await validation.checkId(userId);
         message = await validation.checkComments(message);
@@ -118,7 +118,7 @@ let exportedMethods = {
         if(!user){
             throw ('No user found!!');
         }
-        
+
         const discussCollection = await discussion();
         const discuss = await discussCollection.findOne({_id:new ObjectId(id)});
         if(!discuss){
@@ -133,11 +133,11 @@ let exportedMethods = {
         if(discussUpdate.modifiedCount === 0){
             throw new Error("unable to add reply to discussion");
         }
-          const discussAfterUpdate = await discussCollection.findOne({_id:new ObjectId(id)});
+        const discussAfterUpdate = await discussCollection.findOne({_id:new ObjectId(id)});
 
-          if(!discussAfterUpdate){
+        if(!discussAfterUpdate){
             throw new Error('Not able to update after adding albums');
-          }
+        }
 
         return discussAfterUpdate;
 

@@ -20,6 +20,7 @@ app.use('/public', staticDir);
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
 import {userData} from "./data/index.js";
+import { title } from "process";
 
 const hbs = exphbs.create({
     defaultLayout: 'main',
@@ -114,7 +115,7 @@ app.use((req, res, next) => {
 });
 
 app.use('*', (req, res) => {
-    res.status(404).json({error: 'Route Not found'});
+    res.render('pageNotFound', {title: '404'});
 });
 
 

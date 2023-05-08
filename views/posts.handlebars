@@ -4,18 +4,7 @@
         </div>
 {{/if}}
 
-<div id="posts-container-1">
-    <div class="sort-container">
-        <label for="sortCriteria">Filter:</label>
-        <select id="sortCriteria" onchange="sortPosts(this.value)">
-            <option value="" label="Select an Option"> </option>
-            {{!-- <option value="" label="Select an option"> </option> --}}
-            <option value="a-z">A-Z</option>
-            <option value="created_date">Created Date</option>
-            <option value="most_likes">Most Likes</option>
-        </select>
-    </div>
-</div>
+
 
 <div id="posts-container">
     <h1>POSTS</h1>
@@ -80,10 +69,14 @@
                 {{/each}}
             </div>
 
-            <button class="comment-btn" id="commentBtn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
+            {{!-- <button class="comment-btn" id="commentBtn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
     <ion-icon name="chatbox-ellipses"></ion-icon>
+</button> --}}
+<button class="comment-btn" id="comment-btn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')">
+    {{!-- <ion-icon name="chatbox-ellipses"></ion-icon> --}}
+    <span>Show Comments</span>
 </button>
-<label for="commentBtn-{{this._id}}">Comments</label>
+{{!-- <label for="commentBtn-{{this._id}}">Comments</label> --}}
 
 
             {{#if deletable}}
@@ -142,6 +135,8 @@
 
     <script src="/public/js/post/sort.js"></script>
     <script src="/public/js/post/map.js"></script>
+    <script src="/public/js/post/postRedirect.js"></script>
+    <script src="/public/js/commentBtn.js"></script>
     <script src="/public/js/post/comments.js"></script>
     <script src="/public/js/homepage/homepage.js"></script>
     <script src="/public/js/post/posts.js" type="module"></script>

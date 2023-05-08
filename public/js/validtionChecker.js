@@ -121,6 +121,7 @@ const authCheck = {
         return phrase;
     },
 
+
     checkRole(role) {
         if (!role) throw  "Role is not provided";
         if (typeof role !== "string" || role.trim().length === 0) throw "Role is not a valid type";
