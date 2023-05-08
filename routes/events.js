@@ -233,6 +233,20 @@ router
 router.route('/events/:id').delete(async (req, res) => {
     try {
         const user = await userData.getUserByID(req.session.user.userId);
+
+        const deleteEvent = await eventsData.getEventByID(req.params.id);
+        console.log(deleteEvent);
+        if (deleteEvent.image !== 'images/default.jpg') {
+            // Delete the image file from the file system
+            console.log(deleteEvent.image);
+            fs.unlink(`./public${deleteEvent.image}`, err => {
+              if (err) {
+                console.log(err);
+                console.error(`Error deleting image file: ${err}`);
+              }
+            });
+        }
+
         const commentCollection = await comments();
         const event = await commentCollection.find({eventId: new ObjectId(req.params.id)}).toArray();
         if (event.length !== 0) {

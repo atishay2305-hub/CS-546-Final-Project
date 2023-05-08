@@ -23,21 +23,24 @@ import authCheck from "../validtionChecker.js";
                         Accept: "application/json, text/plain, */*", "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        email: email,
+                        email: email
                     }),
                 }).then((res) => {
-                    if(!res.ok){
+                    if (!res.ok) {
                         return res.json();
                     }
                 }).then((data) => {
-                    if (data) {
-                        if (!data.success) {
-                            document.getElementById("email").value = data.email;
-                            document.getElementById("password").value = data.password;
-                            return handleError(data.message || "Something went wrong.");
-                        }
+                    //console.log(data);
+                    if (data && !data.success) {
+
+                        document.getElementById("email").value = data.email;
+                        //document.getElementById("password").value = data.password;
+                        return handleError(data.message || "Something went wrong.");
                     }
-                    location.href = "/login";
+                    else {
+                        location.href = "/login";
+                    }
+
                 }).catch((e) => {
                     alert(e || "Something went wrong.");
                 });
@@ -49,3 +52,4 @@ import authCheck from "../validtionChecker.js";
         };
     });
 })();
+

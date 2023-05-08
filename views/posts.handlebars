@@ -54,8 +54,11 @@
                     <div>
                         <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
                     </div>
+                     {{!-- <div>
+                        <span id="cmt-err" class="text-danger" style="display: none;"></span>
+                    </div> --}}
                     {{!-- <input type="submit" value="Submit"> --}}
-                    <input type="submit" value="Submit" onclick="validateForm(event)">
+                    <button type="button" onclick="addComment(event, '{{_id}}', this)">Submit</button>
                 </form>
                 {{#each ../ comments}}
                     {{#if (if_eq @key ../_id)}}

@@ -212,7 +212,7 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${email} not found`; //check password as well
         user._id = user._id.toString();
         return user;
     },
