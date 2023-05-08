@@ -7,7 +7,7 @@ import {ObjectId} from "mongodb";
 let exportedMethods = {
     async createComment(userId, eventId, postId, contents, commentType) {
         userId = validation.checkId(userId);
-        contents = validation.checkPhrases(contents);
+        contents = validation.checkComments(contents);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         //const user = await userData.getUserByID(userId);
