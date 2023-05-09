@@ -214,7 +214,7 @@ router.route('/homepage').get(async (req, res) => {
         userId: userId,
         userName: userName,
         posts: postList,
-        title: 'Homepage'
+        title: 'Stevens Community Portal'
     });
 
 });
