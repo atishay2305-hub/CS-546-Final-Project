@@ -53,8 +53,8 @@ const registrationConfirmByEmail = async ({id, email}, res) => {
         };
         const result = await transporter.sendMail(mailOptions);
         if (result) {
-            return res.json({ success: true, message: "Confirmation email sent successfully" });
-        } else {
+        //     return res.json({ success: true, message: "Confirmation email sent successfully" });
+        // } else {
             return res.json({
                 success: true,
                 message: "Link was sent to your email"

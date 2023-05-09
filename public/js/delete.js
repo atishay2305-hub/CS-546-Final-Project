@@ -1,4 +1,5 @@
  function deletePost(id) {
+    // const postId = id.replace(/\"/g, "");
     fetch(`/posts/${id}`, {
         method: "delete",
         headers: {

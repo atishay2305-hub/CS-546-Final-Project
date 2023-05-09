@@ -12,8 +12,6 @@ import { passwordResetByEmail } from "../email.js";
 import xss from 'xss';
 import { comments, users, posts } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
-import { title } from 'process';
-import { error } from 'console';
 import fs from 'fs';
 
 const router = Router();
@@ -216,7 +214,7 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
-        console.log(id);
+        // console.log(id);
         const userName = req.session.user.userName;
         const role = req.session.user.role;
         if (role === 'admin') {
@@ -245,7 +243,7 @@ router.route('/posts')
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
 
-            console.log("The post is posted");
+            // console.log("The post is posted");
             return res.redirect('/posts');
         } catch (e) {
             return res.status(400).json({
@@ -288,7 +286,7 @@ router.route('/posts/:id').delete(async (req, res) => {
         //res.send(response);
         return res.sendStatus(200);
     } catch (e) {
-        
+        return res.status(500).send({ error: e });
     }
 });
 
@@ -356,7 +354,7 @@ router
             let id = xss(req.params.id);
             let newPassword = xss(req.body.newPassword);
             let oldPassword = xss(req.body.oldPassword);
-            console.log(id);
+            // console.log(id);
             id = validation.checkId(id);
 
             newPassword = validation.checkPassword(newPassword);
@@ -376,7 +374,7 @@ router
             // }
             res.redirect('/logout');
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             return res.status(400).render("changePassword", {
                 success: false,
                 id: req.body.id,
@@ -401,11 +399,11 @@ router
 
             let checkExist = await userData.getUserByEmail(email);
             if(!checkExist) throw `No user with ${email} exist!!`;
-            console.log(checkExist);
+            // console.log(checkExist);
             const xyz = await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
             return xyz;
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             return res.status(400).json({
                 success: false,
                 message: e,
@@ -435,7 +433,7 @@ router.route('/posts/:id').delete(async (req, res) => {
         const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
         if (post.length !== 0) {
             const responsePost = await commentData.removeCommentByPost(req.params.id);
-            console.log("hi", responsePost.deleted);
+            // console.log("hi", responsePost.deleted);
         }
         const response = await postData.removeById(req.params.id);
         //const user = await userData.removePost()
@@ -456,7 +454,7 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         commentText = validation.checkComments(commentText);
 
         if (commentText === '' || commentText.trim().length === 0) {
-            console.log(commentText, commentText.length);
+            // console.log(commentText, commentText.length);
             alert('cannot submit an empty comment');
             return res.redirect('/posts');
         }
@@ -481,7 +479,7 @@ router
     .post(async (req, res) => {
         try {
             const { postId } = req.params;
-            console.log("hereee", postId);
+            // console.log("hereee", postId);
             const userId = req.session.user.userId;
             const userName = req.session.user.userName;
             const liked = true;
@@ -542,7 +540,7 @@ router.route('/increaseLikes')
 router.get('/search', async (req, res) => {
     try {
       const searchTerm = req.query.query;
-      console.log("searchTerm:", searchTerm);
+    //   console.log("searchTerm:", searchTerm);
       const searchResults = await eventsData.searchEvent(searchTerm);
       res.render('searchResults', { results: searchResults, title: 'Search Results' });
     } catch (e) {
@@ -642,7 +640,7 @@ router.route('/discuss').post(async (req, res) => {
 
     const discuss = await discussData.createDiscussion(category, xss(description), userId);
     
-    console.log(discuss);
+    // console.log(discuss);
     const user = await userData.putDiscuss(userId, discuss._id.toString());
     return res.redirect('/discuss');
 });
@@ -657,7 +655,7 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
         Message = validation.checkComments(Message);
 
         const discuss = await discussData.updateDiscussion(id, userId, Message);
-        console.log(discuss)
+        // console.log(discuss)
         return res.sendStatus(200);
     } catch (error) {
 
@@ -699,7 +697,8 @@ router
             }
             return res.sendStatus(200);
         } catch (e) {
-            console.log(e);
+            // console.log(e);
+            return res.status(404);
         }
     });
 
@@ -713,12 +712,13 @@ router
             const postId = req.params.id.toString();
             const {commentText} = req.body;
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-            console.log(comment);
+            // console.log(comment);
             const post = await postData.putComment(postId, comment.commentId);
-            console.log('The comment is added');
+            // console.log('The comment is added');
             return res.sendStatus(200);
         } catch (e) {
-            console.log(e);
+            // console.log(e);
+            return res.status(404);
         }
     });
 
