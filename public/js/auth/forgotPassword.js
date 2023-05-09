@@ -89,6 +89,9 @@ import authCheck from "../validtionChecker.js";
               const data = await res.json();
                 throw data;
             }
+            if(res.success){
+              window.location.href = '/login';
+          }
             return res.json();
           })
           .then((data) => {

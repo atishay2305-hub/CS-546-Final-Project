@@ -22,13 +22,18 @@ const passwordResetByEmail = async ({id, email}, res) => {
         console.log(result)
         if(result) {
             
-             return res.redirect('/login');
-        }else{
+            //  return res.redirect('/login');
             return res.json({
                 success: true,
                 message: "Link was sent to your email"
             })
         }
+        // }else{
+        //     return res.json({
+        //         success: true,
+        //         message: "Link was sent to your email"
+        //     })
+        // }
     }catch (e){
         return res.status(500).json({
             success: false,
