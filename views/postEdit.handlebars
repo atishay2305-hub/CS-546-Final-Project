@@ -13,16 +13,17 @@
             <p>Address: {{post.address}}</p>
         {{/if}}
         <p class="create_date" data-created_Date="{{created_Date}}">Created at: {{post.created_Date}}</p>
-        <button class="like-btn" onclick="toggleLike('{{post._id}}', this)">
-            <ion-icon name="thumbs-up"></ion-icon>
-            <span class="like-count" data-likes="{{post.likes}}">{{post.likes}}</span>
-            <span>Likes</span>
-        </button>
-        <button class="dislike-btn" onclick="toggleDislike('{{post._id}}', this)">
-            <ion-icon name="thumbs-down"></ion-icon>
-            <span class="dislike-count">{{post.dislikes}}</span>
-            <span>DisLikes</span>
-        </button>
+        <form class="like-form" id="like-form-{{post._id}}">
+            <button class="like-btn-home" data-post-id="{{post._id}}" onclick="likeFunc('{{post._id}}','post_id')"><i
+                    class="fa fa-thumbs-up">Like</i></button>
+            <span class="like-count" id="like-count-{{post._id}}">{{post.likes}}</span>
+        </form>
+
+        <form class="dislike-form" id="dislike-form-{{post._id}}">
+            <button class="dislike-btn-home" data-post-id="{{post._id}}"
+                    onclick="dislikeFunc('{{post._id}}','post_id')"><i class="fa fa-thumbs-down">Dislike</i></button>
+            <span class="dislike-count" id="dislike-count-{{post._id}}">{{post.dislikes}}</span>
+        </form>
         <hr>
         <div id="comments-{{post._id}}" class="comments-container">
             <form class="comment-form" id="comment-form-{{post._id}}" action="/posts/{{post._id}}/comment"
@@ -53,9 +54,9 @@
     </div>
     <script src="/public/js/delete.js"></script>
     <script src="/public/js/post/map.js"></script>
-    <script src="/public/js/post/commentBtn.js"></script>
+    <script src="/public/js/commentBtn.js"></script>
     <script src="/public/js/post/comments.js"></script>
-    <script src="/public/js/post/like&dislike.js"></script>
+    <script src="/public/js/homepage/homepage.js"></script>
     <script src="/public/js/post/posts.js" type="module"></script>
     <link rel="stylesheet" href="/public/css/posts.css">
 </div>

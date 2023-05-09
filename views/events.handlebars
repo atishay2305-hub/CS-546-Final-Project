@@ -57,7 +57,7 @@
                 <div class="sec-1">
                     <label for="roomNumber">Room Number: </label>
                     <div class="sec-2">
-                        <input id="roomNumber" type="text" name="roomNumber" placeholder="603, 1st floor, lobby">
+                        <input id="roomNumber" type="text" name="roomNumber" placeholder="603, lobby">
                     </div>
                 </div>
             </div>
@@ -83,7 +83,7 @@
                     <label for="eventImage">Upload Image: </label>
                     <div class="sec-2">
                         <input type="file" name="eventImage" id="eventImage">
-                        <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+                        {{!-- <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;"> --}}
                     </div>
                 </div>
             </div>
@@ -114,24 +114,37 @@
             <br>
             {{#if registered}}
                 {{#if (not_past_date date)}}
-                    <button class="cancel-btn" data-event_id="{{this._id}}">
-                        <ion-icon name="close-outline"></ion-icon>
-                        Cancel
-                    </button>
+                    {{#if fullBooked}}
+                        <button class="cancel-btn" data-event_id="{{this._id}}">
+                            <ion-icon name="close-outline"></ion-icon>
+                            Cancel
+                        </button>
+                        <p class="event-full-message">This event is fully booked. Your registration can be cancelled at any time.</p>
+                    {{else}}
+                        <button class="cancel-btn" data-event_id="{{this._id}}">
+                            <ion-icon name="close-outline"></ion-icon>
+                            Cancel
+                        </button>
+                    {{/if}}
                 {{else}}
-                    <p class="event-over">You cannot cancel registration for this event.</p>
+                    <p class="event-over">You cannot cancel registration for a passed event.</p>
                 {{/if}}
             {{else}}
                 {{#if (not_past_date date)}}
-                    <button class="register-btn" data-event_id="{{this._id}}">
-                        <ion-icon name="person-add-outline"></ion-icon>
-                        Register
-                    </button>
+                    {{#if fullBooked}}
+                        <p class="event-full">This event is fully booked.</p>
+                    {{else}}
+                        <button class="register-btn" data-event_id="{{this._id}}">
+                            <ion-icon name="person-add-outline"></ion-icon>
+                            Register
+                        </button>
+                    {{/if}}
                 {{else}}
                     <p class="event-over">Registration for this event is closed.</p>
                 {{/if}}
             {{/if}}
             <br>
+            <p>{{this._id}}</p>
             <div id="comments-{{this._id}}" class="comments-container" style="display: none">
                 <form class="comment-form" id="comment-form-{{this._id}}" action="/events/{{this._id}}/comment"
                       method="POST">
@@ -175,9 +188,9 @@
 <script src="/public/js/event/eventRedirect.js"></script>
 <script src="/public/js/event/eventCancel.js"></script>
 <script src="/public/js/commentBtn.js"></script>
-<script src="/public/js/event/comment.js" type="module"></script>
+{{!-- <script src="/public/js/event/comment.js" type="module"></script> --}}
 <script src="/public/js/event/attendees.js"></script>
 <script src="/public/js/event/sendEmail.js"></script>
 <script src="/public/js/event/event.js" type="module"></script>
 <script src="/public/js/event/eventRegister.js" type="module"></script>
-<link rel="stylesheet" href="/public/css/events.css">
+<link rel="stylesheet" href="/public/css/event.css">

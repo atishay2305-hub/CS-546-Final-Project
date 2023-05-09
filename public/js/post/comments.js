@@ -136,7 +136,7 @@ function addComment(event, id, button) {
 
   //const commentInput = discussionElement.getElementById(`comment-text-${this._id}`).value;
   const commentInput = discussionElement.querySelector(`#comment-text-${id}`).value;
-  console.log("there ---------------------->", commentInput);
+//   console.log("there ---------------------->", commentInput);
   //
   if (!commentInput || !commentInput.trim()) {
       cmtErrEle.innerHTML = 'Cannot submit an empty comment';
@@ -144,7 +144,7 @@ function addComment(event, id, button) {
       return;
   }
   const commentText = commentInput.trim();
-  console.log(commentText);
+//   console.log(commentText);
   if(commentText.length > 300){
       cmtErrEle.innerHTML = 'Comment cannot be more than 300 characters';
       cmtErrEle.style.display ='block';
@@ -176,6 +176,24 @@ function addComment(event, id, button) {
   .catch(error => {
       alert(error.message || "Something went wrong.");
   });
+// .then(async (res) => {
+//     if (!res.ok) {
+//       const data = await res.json();
+//         throw data;
+//     }
+//     return res.json();
+//   })
+//   .then((data) => {
+//     if (!data.success) {
+//       document.getElementById("email").value = data.email;
+//       return handleError(data.message || "Something went wrong.");
+//     } else {
+//       location.href = "/login";
+//     }
+//   })
+//   .catch((e) => {
+//     handleError(e.message || "Something went wrong.");
+//   });
 
 }
 

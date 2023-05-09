@@ -19,8 +19,7 @@ app.use(express.json());
 app.use('/public', staticDir);
 app.use(express.urlencoded({extended: true}));
 app.use('/', staticDir);
-import {userData} from "./data/index.js";
-import { title } from "process";
+
 
 const hbs = exphbs.create({
     defaultLayout: 'main',

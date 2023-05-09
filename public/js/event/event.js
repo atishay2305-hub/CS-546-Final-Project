@@ -23,12 +23,12 @@ document.addEventListener("DOMContentLoaded", function () {
             let file = eventImageInput.files[0]; // FIX: should be files not file
 
             try {
-                eventName = authCheck.checkName(eventName);
+                eventName = authCheck.checkName(eventName,"Event Name");
                 description = authCheck.checkPhrases(description, "Description");
                 date = authCheck.checkDate(date);
                 buildingName = authCheck.checkLocation(buildingName);
                 roomNumber = authCheck.checkRoom(roomNumber);
-                organizer = authCheck.checkName(organizer);
+                organizer = authCheck.checkName(organizer,"Organizer");
                 seatingCapacity = authCheck.checkCapacity(seatingCapacity);
             } catch (e) {
                 document.getElementById("eventName").setAttribute("value", eventName);
