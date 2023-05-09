@@ -114,7 +114,7 @@ router
             } else {
                 user = await userData.createUser(firstName, lastName, userName, email, password, DOB, role, department);
             }
-            const date = validation.getDate();
+        
 
             if (user.insertedUser) {
                 return res.redirect('/login');
@@ -608,33 +608,6 @@ router.route('/search').get(async (req, res) => {
     }
 });
 
-router.route('/discuss').get(async (req, res) => {
-    const userCollection = await users();
-    const dbQuery = {};
-    if (req.query?.category && req.query.category !== 'All') {
-        dbQuery.category = req.query.category;
-    }
-
-    if (req.query?.search) {
-        dbQuery.description = { $regex: xss(req.query.search), $options: 'i' };
-    }
-
-    const discuss = await discussData.getAllDiscussions(dbQuery);
-    for (let x of discuss) {
-        const user = await userCollection.findOne({ _id: x.userId });
-        x.userName = user.userName;
-        x.result = [];
-        for (let y of x.replyId) {
-            const user = await userCollection.findOne({ _id: y.userId });
-            x.result.push({
-                userName: user.userName,
-                message: y.message,
-            });
-        }
-    }
-
-    return res.render('discuss', { newDiscussion: discuss, title: 'Discussion' });
-});
 
 router.route('/discuss').post(async (req, res) => {
     const userId = req.session.user.userId;

@@ -97,6 +97,11 @@
     {{#each events}}
         <div class="event-container" id="event-container-{{this._id}}" data-href="/events/{{this._id}}"
              style="cursor: pointer;">
+             {{#if deletable}}
+                <button> class="delete-btn" onclick="deleteEvent('{{this._id}}')"
+                    <i class="fas fa-trash"></i>
+                </button>
+            {{/if}}
             <h1>{{eventName}}</h1>
             <img id="img-home-{{this._id}}" src="{{image}}" alt="Post image">
             <p class="date" data-date="{{date}}">Date: {{date}}</p>
@@ -106,6 +111,11 @@
                 {{#each attendees}}
                     <li>User Id: {{userId}}  Name: {{name}}</li>
                 {{/each}}
+                {{#if deletable}}
+                <button> class="delete-btn" onclick="deleteAttendee('{{userId}}', '{{this._id}}')"
+                    <i class="fas fa-trash"></i>
+                </button>
+                {{/if}}
             </div>
             <button class="list-btn" data-event_id="{{this._id}}" onclick="showAttendeesPopup('{{this._id}}')">
                 <ion-icon name="people-outline"></ion-icon>
@@ -171,6 +181,11 @@
                                 <hr>
                             {{/each}}
                         {{/each}}
+                    {{/if}}
+                    {{#if deletable}}
+                        <button> class="delete-btn" onclick="deleteComment('{{../_id}}', '{{this._id}}')"
+                        <i class="fas fa-trash"></i>
+                        </button>
                     {{/if}}
                 {{/each}}
             </div>

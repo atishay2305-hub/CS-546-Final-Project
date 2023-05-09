@@ -67,7 +67,7 @@ function addComment(event, id, button) {
         body: JSON.stringify({commentText:commentText})
     })
     .then(response => {
-        if (response.deleted) {
+        if (response.ok) {
             location.reload();
         } else {
             //return response.json()

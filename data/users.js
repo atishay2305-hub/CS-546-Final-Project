@@ -352,11 +352,11 @@ let exportedMethods = {
         if (!updateInfo.matchedCount || !updateInfo.modifiedCount) {
             throw `Could not update event with attendee`;
         }
-        const eventAttended = user.eventAttend;
-        eventAttended.push(eventId);
+        const eventAttend = user.eventAttend;
+        eventAttend.push(eventId);
         const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(userId)},
-            {$set: {eventAttended}}
+            {$set: {eventAttend: eventAttend}}
         )
         if (!updatedInfo.matchedCount || !updatedInfo.modifiedCount) {
             throw `Could not update attendee with event`;
@@ -377,7 +377,7 @@ let exportedMethods = {
         const updatedAttendees = {};
         let attendeeRemoved = false;
         for (const [attendeeId, attendeeData] of Object.entries(event.attendees)) {
-            if (attendeeData.id !== userId) {
+            if (attendeeData.id !== userId ) {
                 updatedAttendees[attendeeId] = attendeeData;
             } else {
                 attendeeRemoved = true;
