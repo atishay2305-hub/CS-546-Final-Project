@@ -31,6 +31,9 @@
                 <input type="hidden" name="postId" value="{{post._id}}">
                 <label for="comment-text-{{post._id}}">Add a Comment:</label>
                 <input type="text" name="commentText" id="comment-text-{{post._id}}">
+                <div>
+                    <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
+                </div>
                 <button type="button" onclick="addComment(event, '{{post._id}}', this)">Submit</button>
             </form>
             {{#each comments}}

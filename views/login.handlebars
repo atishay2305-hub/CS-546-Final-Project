@@ -1,4 +1,4 @@
-<div class="container center login-container" width="40%">
+<div class="container center login-container">
     <h1 class="login">Login Page</h1>
     <form id="login-form" action="/login" method="post">
         <div class="inf">
@@ -20,13 +20,17 @@
 
         <button type="submit" class="registerbtn">Login</button>
     </form>
-    <div class="hlink">
+    {{!-- <div class="hlink">
 
 
         <a href="/forgot-password">Forgot your password?</a><br>
         <a href="/register">Click here to register!</a> 
 
-<div>
+<div> --}}
+    <div class="hlink">
+  <a href="/forgot-password" class="blue-link">Forgot your password?</a><br>
+  <a href="/register" class="blue-link">Click here to register!</a>
+</div>
     <ul class="error" id="loginError"></ul>
 </div>
 

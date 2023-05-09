@@ -1,20 +1,22 @@
 <div class="container-fluid p-2">
- 
     <div id="search">
         <form action="/search" method="GET">
-        <div class="mt-5">
-               <h1>Stevens Community Portal</h1>
-            <input class="form-control" type="text" name="query" placeholder="Search Events Here">
-            </div><br>
+            <div class="mt-5">
+                <h1>Stevens Community Portal</h1>
+                <label for="search-input">Search Events Here:</label>
+                <input id="search-input" class="form-control" type="text" name="query" placeholder="Enter search query">
+            </div>
+            <br>
             <button type="submit">Search</button>
-           
         </form>
     </div>
+</div>
+
     <div class="row">
         {{#each posts}}
         <div class="post-container col-4 border border-secondary">
             <h2>{{content}}</h2>
-            {{!-- <img id="img-home" src="{{image}}" alt="Post image"> --}}
+            <!-- <img id="img-home" src="{{image}}" alt="Post image"> -->
             <img id="img-home-{{this._id}}" src="{{image}}" alt="Post image">
             <p>Category: {{category}}</p>
             <p>Created by: {{userName}}</p>
@@ -34,7 +36,8 @@
                     <span class="dislike-count" id="dislike-count-{{this._id}}">{{this.dislikes}}</span>
                 </div>
                 <div class="col-12 my-3">
-                    <button class="btn btn-info btn-sm" onclick="toggleComments(this)">View Comments</button>
+                    {{!-- <button class="btn btn-info btn-sm" onclick="toggleComments(this)">View Comments</button> --}}
+                    <button class="view-comments-btn btn btn-info btn-sm" onclick="toggleComments(this)">View Comments</button>
                     <div id="replies-sec" class="replies text-left" style="display: none;">
                         {{#each result}}
                         <div class="reply p-2 my-2 bg-light">
@@ -47,24 +50,22 @@
                                 <span id="cmt-err" class="text-danger" style="display: none;"></span>
                             </div>
                             <button class="btn btn-success btn-sm" type="button"
-                                onclick="postReply(event, '{{_id}}', this)">Post
-                                Comment</button>
+                                onclick="postReply(event, '{{_id}}', this)">Post Comment</button>
                         </form>
                     </div>
                 </div>
                 <div class="my-1 text-right">
-
-                {{#if deletable}}
+                    {{#if deletable}}
+                    {{!-- <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button> --}}
                     <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
-                {{/if}}
+                    {{/if}}
+                </div>
             </div>
+        </div>
         {{/each}}
     </div>
 </div>
-<script>
-</script>
+
 <script src="../public/js/homepage/homepage.js"></script>
-{{!--
-<script src="../public/js/post/like&dislike.js"></script> --}}
 <link rel="stylesheet" href="/public/css/homepage.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">

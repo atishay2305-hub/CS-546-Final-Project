@@ -10,6 +10,7 @@ import {registrationConfirmByEmail} from "../email.js";
 import xss from 'xss';
 import {comments, users, posts, events} from '../config/mongoCollections.js';
 import {ObjectId} from 'mongodb';
+import { title } from 'process';
 
 const router = Router();
 
@@ -76,7 +77,8 @@ router
                 email: req.session.user.email,
                 role: req.session.user.role,
                 events: events,
-                comments: comments
+                comments: comments,
+                title: 'Events'
             });
         }
     })
@@ -165,37 +167,70 @@ router
     });
 
 
+// router
+//     .route('/event-register')
+//     .post(async (req, res) => {
+//         try {
+//             let email = xss(req.body.email);
+//             email = validation.checkEmail(email);
+//             let userId = xss(req.body.userId);
+//             userId = validation.checkId(userId);
+//             const user = await userData.getUserByID(userId);
+//             let eventId = xss(req.body.eventId)
+//             eventId = validation.checkId(eventId);
+//             const event = await eventsData.getEventByID(eventId);
+//             const attendeesList = event.attendees;
+//             const checkExist = attendeesList.length > 0 && Object.values(attendeesList).some(attendee => attendee.id === userId);
+//             if (!checkExist) {
+//                 // user not already registered
+//                 await registrationConfirmByEmail({id: eventId, email: email}, res);
+//             } else {
+//                 // user already registered
+//                 return res.status(200).json({
+//                     success: true,
+//                     message: "You have already registered for this event."
+//                 });
+//             }
+//         } catch (e) {
+//             return res.status(500).json({
+//                 success: false,
+//                 message: "Something went wrong. Please try again later."
+//             });
+//         }
+//     });
 router
-    .route('/event-register')
-    .post(async (req, res) => {
-        try {
-            let email = xss(req.body.email);
-            email = validation.checkEmail(email);
-            let userId = xss(req.body.userId);
-            userId = validation.checkId(userId);
-            const user = await userData.getUserByID(userId);
-            let eventId = xss(req.body.eventId)
-            eventId = validation.checkId(eventId);
-            const event = await eventsData.getEventByID(eventId);
-            const attendeesList = event.attendees;
-            const checkExist = attendeesList.length > 0 && Object.values(attendeesList).some(attendee => attendee.id === userId);
-            if (!checkExist) {
-                // user not already registered
-                await registrationConfirmByEmail({id: eventId, email: email}, res);
-            } else {
-                // user already registered
-                return res.status(200).json({
-                    success: true,
-                    message: "You have already registered for this event."
-                });
-            }
-        } catch (e) {
-            return res.status(500).json({
-                success: false,
-                message: "Something went wrong. Please try again later."
-            });
+.route('/event-register')
+.post(async (req, res) => {
+    try {
+        let email = xss(req.body.email);
+        email = validation.checkEmail(email);
+        let userId = xss(req.body.userId);
+        userId = validation.checkId(userId);
+        const user = await userData.getUserByID(userId);
+        let eventId = xss(req.body.eventId)
+        eventId = validation.checkId(eventId);
+        const event = await eventsData.getEventByID(eventId);
+        const attendeesList = event.attendees;
+        const checkExist = attendeesList.length > 0 && Object.values(attendeesList).some(attendee => attendee.id === userId);
+        if (!checkExist) {
+            // user not already registered
+            await registrationConfirmByEmail({id: eventId, email: email}, res);
+        } else {
+            // user already registered
+            return res.status(200).json({
+                success: true,
+                message: "You have already registered for this event."
+            }, {title: "Event Registration"});
         }
-    });
+    } catch (e) {
+        return res.status(500).json({
+            success: false,
+            title: "Error",
+            message: "Something went wrong. Please try again later."
+        });
+    }
+});
+
 
 router
     .route('/:eventId/comments/:id')
@@ -232,7 +267,7 @@ router
         if (!event) {
             return res.status(404).render("error", {message: "Event not found"});
         }
-        res.render("eventRegister", {eventId: eventId});
+        res.render("eventRegister", {eventId: eventId}, {title: 'Event Register'});
     })
     .post(async (req, res) => {
         try {

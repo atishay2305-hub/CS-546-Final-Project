@@ -198,7 +198,11 @@ const authCheck = {
     checkCapacity(seatCapacity) {
         if (!seatCapacity) throw "seatCapacity not provided.";
         seatCapacity = parseInt(seatCapacity);
+        if(seatCapacity < 1){
+            throw "Seating capacity cannot be less than 1."
+        }
         return seatCapacity;
+        
     },
 
     checkAddress(address) {

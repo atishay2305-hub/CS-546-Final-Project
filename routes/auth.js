@@ -158,7 +158,7 @@ router
         // console.log(userName);
         //console.log(postList);
         const postList = await postData.getPostByUserIdTop(userId);
-        console.log(postList);
+        // console.log(postList);
         //
         //console.log(postList);
         const commentCollection = await comments();
@@ -282,7 +282,7 @@ router.route('/posts')
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
     const user = await userData.getUserByID(id);
-    return res.render('profile', {user: user});
+    return res.render('profile', {user: user, title: 'User Profile'});
 });
 
 

@@ -75,7 +75,7 @@ let exportedMethods = {
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(userId)});
         if (post === null) {
-            throw `No post found with that ID ${userId}`;
+            throw `No post found with that userID ${userId}`;
         }
         post._id = new ObjectId(post._id).toString();
         return post;

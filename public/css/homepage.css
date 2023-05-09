@@ -86,23 +86,41 @@ body {
   padding: 10px;
   border: none;
   border-radius: 5px;
-  background-color: #4caf50;
+  background-color: darkgreen; /* Dark green color */
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.view-comments-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: blue;
   color: white;
   font-size: 16px;
   cursor: pointer;
 }
 
 
+.view-comments-btn:hover {
+  background-color: darkgreen; /* Dark green hover color */
+}
+
+.btn-success:hover {
+  background-color: darkgreen; /* Dark green hover color */
+}
 
 .delete-btn {
   width: 100%;
   padding: 10px;
   border: none;
   border-radius: 5px;
-  background-color: #f44336;
-  color: white;
+  background-color: maroon; /* Lighter shade of red */
+  color: white; /* Darker shade of red */
   font-size: 16px;
   cursor: pointer;
   margin-top: 20px;
 }
-  
+

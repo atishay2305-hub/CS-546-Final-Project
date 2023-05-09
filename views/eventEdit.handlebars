@@ -1,4 +1,6 @@
-<body>
+<head>
+    <title>Event Register</title>
+</head>
 <div id="events-container">
     <div class="container center" data-userId="{{userId}}" data-email="{{email}}">
         {{#if deletable}}
@@ -58,12 +60,7 @@
                 <div>
                     <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
                 </div>
-                     {{!-- <div>
-                        <span id="cmt-err" class="text-danger" style="display: none;"></span>
-                    </div> --}}
-                    {{!-- <input type="submit" value="Submit"> --}}
                 <button type="button" onclick="addComment(event, '{{_id}}', this)">Submit</button>
-                {{!-- <input type="submit" value="Submit"> --}}
             </form>
             {{#each comments}}
                 <div class="comment">
@@ -80,20 +77,20 @@
             {{/each}}
         </div>
         <p>SeatCapacity: {{event.seatingCapacity}}</p>
-        <button class="comment-btn" id="comment-btn-{{event._id}}" onclick="showCommentsPopup('{{event._id}}')">
+        {{!-- <button class="comment-btn" id="comment-btn-{{event._id}}" onclick="showCommentsPopup('{{event._id}}')">
             <ion-icon name="chatbox-ellipses"></ion-icon>
             <span>Show Comments</span>
-        </button>
+        </button> --}}
     </div>
     <a href="/events">Back to Events</a>
 </div>
 <script src="/public/js/delete.js"></script>
 <script src="/public/js/event/eventCancel.js"></script>
-{{!-- <script src="/public/js/event/comment.js"></script> --}}
+<script src="/public/js/event/comment.js"></script>
 <script src="/public/js/event/commentBtn.js"></script>
 <script src="/public/js/event/sendEmail.js"></script>
 <script src="/public/js/event/attendees.js"></script>
 <script src="/public/js/event/event.js" type="module"></script>
 <script src="/public/js/event/eventRegister.js" type="module"></script>
-<link rel="stylesheet" href="/public/css/events.css">
-</body>
+{{!-- <link rel="stylesheet" href="/public/css/eventEdit.css"> --}}
+<link rel="stylesheet" href="/public/css/eventEdit.css">
