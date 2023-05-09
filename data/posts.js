@@ -102,9 +102,10 @@ let exportedMethods = {
         let postIdList = user.postIDs.map(post => post.toString());
         const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
         if (removePost.deletedCount === 0) {
-            throw `Could not delete band with id of ${id}`;
+            throw `Could not delete post with id of ${id}`;
         }
-        await userData.removePost(post.userId.toString(), id);
+        // if(req)
+        // await userData.removePost(post.userId.toString(), id);
 
         return {
             eventId: id,

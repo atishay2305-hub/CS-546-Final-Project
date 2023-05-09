@@ -69,7 +69,7 @@
                 </div>
 
                 {{#if ../deletable}}
-                    <button class="delete-comment-btn" onclick="deleteComment('{{event._id}}', '{{../event._id}}')">
+                    <button class="delete-comment-btn" onclick="deleteComment('{{this._id}}', '{{../event._id}}')">
                         <i class="fas fa-trash"></i> Delete Comment
                     </button>
                 {{/if}}

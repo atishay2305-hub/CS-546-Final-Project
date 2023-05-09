@@ -89,7 +89,6 @@ router
 
 
         try {
-            // removed dept
 
             let firstName = xss(req.body.firstName);
             let lastName = xss(req.body.lastName);
@@ -115,7 +114,7 @@ router
             } else {
                 user = await userData.createUser(firstName, lastName, userName, email, password, DOB, role, department);
             }
-            const date = validation.getDate();
+        
 
             if (user.insertedUser) {
                 return res.redirect('/login');
@@ -171,7 +170,7 @@ router
                 const attendeeIds = Object.values(attendees).map((attendee) => attendee.id);
                 return attendeeIds.includes(userId);
             })
-            .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort events by date in descending order
+            .sort((a, b) => new Date(a.date) - new Date(b.date)) 
             .slice(0, 5);
         }
 
@@ -262,33 +261,33 @@ router.route('/profile').get(async (req, res) => {
 });
 
 
-router.route('/posts/:id').delete(async (req, res) => {
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
-        if (!user) {
-            throw 'cannot find user';
-        }
-        const deletepost = await postData.getPostById(req.params.id);
-        if (deletepost.image !== 'images/default.jpg') {
-            fs.unlink(`./public${deletepost.image}`, err => {
-                if (err) {
-                    throw `Error deleting image file: ${err}`;
-                }
-            });
-        }
-        const commentCollection = await comments();
-        const post = await commentCollection.find({ postId: new ObjectId(req.params.id) }).toArray();
-        if (post.length !== 0) {
-            const responsePost = await commentData.removeCommentByPost(req.params.id);
-        }
-        const response = await postData.removePostById(req.params.id);
-        //res.status(200).send(response);
-        //res.send(response);
-        return res.sendStatus(200);
-    } catch (e) {
-        return res.status(500).send({ error: e });
-    }
-});
+// router.route('/posts/:id').delete(async (req, res) => {
+//     try {
+//         const user = await userData.getUserByID(req.session.user.userId);
+//         if (!user) {
+//             throw 'cannot find user';
+//         }
+//         const deletepost = await postData.getPostById(req.params.id);
+//         if (deletepost.image !== 'images/default.jpg') {
+//             fs.unlink(`./public${deletepost.image}`, err => {
+//                 if (err) {
+//                     throw `Error deleting image file: ${err}`;
+//                 }
+//             });
+//         }
+//         const commentCollection = await comments();
+//         const post = await commentCollection.find({ postId: new ObjectId(req.params.id) }).toArray();
+//         if (post.length !== 0) {
+//             const responsePost = await commentData.removeCommentByPost(req.params.id);
+//         }
+//         const response = await postData.removePostById(req.params.id);
+//         //res.status(200).send(response);
+//         //res.send(response);
+//         return res.sendStatus(200);
+//     } catch (e) {
+//         return res.status(500).send({ error: e });
+//     }
+// });
 
 router.route('/posts/:id/comment').post(async (req, res) => {
     try {
@@ -330,7 +329,7 @@ router
             }
             res.redirect('/login');
         } catch (e) {
-            return res.status(400).render("/resetPassword", {
+            return res.status(400).render("resetPassword", {
                 success: false,
                 id: req.body.id,
                 error: e
@@ -431,28 +430,18 @@ router.use('/logout', (req, res) => {
 });
 
 
-router.route('/posts/:id').delete(async (req, res) => {
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
-        if (!user) {
-            throw 'cannot find user';
-        }
-        const commentCollection = await comments();
-        const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
-        if (post.length !== 0) {
-            const responsePost = await commentData.removeCommentByPost(req.params.id);
-            // console.log("hi", responsePost.deleted);
-        }
-        const response = await postData.removeById(req.params.id);
-        //const user = await userData.removePost()
-        //const postList = await postData.getAllPosts();
-        //res.status(200).send(response);
-        //res.send(response);
-        return res.sendStatus(200);
-    } catch (e) {
-        return res.status(404).json({error: 'Resource not found'});
-    }
-});
+// router.route('/posts/:id').delete(async (req, res) => {
+//         try{
+//             const removeComments = await commentData.removeCommentByPost(req.params.id);
+//             const responsePost = await postData.removePostById(req.params.id);
+//             if(!responsePost.deleted || !removeComments.deleted){
+//                 return res.status(400).json("Unable to delete")
+//             }
+//             return res.sendStatus(200);
+//         } catch (e) {
+//             console.log(e);
+//         }
+//     });
 
 router.route('/posts/:id/comment').post(async (req, res) => {
     try {
@@ -497,18 +486,6 @@ router
 
             const result = await postData.updateLikes(postId, userId, liked,disliked);
             return res.json(result);
-            // if (typeof localStorage !== 'undefined') {
-            //     const storageKey = `post-${postId}-state`;
-            //     const localStorageValue = localStorage.getItem(storageKey);
-            //     const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : { liked: false, disliked: false };
-            //     parsedValue.liked = liked;
-            //     parsedValue.disliked = false;
-            //     localStorage.setItem(storageKey, JSON.stringify(parsedValue));
-            // }
-
-            // const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
-            // const user = await userData.putPost(id, post._id);
-            // return res.redirect('/homepage');
         } catch (e) {
             // console.log(e)
             res.status(500).send(e.message);
@@ -538,23 +515,42 @@ router
         }
     });
 
-router.route('/increaseLikes')
-    .post(async (req, res) => {
-        const postId = req.body.postId;
-        const updatedPost = await postData.increaseLikes(postId);
-        return res.json(updatedPost);
+
+
+    router.get('/search', async (req, res) => {
+        try {
+            const searchTerm = req.query.query;
+            // console.log("searchTerm:", searchTerm);
+            const searchResults = await eventsData.searchEvent(searchTerm);
+            res.render('searchResults', { results: searchResults, title: 'Search Results' });
+        } catch (e) {
+            res.status(500).json({ error: 'Internal server error' });
+        }
     });
 
-router.get('/search', async (req, res) => {
-    try {
-      const searchTerm = req.query.query;
-    //   console.log("searchTerm:", searchTerm);
-      const searchResults = await eventsData.searchEvent(searchTerm);
-      res.render('searchResults', { results: searchResults, title: 'Search Results' });
-    } catch (e) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
+
+    // app.get('/searchevents', async (req, res) => {
+    //     try {
+    //       const searchTerm = req.query.search; // Get the search term from the query parameters
+      
+    //       // Connect to the MongoDB database
+    //       const client = await MongoClient.connect(mongoURL);
+    //       const db = client.db(dbName);
+      
+    //       // Call the searchEvent function to retrieve events based on the search term
+    //       const allEvents = await searchEvent(db, searchTerm);
+      
+    //       // Render the events on the page or send them as JSON response
+    //       res.json(allEvents);
+      
+    //       // Close the MongoDB connection
+    //       client.close();
+    //     } catch (error) {
+    //       // Handle any errors that occurred during the search or database connection
+    //       console.error(error);
+    //       res.status(500).json({ error: 'An error occurred' });
+    //     }
+    //   });
   
 
 router.route('/discuss').get(async (req, res) => {
@@ -612,33 +608,6 @@ router.route('/search').get(async (req, res) => {
     }
 });
 
-router.route('/discuss').get(async (req, res) => {
-    const userCollection = await users();
-    const dbQuery = {};
-    if (req.query?.category && req.query.category !== 'All') {
-        dbQuery.category = req.query.category;
-    }
-
-    if (req.query?.search) {
-        dbQuery.description = { $regex: xss(req.query.search), $options: 'i' };
-    }
-
-    const discuss = await discussData.getAllDiscussions(dbQuery);
-    for (let x of discuss) {
-        const user = await userCollection.findOne({ _id: x.userId });
-        x.userName = user.userName;
-        x.result = [];
-        for (let y of x.replyId) {
-            const user = await userCollection.findOne({ _id: y.userId });
-            x.result.push({
-                userName: user.userName,
-                message: y.message,
-            });
-        }
-    }
-
-    return res.render('discuss', { newDiscussion: discuss, title: 'Discussion' });
-});
 
 router.route('/discuss').post(async (req, res) => {
     const userId = req.session.user.userId;
@@ -663,7 +632,6 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
         Message = validation.checkComments(Message);
 
         const discuss = await discussData.updateDiscussion(id, userId, Message);
-        // console.log(discuss)
         return res.sendStatus(200);
     } catch (error) {
 
@@ -700,13 +668,12 @@ router
         try{
             const removeComments = await commentData.removeCommentByPost(req.params.id);
             const responsePost = await postData.removePostById(req.params.id);
-            if(!responsePost.deleted || !removeComments.deleted){
+            if(!responsePost?.deleted || (!removeComments?.deleted && !removeComments?.empty)){
                 return res.status(400).json("Unable to delete")
             }
             return res.sendStatus(200);
         } catch (e) {
-            // console.log(e);
-            return res.status(404);
+            console.log(e);
         }
     });
 

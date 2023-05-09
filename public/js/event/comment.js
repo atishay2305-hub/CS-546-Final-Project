@@ -44,7 +44,7 @@ function addComment(event, id, button) {
     const cmtErrEle = document.getElementById(`comment-error-${id}`);
     //const commentInput = discussionElement.getElementById(`comment-text-${this._id}`).value;
     const commentInput = discussionElement.querySelector(`#comment-text-${id}`).value;
-    console.log("there ---------------------->", commentInput);
+    // console.log("there ---------------------->", commentInput);
     //
     if (!commentInput || !commentInput.trim()) {
         cmtErrEle.innerHTML = 'Cannot submit an empty comment';
