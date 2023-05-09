@@ -3,7 +3,8 @@
         <form action="/search" method="GET">
             <div class="row justify-content-end">
                 <div class="form-group col-3">
-                    <input type="text" name="query" class="form-control" placeholder="Search Events Here">
+                    <label for="search-input">Search Events Here:</label>
+                    <input id="search-input" type="text" name="query" class="form-control" placeholder="Search Events Here">
                 </div>
                 <div class="form-group col-1">
                     <button class="btn btn-secondary" type="submit">Search</button>
@@ -11,9 +12,10 @@
             </div>
         </form>
     </div>
+</div>
     <div class="row">
         <div class="col-12 text-center my-5">
-            <h3><u>Latest Posts</u></h3>
+            <h1><u>Latest Posts</u></h1>
         </div>
         {{#each posts}}
         <div class="col-4">
@@ -73,7 +75,7 @@
     </div>
     <div class="row">
         <div class="col-12 text-center my-5">
-            <h3><u>Recent Events</u></h3>
+            <h1><u>Recent Events</u></h1>
         </div>
         {{#each events}}
         <div class="col-4">
