@@ -81,8 +81,12 @@
             <ion-icon name="chatbox-ellipses"></ion-icon>
             <span>Show Comments</span>
         </button> --}}
+                    <button class="comment-btn" id="comment-btn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')">
+                <ion-icon name="chatbox-ellipses"></ion-icon>
+                <span>Show Comments</span>
+            </button>
     </div>
-    <a href="/events">Back to Events</a>
+    <a href="/events" class="back-events-link">Back to Events</a>
 </div>
 <script src="/public/js/delete.js"></script>
 <script src="/public/js/event/eventCancel.js"></script>

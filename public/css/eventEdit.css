@@ -70,7 +70,7 @@
     padding: 5px 10px;
     border-radius: 5px;
     border: none;
-    background-color: #4caf50;
+    background-color: darkgreen;
     color: white;
     cursor: pointer;
   }
@@ -78,9 +78,19 @@
   #events-container .comment {
     margin-top: 10px;
   }
+
+  .comment-form button[type="button"] {
+    background-color: blue;
+    
+}
+
+.back-events-link {
+    color: blue;
+}
+
   
   #events-container .delete-comment-btn {
-    background-color: #f44336;
+    background-color: maroon;
     color: white;
     padding: 5px 10px;
     font-size: 14px;

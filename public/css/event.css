@@ -38,14 +38,14 @@ button {
   padding: 5px 10px;
   border-radius: 5px;
   border: none;
-  background-color: #4caf50;
+  background-color: blue;
   color: white;
   cursor: pointer;
   margin-top: 10px;
 }
 
 button.registerbtn {
-  background-color: #4caf50;
+  background-color: blue;
   color: white;
   padding: 10px 20px;
   font-size: 16px;
@@ -57,6 +57,16 @@ button.delete-btn {
   padding: 5px 10px;
   font-size: 14px;
   margin-left: 10px;
+}
+
+.button-blue {
+  background-color: blue;
+  color: white;
+}
+
+.comment-btn {
+  background-color: blue;
+  color: white;
 }
 
 .event-container {
