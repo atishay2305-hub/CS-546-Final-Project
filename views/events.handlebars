@@ -83,7 +83,7 @@
                     <label for="eventImage">Upload Image: </label>
                     <div class="sec-2">
                         <input type="file" name="eventImage" id="eventImage">
-                        <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+                        {{!-- <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;"> --}}
                     </div>
                 </div>
             </div>
@@ -132,6 +132,7 @@
                 {{/if}}
             {{/if}}
             <br>
+            <p>{{this._id}}</p>
             <div id="comments-{{this._id}}" class="comments-container" style="display: none">
                 <form class="comment-form" id="comment-form-{{this._id}}" action="/events/{{this._id}}/comment"
                       method="POST">
@@ -175,9 +176,9 @@
 <script src="/public/js/event/eventRedirect.js"></script>
 <script src="/public/js/event/eventCancel.js"></script>
 <script src="/public/js/commentBtn.js"></script>
-<script src="/public/js/event/comment.js" type="module"></script>
+{{!-- <script src="/public/js/event/comment.js" type="module"></script> --}}
 <script src="/public/js/event/attendees.js"></script>
 <script src="/public/js/event/sendEmail.js"></script>
 <script src="/public/js/event/event.js" type="module"></script>
 <script src="/public/js/event/eventRegister.js" type="module"></script>
-<link rel="stylesheet" href="/public/css/events.css">
+<link rel="stylesheet" href="/public/css/event.css">

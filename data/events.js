@@ -188,7 +188,6 @@ let exportedMethods = {
         const eventCollection = await events();
         const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Error: ${event} not found`;
-        console.log(event) 
         let commentIdList = event.commentIds;
         commentIdList.push(new ObjectId(commentId));
         const updatedInfo = await eventCollection.updateOne(
@@ -206,8 +205,6 @@ let exportedMethods = {
         if (!event) throw `Error: ${event} not found`;
         return event.attendees;
     }
-
-
 
 }
 

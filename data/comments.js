@@ -153,12 +153,12 @@ let exportedMethods = {
         const commentList = await commentCollection
             .find({eventId: new ObjectId(eventId)})
             .toArray();
-        console.log(commentList);
-        for (let x of commentList) {
-            const user = await userCollection.findOne({_id: x.userId});
-            console.log(user);
-            x.userName = user.userName;
-        }
+        // console.log(commentList);
+        // for (let x of commentList) {
+        //     const user = await userCollection.findOne({_id: x.userId});
+        //     // console.log(user);
+        //     x.userName = user.userName;
+        // }
         return commentList;
         // return comments;
     },

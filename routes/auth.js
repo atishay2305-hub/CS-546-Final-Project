@@ -141,56 +141,61 @@ router
         }
     });
 
-router.route('/homepage').get(async (req, res) => {
-    const userId = req.session.user.userId;
-
-    console.log(userId);
-
-    // console.log(userId)
-    //const email = req.session.email;
-    //useremail from session and will just keep it
-
-    //const user = await userData.getUserByID(userId);
-    //const postList = await userData.getPostList(user.email);
-
-    //user info from ID
-    //getpost list if true
-    // const userName = req.session.user.userName;
-    const userName = req.session.user.userName;
-    // console.log(userName)
-    // console.log(userName);
-    //console.log(postList);
-    const postList = await postData.getPostByUserIdTop(userId);
-    // console.log(postList);
-    //
-    //console.log(postList);
-    const commentCollection = await comments();
-    for (let x of postList) {
-
-
-        x.editable = true;
-        x.deletable = true;
-
-        // let resId = x?.userId;
-
-        // // console.log(resId);
-
-        // let resString = resId.toString();
-
-        // const user = await userData.getUserByID(resString);
-        // x.name = user.userName;
-        if (x.category === 'lost&found') {
-            x.addressCheck = true;
+    router.route('/homepage').get(async (req, res) => {
+        const userId = req.session.user.userId;
+        // console.log(userId);
+        // console.log(userId)
+        //const email = req.session.email;
+        //useremail from session and will just keep it
+        //const user = await userData.getUserByID(userId);
+        //const postList = await userData.getPostList(user.email);
+        //user info from ID
+        //getpost list if true
+        // const userName = req.session.user.userName;
+        const userName = req.session.user.userName;
+        // console.log(userName)
+        // console.log(userName);
+        //console.log(postList);
+        const postList = await postData.getPostByUserIdTop(userId);
+        console.log(postList);
+        //
+        //console.log(postList);
+        const commentCollection = await comments();
+        for (let x of postList) {
+            x.editable = true;
+            x.deletable = true;
+            // let resId = x?.userId;
+            // // console.log(resId);
+            // let resString = resId.toString();
+            // const user = await userData.getUserByID(resString);
+            // x.name = user.userName;
+            if (x.category === 'lost&found') {
+                x.addressCheck = true;
+            }
+            x.result = [];
+            for (let y of x.commentIds) {
+                const comment = await commentCollection.findOne({ _id: y });
+                if(!comment){
+                    throw "Comment ID not found."
+                }
+                console.log(comment);
+                x.result.push({
+                    commentUserName: comment.userName,
+                    commentContent: comment.contents
+                })
+                //console.log(comment);
+            }
+            //const commentList = await commentData.getPostHomeCommentById(resString);
+            //console.log(commentList);
+            // if (resString === userId) {
+            //     x.editable = true;
+            //     x.deletable = true;
+            // } else {
+            //     x.editable = false;
+            //     x.deletable = false;
+            // }
         }
-        x.result = [];
-        for (let y of x.commentIds) {
-            const comment = await commentCollection.findOne({ _id: y });
-            x.result.push({
-                commentUserName: comment.userName,
-                commentContent: comment.contents
-            })
-            //console.log(comment);
-        }
+<<<<<<< ours
 
 
         //const commentList = await commentData.getPostHomeCommentById(resString);
@@ -213,9 +218,18 @@ router.route('/homepage').get(async (req, res) => {
         userName: userName,
         posts: postList,
         title: 'Stevens Community Portal'
+=======
+        console.log(postList);
+        // const listOfPosts = [{category: "education", content: "Anime"}]
+        // posts: postList
+        return res.render('homepage', {
+            userId: userId,
+            userName: userName,
+            posts: postList,
+            title: 'Homepage'
+        });
+>>>>>>> theirs
     });
-
-});
 
 
 router.route('/profile').get(async (req, res) => {
@@ -295,7 +309,6 @@ router.route('/posts')
 
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
-    // console.log(id);
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user});
 });
@@ -312,31 +325,24 @@ router.route('/posts/:id').delete(async (req, res) => {
             throw 'cannot find user';
         }
         const deletepost = await postData.getPostById(req.params.id);
-        console.log(deletepost.image);
         if (deletepost.image !== 'images/default.jpg') {
-            // Delete the image file from the file system
-            console.log(deletepost.image);
             fs.unlink(`./public${deletepost.image}`, err => {
                 if (err) {
-                    console.log(err);
-                    console.error(`Error deleting image file: ${err}`);
+                    throw `Error deleting image file: ${err}`;
                 }
             });
         }
-        //console.log(user);
         const commentCollection = await comments();
         const post = await commentCollection.find({ postId: new ObjectId(req.params.id) }).toArray();
-        // console.log(post);
         if (post.length !== 0) {
             const responsePost = await commentData.removeCommentByPost(req.params.id);
         }
-        const response = await postData.removeById(req.params.id);
+        const response = await postData.removePostById(req.params.id);
         //res.status(200).send(response);
         //res.send(response);
         return res.sendStatus(200);
-    } catch (e
-    ) {
-        console.log(e);
+    } catch (e) {
+        
     }
 });
 
@@ -345,16 +351,13 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         const userId = req.session.user.userId;
         const postId = req.params.id;
         const { commentText } = req.body;
-        console.log("346", postId);
-        // console.log(commentText);
         const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-        console.log("349", comment);
         const post = await postData.putComment(postId, comment.commentId);
-        console.log('The comment is added');
         return res.sendStatus(200);
         return res.redirect('/posts');
     } catch (e) {
-        console.log(e);
+        // console.log(e);
+        
     }
 
 });
@@ -512,13 +515,15 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         else {
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
             const post = await postData.putComment(postId, comment.commentId);
-            console.log(post);
+            // console.log(post);
             return res.sendStatus(200);
             //return res.redirect(`/posts/${postId}`);
         }
 
     } catch (e) {
-        console.log(e);
+        return res.send(400).json({success: false,
+            message: e})
+            // email: req.body.email})
     }
 
 });
@@ -551,9 +556,8 @@ router
             // const user = await userData.putPost(id, post._id);
             // return res.redirect('/homepage');
         } catch (e) {
-            console.log(e)
+            // console.log(e)
             res.status(500).send(e.message);
-            ;
         }
     });
 

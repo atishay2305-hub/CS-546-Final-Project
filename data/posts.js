@@ -85,7 +85,7 @@ let exportedMethods = {
         const id = await validation.checkId(userId);
         const postCollection = await posts();
         const postList = await postCollection.find({userId:new ObjectId(userId)}).sort({created_Date: -1}).limit(5).toArray();
-        console.log(postList);
+        // console.log(postList);
         for(let x of postList){
             x.deletable = true;
         }
