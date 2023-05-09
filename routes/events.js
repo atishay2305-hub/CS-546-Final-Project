@@ -134,10 +134,10 @@ router
         const comment = await commentData.createComment(userId, eventId, null, commentText, "event");
         const post = await eventsData.putComment(eventId, comment.commentId);
 
-        console.log('The comment is added');
+        // console.log('The comment is added');
         return res.redirect(`/events/${eventId}`)
     } catch (e) {
-        console.log(e);
+        // console.log(e);
         return res.json({success: false, message: e.message});
     }
 });
@@ -158,7 +158,7 @@ router
             }
             return res.json({success: true, message: "Cancel successful"})
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             res.sendStatus(500).json({
                 success: false,
                 message: "Something went wrong."
@@ -250,7 +250,7 @@ router
                 message: "Comment deleted successfully"
             });
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             res.status(500).json({
                 success: false,
                 message: "Something went wrong."
@@ -287,7 +287,7 @@ router
 
             return res.redirect('/homepage')
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             return res.status(500).json({success: false, message: "Server error"});
         }
     });

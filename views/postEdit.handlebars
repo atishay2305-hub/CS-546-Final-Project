@@ -1,4 +1,4 @@
-<div id="posts-container">
+ <div id="posts-container">
     <div class="post-container">
         {{#if deletable}}
             <button class="delete-btn" onclick="deletePost('{{post._id}}')" data-event_id="{{post._id}}">
@@ -32,7 +32,7 @@
                 <label for="comment-text-{{post._id}}">Add a Comment:</label>
                 <input type="text" name="commentText" id="comment-text-{{post._id}}">
                 <div>
-                    <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
+                    <span id="comment-error-{{post._id}}" class="text-danger" style="display: none;"></span>
                 </div>
                 <button type="button" onclick="addComment(event, '{{post._id}}', this)">Submit</button>
             </form>

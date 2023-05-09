@@ -52,15 +52,15 @@
         <br>
 
         <div id="comments-{{event._id}}" class="comments-container">
-            <form class="comment-form" id="comment-form-{{this._id}}" action="/events/{{event._id}}/comment"
+            <form class="comment-form" id="comment-form-{{event._id}}" action="/events/{{event._id}}/comment"
                   method="POST">
-                <input type="hidden" name="postId" value="{{this._id}}">
-                <label for="comment-text-{{this._id}}">Add a Comment:</label>
-                <input type="text" name="commentText" id="comment-text-{{this._id}}">
+                <input type="hidden" name="postId" value="{{event._id}}">
+                <label for="comment-text-{{event._id}}">Add a Comment:</label>
+                <input type="text" name="commentText" id="comment-text-{{event._id}}">
                 <div>
-                    <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
+                    <span id="comment-error-{{event._id}}" class="text-danger" style="display: none;"></span>
                 </div>
-                <button type="button" onclick="addComment(event, '{{_id}}', this)">Submit</button>
+                <button type="button" onclick="addComment(event, '{{event._id}}', this)">Submit</button>
             </form>
             {{#each comments}}
                 <div class="comment">
@@ -69,7 +69,7 @@
                 </div>
 
                 {{#if ../deletable}}
-                    <button class="delete-comment-btn" onclick="deleteComment('{{this._id}}', '{{../event._id}}')">
+                    <button class="delete-comment-btn" onclick="deleteComment('{{event._id}}', '{{../event._id}}')">
                         <i class="fas fa-trash"></i> Delete Comment
                     </button>
                 {{/if}}
@@ -81,7 +81,7 @@
             <ion-icon name="chatbox-ellipses"></ion-icon>
             <span>Show Comments</span>
         </button> --}}
-                    <button class="comment-btn" id="comment-btn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')">
+                    <button class="comment-btn" id="comment-btn-{{event._id}}" onclick="showCommentsPopup('{{event._id}}')">
                 <ion-icon name="chatbox-ellipses"></ion-icon>
                 <span>Show Comments</span>
             </button>
@@ -91,7 +91,8 @@
 <script src="/public/js/delete.js"></script>
 <script src="/public/js/event/eventCancel.js"></script>
 <script src="/public/js/event/comment.js"></script>
-<script src="/public/js/event/commentBtn.js"></script>
+<script src="/public/js/commentBtn.js"></script>
+
 <script src="/public/js/event/sendEmail.js"></script>
 <script src="/public/js/event/attendees.js"></script>
 <script src="/public/js/event/event.js" type="module"></script>
