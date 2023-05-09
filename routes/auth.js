@@ -143,67 +143,45 @@ router
 
     router.route('/homepage').get(async (req, res) => {
         const userId = req.session.user.userId;
-
-        // console.log(userId);
-        // console.log(userId)
-        //const email = req.session.email;
-        //useremail from session and will just keep it
-        //const user = await userData.getUserByID(userId);
-        //const postList = await userData.getPostList(user.email);
-        //user info from ID
-        //getpost list if true
-        // const userName = req.session.user.userName;
         const userName = req.session.user.userName;
-        // console.log(userName)
-        // console.log(userName);
-        //console.log(postList);
-        const postList = await postData.getPostByUserIdTop(userId);
-        // console.log(postList);
-        //
-        //console.log(postList);
         const commentCollection = await comments();
-        for (let x of postList) {
-            x.editable = true;
-            x.deletable = true;
-            // let resId = x?.userId;
-            // // console.log(resId);
-            // let resString = resId.toString();
-            // const user = await userData.getUserByID(resString);
-            // x.name = user.userName;
-            if (x.category === 'lost&found') {
-                x.addressCheck = true;
-            }
-            x.result = [];
-            for (let y of x.commentIds) {
-                const comment = await commentCollection.findOne({ _id: y });
-                if(!comment){
-                    throw "Comment ID not found."
+        const postList = await postData.getPostByUserIdTop(userId);
+        if(postList.length !== 0){
+            for (let x of postList) {
+                x.editable = true;
+                x.deletable = true;
+                if (x.category === 'lost&found') {
+                    x.addressCheck = true;
                 }
-                console.log(comment);
-                x.result.push({
-                    commentUserName: comment.userName,
-                    commentContent: comment.contents
-                })
-                //console.log(comment);
+                x.result = [];
+                if(x.commentIds.length !== 0){
+                    for (let y of x.commentIds) {
+                        const comment = await commentCollection.findOne({ _id: y });
+                        x.result.push({
+                            commentUserName: comment.userName,
+                            commentContent: comment.contents
+                        })
+                    }
+                }
             }
-            //const commentList = await commentData.getPostHomeCommentById(resString);
-            //console.log(commentList);
-            // if (resString === userId) {
-            //     x.editable = true;
-            //     x.deletable = true;
-            // } else {
-            //     x.editable = false;
-            //     x.deletable = false;
-            // }
         }
-        console.log(postList);
-        // const listOfPosts = [{category: "education", content: "Anime"}]
-        // posts: postList
+        let resu=[];
+        const eventList = await eventsData.getAllEvents();
+        if(eventList.length !== 0){
+             resu = eventList.filter((event) => {
+                const attendees = event.attendees;
+                const attendeeIds = Object.values(attendees).map((attendee) => attendee.id);
+                return attendeeIds.includes(userId);
+            })
+            .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort events by date in descending order
+            .slice(0, 5);
+        }
 
         return res.render('homepage', {
             userId: userId,
             userName: userName,
             posts: postList,
+            events:resu,
             title: 'Homepage'
         });
     });
