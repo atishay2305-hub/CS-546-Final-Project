@@ -1,71 +1,97 @@
-<div class="container-fluid p-2">
-    <div id="search">
+<div class="container-fluid">
+    <div id="search mt-3">
         <form action="/search" method="GET">
-            <div class="mt-5">
-                <h1>Stevens Community Portal</h1>
-                <label for="search-input">Search Events Here:</label>
-                <input id="search-input" class="form-control" type="text" name="query" placeholder="Enter search query">
+            <div class="row justify-content-end">
+                <div class="form-group col-3">
+                    <input type="text" name="query" class="form-control" placeholder="Search Events Here">
+                </div>
+                <div class="form-group col-1">
+                    <button class="btn btn-secondary" type="submit">Search</button>
+                </div>
             </div>
-            <br>
-            <button type="submit">Search</button>
         </form>
     </div>
-</div>
-
     <div class="row">
+        <div class="col-12 text-center my-5">
+            <h3><u>Latest Posts</u></h3>
+        </div>
         {{#each posts}}
-        <div class="post-container col-4 border border-secondary">
-            <h2>{{content}}</h2>
-            <!-- <img id="img-home" src="{{image}}" alt="Post image"> -->
-            <img id="img-home-{{this._id}}" src="{{image}}" alt="Post image">
-            <p>Category: {{category}}</p>
-            <p>Created by: {{userName}}</p>
-            <p>Created at: {{created_Date}}</p>
-            {{#if (if_eq category "lost&found")}}
-            <p>Address: {{address}}</p>
-            {{/if}}
-            <div class="row">
-                <div class="col">
-                    <button class="like-btn-home" data-post-id="{{this._id}}"
-                        onclick="likeFunc('{{this._id}}','home')"><i class="fa fa-thumbs-up">Like</i></button>
-                    <span class="like-count" id="like-count-{{this._id}}">{{this.likes}}</span>
+        <div class="col-4">
+            <div class="border shadow p-3 mb-3 bg-body rounded">
+                <div class="w-100 text-center">
+                    <img class="img-fluid img-thumbnail bg-light" src="{{image}}" alt="Post image"
+                        style="max-height:200px;min-height: 200px">
                 </div>
-                <div class="col">
-                    <button class="dislike-btn-home" data-post-id="{{this._id}}"
-                        onclick="dislikeFunc('{{this._id}}','home')"><i class="fa fa-thumbs-down">Dislike</i></button>
-                    <span class="dislike-count" id="dislike-count-{{this._id}}">{{this.dislikes}}</span>
-                </div>
-                <div class="col-12 my-3">
-                    {{!-- <button class="btn btn-info btn-sm" onclick="toggleComments(this)">View Comments</button> --}}
-                    <button class="view-comments-btn btn btn-info btn-sm" onclick="toggleComments(this)">View Comments</button>
-                    <div id="replies-sec" class="replies text-left" style="display: none;">
-                        {{#each result}}
-                        <div class="reply p-2 my-2 bg-light">
-                            <p>{{this.commentUserName}} - {{this.commentContent}}</p>
-                        </div>
-                        {{/each}}
-                        <form class="reply-form">
-                            <textarea id="reply-textarea"></textarea>
-                            <div>
-                                <span id="cmt-err" class="text-danger" style="display: none;"></span>
-                            </div>
-                            <button class="btn btn-success btn-sm" type="button"
-                                onclick="postReply(event, '{{_id}}', this)">Post Comment</button>
-                        </form>
+                <p class="mt-2 text-primary">Category : {{category}} | Created by: {{userName}}</p>
+                <p class="mt-2">{{content}}</p>
+                {{!-- <p>Created at: {{created_Date}}</p> --}}
+                {{#if (if_eq category "lost&found")}}
+                <p>Address: {{address}}</p>
+                {{/if}}
+                <div class="row justify-content-around">
+                    <div class="col-4">
+                        <button class="btn btn-outline-success btn-sm" data-post-id="{{this._id}}"
+                            onclick="likeFunc('{{this._id}}','home')"><i class="fa fa-thumbs-up"> Like
+                                {{this.likes}}</i></button>
                     </div>
-                </div>
-                <div class="my-1 text-right">
+                    <div class="col-4">
+                        <button class="btn btn-outline-warning btn-sm" data-post-id="{{this._id}}"
+                            onclick="dislikeFunc('{{this._id}}','home')"><i class="fa fa-thumbs-down"> Dislike
+                                <strong>{{this.dislikes}}</strong></i></button>
+                    </div>
                     {{#if deletable}}
-                    {{!-- <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button> --}}
-                    <button class="delete-btn" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}">Delete</button>
+                    <div class="col-4">
+                        <button class="btn btn-danger btn-sm" onClick="deletePost('{{_id}}')" data-post-id="{{_id}}"><i
+                                class="fa fa-trash"></i> Delete</button>
+                    </div>
                     {{/if}}
+                    <div class="col mt-3 text-center">
+                        <button class="btn btn-info btn-sm" onclick="toggleComments(this)">View Comments</button>
+                        <div id="replies-sec" class="replies text-left my-3" style="display: none;">
+                            {{#each result}}
+                            <div class="reply px-2 my-2 border border-info">
+                                <p>{{this.commentUserName}} - {{this.commentContent}}</p>
+                            </div>
+                            {{/each}}
+                            <form class="reply-form">
+                                <textarea id="reply-textarea"></textarea>
+                                <div>
+                                    <span id="cmt-err" class="text-danger" style="display: none;">Please enter valid
+                                        comment</span>
+                                </div>
+                                <button class="btn btn-success btn-sm" type="button"
+                                    onclick="postReply(event, '{{_id}}', this)">Post
+                                    Comment</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         {{/each}}
+        <a href="/posts">View More</a>
     </div>
+    <div class="row">
+        <div class="col-12 text-center my-5">
+            <h3><u>Recent Events</u></h3>
+        </div>
+        {{#each events}}
+        <div class="col-4">
+            <div class="border shadow p-3 mb-3 bg-body rounded">
+                <div class="w-100 text-center">
+                    <img class="img-fluid img-thumbnail bg-light" src="{{image}}" alt="Event image"
+                        style="max-height:200px;min-height: 200px">
+                </div>
+                <p class="mt-2 text-primary">Event Name : {{eventName}} | Organizer: {{organizer}}</p>
+                <p class="mt-2">{{description}}</p>
+                <p class="mt-2">Building Name : {{buildingName}} | Room: {{roomNumber}}</p>
+                <p class="mt-2">Date:{{date}}</p>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    <a href="/events">View More</a>
 </div>
-
+<script>
+</script>
 <script src="../public/js/homepage/homepage.js"></script>
-<link rel="stylesheet" href="/public/css/homepage.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
