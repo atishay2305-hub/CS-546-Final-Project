@@ -341,6 +341,7 @@ router
     .route('/change-password/:id')
     .get(async (req, res) => {
         try {
+            console.log(req.query);
             return res.render('changePassword', { id: req.params.id, title: 'Change Password' })
         } catch (e) {
             return res.status(404).sendFile(path.resolve("public/static/404.html"));
@@ -353,7 +354,7 @@ router
             let id = xss(req.params.id);
             let newPassword = xss(req.body.newPassword);
             let oldPassword = xss(req.body.oldPassword);
-            // console.log(id);
+
             id = validation.checkId(id);
 
             newPassword = validation.checkPassword(newPassword);
@@ -365,7 +366,14 @@ router
 
                 const passwordUpdate = await userData.updatePassword(id, newPassword);
             } else {
-                res.status(400).render("changePassword", { error: "Password did not match" });
+                // res.status(400).render("changePassword", { error: "Password did not match",id:id });
+                // let error=true;
+                // res.redirect(`/change-password/${id}?error=${error}`);
+                return res.status(400).render("changePassword", {
+                    success: false,
+                    id: req.body.id,
+                    error: "the old password you entered is incorrect"
+                })
             }
             // let result = validation.checkIdentify(newPassword, confirmNewPassword);
             // if (result) {
