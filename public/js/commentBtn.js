@@ -1,11 +1,9 @@
-function showCommentsPopup(postId) {
-    const commentsButton = document.getElementById(`comment-btn-${postId}`);
-    const commentsPopup = document.getElementById(`comments-${postId}`);
-
+function showCommentsPopup(id) {
+    const commentsButton = document.getElementById(`comment-btn-${id}`);
+    const commentsPopup = document.getElementById(`comments-${id}`);
     if (commentsPopup.style.display === '' || commentsPopup.style.display === 'none') {
         commentsPopup.style.display = 'block';
         commentsButton.innerText = 'Hide Comments';
-
         const closeCommentsPopup = function (event) {
             if (!commentsPopup.contains(event.target) && event.target !== commentsButton) {
                 commentsPopup.style.display = 'none';
@@ -28,3 +26,5 @@ function showCommentsPopup(postId) {
         document.removeEventListener('click', closeCommentsPopup);
     }
 }
+
+

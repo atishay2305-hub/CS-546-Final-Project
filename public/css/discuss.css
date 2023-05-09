@@ -13,8 +13,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: #ffffff;
-  color: black;
+  background-color: #ffffff; 
+  color: black; 
   padding: 20px;
   z-index: 1000;
 }

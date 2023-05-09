@@ -18,6 +18,7 @@ import fs from 'fs';
 
 const router = Router();
 
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "./public/images");
@@ -67,15 +68,17 @@ router
                 role: sessionUser.role
             };
             return res.redirect('/homepage');
-        } catch (e) {
-                return res.status(401).json({
-                    success: false,
-                    email: req.body.email,
-                    password: req.body.password,
-                    error: e
-                });
-            }
-        })
+        }
+
+        catch (e) {
+            return res.status(401).json({
+                success: false,
+                email: req.body.email,
+                password: req.body.password,
+                error: e
+            });
+        }
+    })
 
 
 router
@@ -88,6 +91,8 @@ router
 
 
         try {
+            // removed dept
+
             let firstName = xss(req.body.firstName);
             let lastName = xss(req.body.lastName);
             let userName = xss(req.body.userName);
@@ -136,38 +141,25 @@ router
         }
     });
 
-router.route('/homepage').get(async (req, res) => {
-    const userId = req.session.user.userId;
-    const userName = req.session.user.userName;
-    const postList = await postData.getPostByUserIdTop(userId);
+    router.route('/homepage').get(async (req, res) => {
+        const userId = req.session.user.userId;
+        const userName = req.session.user.userName;
 
-    const commentCollection = await comments();
-    for (let x of postList) {
+        const postList = await postData.getPostByUserIdTop(userId);
+        console.log(postList);
 
+        const commentCollection = await comments();
 
-        x.editable = true;
-        x.deletable = true;
-
-        if (x.category === 'lost&found') {
-            x.addressCheck = true;
-        }
-        x.result = [];
-        for (let y of x.commentIds) {
-            const comment = await commentCollection.findOne({ _id: y });
-            x.result.push({
-                commentUserName: comment.userName,
-                commentContent: comment.contents
-            })
-        }
-    }
-    return res.render('homepage', {
-        userId: userId,
-        userName: userName,
-        posts: postList,
-        title: 'Homepage'
+        return res.render('homepage', {
+            userId: userId,
+            userName: userName,
+            posts: postList,
+            title: 'Homepage'
+        });
     });
 
-});
+
+
 
 router.route('/posts')
     .get(async (req, res) => {
@@ -191,6 +183,7 @@ router.route('/posts')
         Object.values(comments).forEach(commentArr => {
             commentArr.sort((a, b) => b.created_Date - a.created_Date);
         });
+
         return res.render('posts', {role: req.session.user.role, posts: posts, comments: comments, title: 'Posts'});
     })
     .post(uploadImage, async (req, res) => {
@@ -236,6 +229,57 @@ router.route('/posts')
         }
     });
 
+router.route('/profile').get(async (req, res) => {
+    const id = req.session.user.userId;
+    const user = await userData.getUserByID(id);
+    return res.render('profile', {user: user});
+});
+
+
+router.route('/posts/:id').delete(async (req, res) => {
+    try {
+        const user = await userData.getUserByID(req.session.user.userId);
+        if (!user) {
+            throw 'cannot find user';
+        }
+        const deletepost = await postData.getPostById(req.params.id);
+        if (deletepost.image !== 'images/default.jpg') {
+            fs.unlink(`./public${deletepost.image}`, err => {
+                if (err) {
+                    throw `Error deleting image file: ${err}`;
+                }
+            });
+        }
+        const commentCollection = await comments();
+        const post = await commentCollection.find({ postId: new ObjectId(req.params.id) }).toArray();
+        if (post.length !== 0) {
+            const responsePost = await commentData.removeCommentByPost(req.params.id);
+        }
+        const response = await postData.removePostById(req.params.id);
+        //res.status(200).send(response);
+        //res.send(response);
+        return res.sendStatus(200);
+    } catch (e) {
+        
+    }
+});
+
+router.route('/posts/:id/comment').post(async (req, res) => {
+    try {
+        const userId = req.session.user.userId;
+        const postId = req.params.id;
+        const { commentText } = req.body;
+        const comment = await commentData.createComment(userId, null, postId, commentText, "post");
+        const post = await postData.putComment(postId, comment.commentId);
+        return res.sendStatus(200);
+        return res.redirect('/posts');
+    } catch (e) {
+        // console.log(e);
+        
+    }
+
+});
+
 router
     .route('/reset-password/:id')
     .get(async (req, res) => {
@@ -268,7 +312,6 @@ router
         }
     });
 
-
 router
     .route('/change-password/:id')
     .get(async (req, res) => {
@@ -299,7 +342,10 @@ router
             } else {
                 res.status(400).render("changePassword", { error: "Password did not match" });
             }
-
+            // let result = validation.checkIdentify(newPassword, confirmNewPassword);
+            // if (result) {
+            //     const passwordUpdate = await userData.updatePassword(id, newPassword);
+            // }
             res.redirect('/logout');
         } catch (e) {
             console.log(e);
@@ -335,6 +381,8 @@ router
                 message: e,
                 email: req.body.email
             });
+            //res.send({message:e.Error,status:false,email:req.body.email});
+
         }
     });
 
@@ -343,17 +391,116 @@ router.use('/logout', (req, res) => {
         return res.render('login', {title: 'Login'});
     }
     req.session.destroy();
-    return res.render('logout', { title: 'logout' });
-});
-
-router.route('/profile').get(async (req, res) => {
-    const id = req.session.user.userId;
-    const user = await userData.getUserByID(id);
-    return res.render('profile', { user: user });
+    return res.render('logout', {title: 'logout'});
 });
 
 
+router.route('/posts/:id').delete(async (req, res) => {
+    try {
+        const user = await userData.getUserByID(req.session.user.userId);
+        if (!user) {
+            throw 'cannot find user';
+        }
+        const commentCollection = await comments();
+        const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
+        if (post.length !== 0) {
+            const responsePost = await commentData.removeCommentByPost(req.params.id);
+            console.log("hi", responsePost.deleted);
+        }
+        const response = await postData.removeById(req.params.id);
+        //const user = await userData.removePost()
+        //const postList = await postData.getAllPosts();
+        //res.status(200).send(response);
+        //res.send(response);
+        return res.sendStatus(200);
+    } catch (e) {
+        return res.status(404).json({error: 'Resource not found'});
+    }
+});
 
+router.route('/posts/:id/comment').post(async (req, res) => {
+    try {
+        const userId = req.session.user.userId;
+        const postId = req.params.id;
+        const {commentText} = req.body;
+        commentText = validation.checkComments(commentText);
+
+        if (commentText === '' || commentText.trim().length === 0) {
+            console.log(commentText, commentText.length);
+            alert('cannot submit an empty comment');
+            return res.redirect('/posts');
+        }
+        else {
+            const comment = await commentData.createComment(userId, null, postId, commentText, "post");
+            const post = await postData.putComment(postId, comment.commentId);
+            // console.log(post);
+            return res.sendStatus(200);
+            //return res.redirect(`/posts/${postId}`);
+        }
+
+    } catch (e) {
+        return res.send(400).json({success: false,
+            message: e})
+            // email: req.body.email})
+    }
+
+});
+
+router
+    .route('/posts/:postId/like')
+    .post(async (req, res) => {
+        try {
+            const { postId } = req.params;
+            console.log("hereee", postId);
+            const userId = req.session.user.userId;
+            const userName = req.session.user.userName;
+            const liked = true;
+            const disliked = false;
+            //const { liked, disliked } = req.body;
+            const postCollection = await posts();
+
+            const result = await postData.updateLikes(postId, userId, liked,disliked);
+            return res.json(result);
+            // if (typeof localStorage !== 'undefined') {
+            //     const storageKey = `post-${postId}-state`;
+            //     const localStorageValue = localStorage.getItem(storageKey);
+            //     const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : { liked: false, disliked: false };
+            //     parsedValue.liked = liked;
+            //     parsedValue.disliked = false;
+            //     localStorage.setItem(storageKey, JSON.stringify(parsedValue));
+            // }
+
+            // const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
+            // const user = await userData.putPost(id, post._id);
+            // return res.redirect('/homepage');
+        } catch (e) {
+            // console.log(e)
+            res.status(500).send(e.message);
+        }
+    });
+
+router
+    .route('/posts/:postId/dislike')
+    .post(async (req, res) => {
+        try {
+            const {postId} = req.params;
+            const userId = req.session.user.userId;
+            const userName = req.session.user.userName;
+            const liked = false;
+            const disliked = true;
+            //const { liked, disliked } = req.body;
+            const postCollection = await posts();
+
+
+            const result = await postData.updateLikes(postId, userId, liked, disliked);
+            return res.json(result);
+
+            //return res.json({ likes: result.likes, dislikes: result.dislikes });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send(error.message);
+        }
+    });
 
 router.route('/increaseLikes')
     .post(async (req, res) => {
@@ -409,6 +556,16 @@ router.route('/discuss').get(async (req, res) => {
 
 });
 
+
+router
+    .route('/posts/:postId/allComments')
+    .get(async (req, res) => {
+        const postId = req.params.postId;
+        const comment = await commentData.getPostCommentById(postId)
+        return res.render('allComments', { comment: comment, title: 'All Comments' });
+    });
+
+
 router.route('/search').get(async (req, res) => {
     try {
         const searchTerm = xss(req.query.query);
@@ -443,12 +600,16 @@ router.route('/discuss').get(async (req, res) => {
             });
         }
     }
+
     return res.render('discuss', { newDiscussion: discuss, title: 'Discussion' });
 });
 
 router.route('/discuss').post(async (req, res) => {
     const userId = req.session.user.userId;
+    //   description = validation.checkPhrases(description);
+    // category = validation.checkCategory()
     const { category, description } = req.body;
+
     const discuss = await discussData.createDiscussion(category, xss(description), userId);
     return res.redirect('/discuss');
 });
@@ -458,12 +619,9 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
     try {
         const userId = req.session.user.userId;
         const id = req.params.id;
-        const {message} = req.body;
+        const { message } = req.body;
         let Message = xss(message);
         Message = validation.checkComments(Message);
-        //   if (Message.length > 300) {
-        //     return res.status(400).send('Reply exceeds the maximum character limit of 300.');
-        //   }
 
         const discuss = await discussData.updateDiscussion(id, userId, Message);
         console.log(discuss)
@@ -473,6 +631,7 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
         return res.status(500).send('An error occurred while processing the reply.');
     }
 });
+
 
 router.get('/searchDiscussions', async (req, res) => {
     try {
@@ -553,44 +712,6 @@ router
                 success: false,
                 message: "Something went wrong."
             });
-        }
-    });
-
-router
-    .route('/posts/:postId/like')
-    .post(async (req, res) => {
-        try {
-            const {postId} = req.params;
-            console.log("hereee", postId);
-            const userId = req.session.user.userId;
-            const userName = req.session.user.userName;
-            const liked = true;
-            const disliked = false;
-            const postCollection = await posts();
-            const result = await postData.updateLikes(postId, userId, liked,disliked);
-            return res.json(result);
-        } catch (e) {
-            console.log(e)
-            res.status(500).send(e.message);
-        }
-    });
-
-router
-    .route('/posts/:postId/dislike')
-    .post(async (req, res) => {
-        try {
-            const {postId} = req.params;
-            const userId = req.session.user.userId;
-            const userName = req.session.user.userName;
-            const liked = false;
-            const disliked = true;
-            const postCollection = await posts();
-            const result = await postData.updateLikes(postId, userId, liked, disliked);
-            return res.json(result);
-
-        } catch (error) {
-            console.error(error);
-            res.status(500).send(error.message);
         }
     });
 

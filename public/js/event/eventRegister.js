@@ -1,4 +1,4 @@
-import authCheck from "./validtionChecker.js";
+import authCheck from "../validtionChecker.js";
 
 (function () {
     document.addEventListener("DOMContentLoaded", function () {

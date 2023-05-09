@@ -5,21 +5,23 @@
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDiscussionModal"> + New Discussion</button>
             </div>
             <div id="filters">
-                <form action="/discuss" method="GET">
-                    <div class="row">
-                        <div class="col form-group">
-                            <select class="form-control category m-0" name="category">
-                                <option value="All" selected="true">All</option>
-                            </select>
-                        </div>
-                        <div class="col form-group">
-                            <input class="form-control" type="text" id="search" name="search" placeholder="Search Discussions Here">
-                        </div>
-                        <div class="col form-group">
-                            <button class="btn btn-dark" type="submit">Search</button>
-                        </div>
-                    </div>
-                </form>
+<form action="/discuss" method="GET">
+    <div class="row">
+        <div class="col form-group">
+            <select class="form-control category m-0" name="category">
+                <option value="All" selected="true">All</option>
+            </select>
+        </div>
+        <div class="col form-group">
+            <label for="search">Search Discussion</label>
+            <input class="form-control" type="text" id="search" name="search" placeholder="Search Discussions Here">
+        </div>
+        <div class="col form-group">
+            <button class="btn btn-dark" type="submit">Search</button>
+        </div>
+    </div>
+</form>
+
             </div>
             {{#each newDiscussion}}
                 <div class="discussion p-4 mb-3">
@@ -52,7 +54,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">New Discussion</h5>
+                <h1 class="modal-title" id="exampleModalLabel">New Discussion</h1>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -82,13 +84,5 @@
         </div>
     </div>
 </div>
-<<<<<<< HEAD
-
-
-
-
-
-=======
->>>>>>> f3b7563f9038b06b40cee962b7a2c3c0d86b34f7
 <link rel="stylesheet" href="/public/css/discussion.css">
 <script src="../public/js/discuss/discuss.js"></script>

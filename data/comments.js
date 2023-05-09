@@ -147,6 +147,11 @@ let exportedMethods = {
         }
     },
 
+<<<<<<< HEAD
+=======
+    // },
+
+>>>>>>> 116ed20f7b0dfe0c9d88f0c939a953a79778383b
     async removeCommentByEvent(eventId) {
         eventId = await validation.checkId(eventId);
         const commentCollection = await comments();

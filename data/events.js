@@ -3,6 +3,7 @@ import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {commentData, userData} from "./index.js";
 import multer from "multer";
+//import commentData  from "./commentBtn.js";
 
 let exportedMethods = {
     async createEvent(
@@ -32,8 +33,6 @@ let exportedMethods = {
             throw "You are unable to create event";
         }
 
-        image = image.replace(/\\/g, '/');
-        
         let event = {
             eventName: eventName,
             description: description,
@@ -130,7 +129,7 @@ let exportedMethods = {
         if (!image || image.trim().length === 0) {
             path = "public/images/default.png";
         } else {
-            path = validation.createImage(image).replace(/\//g, "\\");;
+            path = validation.createImage(image);
         }
         const eventCollection = await events();
         const checkEventExist = await eventCollection.findOne({_id: new ObjectId(id)});

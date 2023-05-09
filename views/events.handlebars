@@ -18,25 +18,22 @@
                     </div>
                 </div>
             </div>
-
             <div class="inf">
                 <div class="sec-1">
                     <label for="date">Date: </label>
                 </div>
                 <div class="sec-2">
+                    {{!-- <ion-icon name="calendar-outline"></ion-icon> --}}
                     <input type="date" name="date" id="date" value="{{date}}" required>
-
                 </div>
             </div>
-
             <div class="inf">
                 <div class="sec-1">
                     <label for="buildingName">Select Building :</label>
                     <div class="sec-2">
                         <select id="buildingName" name="buildingName">
-                            <option value="" label="Select"></option>
+                            <option value=""></option>
                         </select>
-
                         <script>
                             const allowedLocation = [
                                 "Edwin A. Stevens Hall", "Carnegie Laboratory", "Lieb Building", "Burchard Building",
@@ -45,9 +42,7 @@
                                 "Schaefer Athletic and Recreation Center", "Samuel C. Williams Library and Computer Center", "Jacobus Student Center",
                                 "Alexander House", "Colonial House"
                             ];
-
                             const selectElement = document.getElementById("buildingName");
-
                             allowedLocation.forEach((location) => {
                                 const option = document.createElement("option");
                                 option.text = location;
@@ -58,16 +53,14 @@
                     </div>
                 </div>
             </div>
-
             <div class="inf">
                 <div class="sec-1">
                     <label for="roomNumber">Room Number: </label>
                     <div class="sec-2">
-                        <input id="roomNumber" type="text" name="roomNumber" placeholder="603, 1st floor, lobby">
+                        <input id="roomNumber" type="text" name="roomNumber" placeholder="603, lobby">
                     </div>
                 </div>
             </div>
-
             <div class="inf">
                 <div class="sec-1">
                     <label for="organizer">Organizer</label>
@@ -76,8 +69,6 @@
                     </div>
                 </div>
             </div>
-
-
             <div class="inf">
                 <div class="sec-1">
                     <label for="seatingCapacity">Seating Capacity</label>
@@ -87,13 +78,12 @@
                     </div>
                 </div>
             </div>
-
             <div class="inf">
                 <div class="sec-1">
                     <label for="eventImage">Upload Image: </label>
                     <div class="sec-2">
                         <input type="file" name="eventImage" id="eventImage">
-                        <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;">
+                        {{!-- <img id="image-preview" src="#" alt="Preview of uploaded image" style="display:none;"> --}}
                     </div>
                 </div>
             </div>
@@ -103,8 +93,6 @@
     </form>
 {{/if}}
 <br>
-
-
 <div id="events-container">
     {{#each events}}
         <div class="event-container" id="event-container-{{this._id}}" data-href="/events/{{this._id}}"
@@ -126,35 +114,44 @@
             <br>
             {{#if registered}}
                 {{#if (not_past_date date)}}
-                    <button class="cancel-btn" data-event_id="{{this._id}}">
-                        <ion-icon name="close-outline"></ion-icon>
-                        Cancel
-                    </button>
+                    {{#if fullBooked}}
+                        <button class="cancel-btn" data-event_id="{{this._id}}">
+                            <ion-icon name="close-outline"></ion-icon>
+                            Cancel
+                        </button>
+                        <p class="event-full-message">This event is fully booked. Your registration can be cancelled at any time.</p>
+                    {{else}}
+                        <button class="cancel-btn" data-event_id="{{this._id}}">
+                            <ion-icon name="close-outline"></ion-icon>
+                            Cancel
+                        </button>
+                    {{/if}}
                 {{else}}
-                    <p class="event-over">You cannot cancel registration for this event.</p>
+                    <p class="event-over">You cannot cancel registration for a passed event.</p>
                 {{/if}}
             {{else}}
                 {{#if (not_past_date date)}}
-                    <button class="register-btn" data-event_id="{{this._id}}">
-                        <ion-icon name="person-add-outline"></ion-icon>
-                        Register
-                    </button>
+                    {{#if fullBooked}}
+                        <p class="event-full">This event is fully booked.</p>
+                    {{else}}
+                        <button class="register-btn" data-event_id="{{this._id}}">
+                            <ion-icon name="person-add-outline"></ion-icon>
+                            Register
+                        </button>
+                    {{/if}}
                 {{else}}
                     <p class="event-over">Registration for this event is closed.</p>
                 {{/if}}
             {{/if}}
             <br>
-
+            <p>{{this._id}}</p>
             <div id="comments-{{this._id}}" class="comments-container" style="display: none">
                 <form class="comment-form" id="comment-form-{{this._id}}" action="/events/{{this._id}}/comment"
                       method="POST">
                     <input type="hidden" name="postId" value="{{this._id}}">
                     <label for="comment-text-{{this._id}}">Add a Comment:</label>
                     <input type="text" name="commentText" id="comment-text-{{this._id}}">
-                    <button type="button" onclick="addComment(event, '{{_id}}', this)">Submit</button>
-                     <div>
-                        <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
-                    </div>
+                    <input type="submit" value="Submit">
                 </form>
                 {{#each ../ comments}}
                     {{#if (if_eq @key ../_id)}}
@@ -163,7 +160,6 @@
                                 <div class="comment">
                                     <p>Comment: {{contents}} /User Name: {{userName}} - Created
                                         Date: {{created_Date}}</p>
-                                    <ul></ul>
                                 </div>
                                 <hr>
                             {{/each}}
@@ -172,7 +168,6 @@
                 {{/each}}
             </div>
             <p>SeatCapacity: {{seatingCapacity}}</p>
-
             <button class="comment-btn" id="comment-btn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')">
                 <ion-icon name="chatbox-ellipses"></ion-icon>
                 <span>Show Comments</span>
@@ -180,25 +175,22 @@
         </div>
     {{/each}}
 </div>
-
 <div class="sort-container">
     <label for="sort-criteria">Sort By:</label>
     <select id="sort-criteria" onchange="sortEvents(this.value)">
-        <option value="" label="Select an Option"></option>
+        <option value=""></option>
         <option value="a-z">A-Z</option>
         <option value="created_date_asc">Created Date in ascending order</option>
         <option value="created_date_desc">Created Date in descending order</option>
     </select>
 </div>
-
 <script src="/public/js/event/sort.js"></script>
 <script src="/public/js/event/eventRedirect.js"></script>
 <script src="/public/js/event/eventCancel.js"></script>
 <script src="/public/js/commentBtn.js"></script>
-<script src="/public/js/event/comment.js" type="module"></script>
+{{!-- <script src="/public/js/event/comment.js" type="module"></script> --}}
 <script src="/public/js/event/attendees.js"></script>
 <script src="/public/js/event/sendEmail.js"></script>
 <script src="/public/js/event/event.js" type="module"></script>
 <script src="/public/js/event/eventRegister.js" type="module"></script>
 <link rel="stylesheet" href="/public/css/event.css">
-

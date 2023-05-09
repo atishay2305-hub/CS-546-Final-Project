@@ -93,7 +93,37 @@ let exportedMethods = {
 
     },
 
+<<<<<<< HEAD
 
+=======
+    // async removeById(id) {
+    //     id = await validation.checkId(id);
+    //     const postCollection = await posts();
+    //     const post = await postCollection.findOne({_id: new ObjectId(id)});
+    //     if (post === null) {
+    //         throw `No post found with that Id ${id}`;
+    //     }
+    //     const userCollection = await users();
+    //     const user = await userCollection.findOne({_id: new ObjectId(post.userId)});
+    //     //console.log(user.postID);
+    //     if (user.isAdmin === undefined || !user.isAdmin) {
+    //         if(!user.postIDs.includes(id)){
+    //             throw "Only administrators or the poster can delete posts.";
+    //         }
+    //     }
+
+    //     const removePost = await postCollection.deleteOne({_id: new ObjectId(id)});
+    //     if (removePost.deletedCount === 0) {
+    //         throw `Could not delete post with id of ${id}`;
+    //     }
+    //     await userData.removePost(post.userId.toString(), id);
+    //     return {
+    //         postId: id,
+    //         deleted: true
+    //     };
+
+    // },
+>>>>>>> 116ed20f7b0dfe0c9d88f0c939a953a79778383b
     async removePostById(id) {
         id = await validation.checkId(id);
         const postCollection = await posts();
