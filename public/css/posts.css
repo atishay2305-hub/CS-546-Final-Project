@@ -129,3 +129,14 @@ body {
   align-self: flex-end;
   margin-top: auto;
 }
+
+.blue-btn {
+  /* background-color: blue; */
+  color: black;
+  border: none;
+  cursor: pointer;
+}
+
+/* .blue-btn:hover {
+  background-color: darkblue;
+} */

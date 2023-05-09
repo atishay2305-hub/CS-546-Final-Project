@@ -1,0 +1,102 @@
+#events-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 400px; /* Adjust the width as per your requirement */
+    margin: 70px auto;
+  }
+  
+  #events-container .container {
+    width: 100%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  #events-container h2 {
+    margin-bottom: 10px;
+    font-size: 18px; /* Adjust the font size as per your preference */
+  }
+  
+  #events-container img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    max-height: 200px; /* Adjust the max-height as per your preference */
+  }
+  
+  #events-container p {
+    margin-bottom: 10px;
+    font-size: 14px; /* Adjust the font size as per your preference */
+  }
+  
+  #events-container .attendees-container {
+    display: none;
+  }
+  
+  #events-container .list-btn {
+    margin-top: 10px;
+  }
+  
+  #events-container .cancel-btn,
+  #events-container .register-btn {
+    margin-top: 10px;
+  }
+  
+  #events-container .event-over {
+    margin-top: 10px;
+  }
+  
+  #events-container .comments-container {
+    margin-top: 10px;
+  }
+  
+  #events-container .comment-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  #events-container .comment-form input[type="text"] {
+    width: 100%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  #events-container .comment-form button {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: none;
+    background-color: darkgreen;
+    color: white;
+    cursor: pointer;
+  }
+  
+  #events-container .comment {
+    margin-top: 10px;
+  }
+
+  .comment-form button[type="button"] {
+    background-color: blue;
+    
+}
+
+.back-events-link {
+    color: blue;
+}
+
+
+  #events-container .delete-comment-btn {
+    background-color: maroon;
+    color: white;
+    padding: 5px 10px;
+    font-size: 14px;
+  }
+  
+  #events-container .comment-btn {
+    margin-top: 10px;
+  }
+  

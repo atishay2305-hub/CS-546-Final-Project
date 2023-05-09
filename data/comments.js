@@ -40,12 +40,47 @@ let exportedMethods = {
             }
             comment.eventId = event._id;
         }
+        // const comment = {
+        //     _id: new ObjectId(),
+        //     contents,
+        //     userId:new ObjectId(userId),
+        //     postId:post._id,
+        //     created_Date: validation.getDate()
+        // }
+        // if(eventId){
+        //     eventId = validation.checkId(eventId);
+        //     comment.evenId = eventId;
+        //     const eventCollection = await events();
+        //     const updateEvent = await eventCollection.updateOne(
+        //         {_id: eventId},
+        //         {$push: {commentIds: comment._id.toString()}}
+        //     );
+        //     console.log(updateEvent);
+        //     // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+        //     //     throw "Could not update event with commentId";
+        //     // }
+        // }
+        // if(postId){
+        //     postId = validation.checkId(postId);
+        //     comment.postId = postId;
+        //     const postCollection = await posts();
+        //     const updateEvent = await postCollection.updateOne(
+        //         {_id: postId},
+        //         {$push: {commentIds: comment._id.toString()}}
+        //     );
+        //     // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
+        //     //     throw "Could not update post with commentId";
+        //     // }
+        // }
         const commentCollection = await comments();
         const commentInfo = await commentCollection.insertOne(comment);
         if (!commentInfo.acknowledged || !commentInfo.insertedId) {
             throw "Could not add this comment";
         }
-
+        // const insertToUser = await userData.putComment(userId, comment._id.toString());
+        // if(!insertToUser){
+        //     throw "Cannot insert commentID to user";
+        // }
         return {commentId: commentInfo.insertedId.toString()};
     },
 
@@ -108,26 +143,29 @@ let exportedMethods = {
         return {deleteInfo: true};
     },
 
-
     async getEventCommentById(eventId) {
         eventId = await validation.checkId(eventId);
+        // const post = await postData.getPostById(postId);
+        // if(!post) throw `No  post with that id ${postId}`;
         const commentCollection = await comments();
         const userCollection = await users();
         console.log(eventId);
         const commentList = await commentCollection
             .find({eventId: new ObjectId(eventId)})
             .toArray();
-        console.log(commentList);
-        for (let x of commentList) {
-            const user = await userCollection.findOne({_id: x.userId});
-            console.log(user);
-            x.userName = user.userName;
-        }
+        // console.log(commentList);
+        // for (let x of commentList) {
+        //     const user = await userCollection.findOne({_id: x.userId});
+        //     // console.log(user);
+        //     x.userName = user.userName;
+        // }
         return commentList;
         // return comments;
     },
     async getPostCommentById(postId) {
         postId = await validation.checkId(postId);
+        // const post = await postData.getPostById(postId);
+        // if(!post) throw `No  post with that id ${postId}`;
         const commentCollection = await comments();
         const userCollection = await users();
         return await commentCollection.find({postId: new ObjectId(postId)}).toArray();
@@ -139,52 +177,57 @@ let exportedMethods = {
         postId = await validation.checkId(postId);
 
         const commentCollection = await comments();
-        const commentList = await commentCollection.find({ postId: new ObjectId(postId)}).toArray();
+        const commentList = await commentCollection.find({postId: new ObjectId(postId)}).toArray();
         const userCollection = await users();
         for (let x of commentList) {
-            const user = await userCollection.findOne({ _id: x.userId });
+            const user = await userCollection.findOne({_id: x.userId});
             x.userName = user.userName;
         }
     },
 
-<<<<<<< HEAD
-=======
     // },
 
->>>>>>> 116ed20f7b0dfe0c9d88f0c939a953a79778383b
     async removeCommentByEvent(eventId) {
         eventId = await validation.checkId(eventId);
         const commentCollection = await comments();
         try {
-            const commentList = await commentCollection.deleteMany({
-                eventId: new ObjectId(eventId),
-            });
-            console.log(commentList);
-            if (commentList.deletedCount === 0) {
-                throw "cannot delete comments for this event";
+            const commentCount = await commentCollection.countDocuments({ eventId: new ObjectId(eventId) });
+            if(commentCount > 0){
+                const commentList = await commentCollection.deleteMany({
+                    postId: new ObjectId(eventId),
+                });
+                if (commentList.deletedCount === 0) {
+                    throw "cannot delete comments for this event";
+                }
+            }else{
+                return {empty: true};
             }
             return {deleted: true};
         } catch (e) {
             console.log(e);
         }
     },
-
     async removeCommentByPost(postId) {
         postId = await validation.checkId(postId);
         const commentCollection = await comments();
         try {
-            const commentList = await commentCollection.deleteMany({
-                postId: new ObjectId(postId),
-            });
-            console.log(commentList);
-            if (commentList.deletedCount === 0) {
-                throw "cannot delete comments for this event";
+            const commentCount = await commentCollection.countDocuments({ postId: new ObjectId(postId) });
+            if(commentCount > 0){
+                const commentList = await commentCollection.deleteMany({
+                    postId: new ObjectId(postId),
+                });
+                if (commentList.deletedCount === 0) {
+                    throw "cannot delete comments for this post";
+                }
+            }else{
+                return {empty: true};
             }
             return {deleted: true};
         } catch (e) {
             console.log(e);
         }
     },
+    
 };
 
 export default exportedMethods;

@@ -5,7 +5,6 @@ import eventsRoute from './events.js';
 // import postRoutes from './posts.js';
 import authRoutes from './auth.js';
 
-import commentsRoute from './comments.js'
 
 const constructorMethod = (app) => {
 

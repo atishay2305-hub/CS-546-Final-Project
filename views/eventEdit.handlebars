@@ -1,10 +1,14 @@
-<body>
+<head>
+    <title>Event Register</title>
+</head>
 <div id="events-container">
     <div class="container center" data-userId="{{userId}}" data-email="{{email}}">
         {{#if deletable}}
-            <button class="delete-btn" onclick="deleteEvent('{{event._id}}')" data-event_id="{{event._id}}">
-                <i class="fas fa-trash"></i> Delete Event
-            </button>
+            <div class="delete-wrapper">
+                <button class="delete-btn" onclick="deleteEvent('{{event._id}}')" data-event_id="{{event._id}}">
+                    <i class="fas fa-trash"></i> Delete Event
+                </button>
+            </div>
         {{/if}}
 
         <h2>{{event.eventName}}</h2>
@@ -15,13 +19,15 @@
         <div id="attendees-container-{{event._id}}" class="attendees-container" style="display: none">
             {{#each event.attendees}}
                 <li>User Id: {{id}} - Name: {{name}}</li>
+                {{#if ../deletable}}
+                    <button class="delete-attendee-btn" onclick="deleteAttendee('{{id}}', '{{../event._id}}')"
+                            data-attendee_id="{{id}}">
+                        <i class="fas fa-trash"></i> Delete Attendee
+                    </button>
+                {{/if}}
             {{/each}}
-            {{#if deletable}}
-                <button class="delete-attendee-btn" onclick="deleteAttendee('{{userId}}', '{{event._id}}')"
-                        data-attendee_id="{{userId}}">
-                    <i class="fas fa-trash"></i> Delete Attendee
-                </button>
-            {{/if}}
+
+
         </div>
         <button class="list-btn" data-event_id="{{event._id}}" onclick="showAttendeesPopup('{{event._id}}')">
             <ion-icon name="people-outline"></ion-icon>
@@ -50,12 +56,15 @@
         <br>
 
         <div id="comments-{{event._id}}" class="comments-container">
-            <form class="comment-form" id="comment-form-{{this._id}}" action="/events/{{event._id}}/comment"
+            <form class="comment-form" id="comment-form-{{event._id}}" action="/events/{{event._id}}/comment"
                   method="POST">
-                <input type="hidden" name="postId" value="{{this._id}}">
-                <label for="comment-text-{{this._id}}">Add a Comment:</label>
-                <input type="text" name="commentText" id="comment-text-{{this._id}}">
-                <input type="submit" value="Submit">
+                <input type="hidden" name="postId" value="{{event._id}}">
+                <label for="comment-text-{{event._id}}">Add a Comment:</label>
+                <input type="text" name="commentText" id="comment-text-{{event._id}}">
+                <div>
+                    <span id="comment-error-{{event._id}}" class="text-danger" style="display: none;"></span>
+                </div>
+                <button type="button" onclick="addComment(event, '{{event._id}}', this)">Submit</button>
             </form>
             {{#each comments}}
                 <div class="comment">
@@ -72,20 +81,22 @@
             {{/each}}
         </div>
         <p>SeatCapacity: {{event.seatingCapacity}}</p>
-        <button class="comment-btn" id="comment-btn-{{event._id}}" onclick="showCommentsPopup('{{event._id}}')">
-            <ion-icon name="chatbox-ellipses"></ion-icon>
-            <span>Show Comments</span>
-        </button>
+
+                    <button class="comment-btn" id="comment-btn-{{event._id}}" onclick="showCommentsPopup('{{event._id}}')">
+                <ion-icon name="chatbox-ellipses"></ion-icon>
+                <span>Show Comments</span>
+            </button>
     </div>
-    <a href="/events">Back to Events</a>
+    <a href="/events" class="back-events-link">Back to Events</a>
 </div>
 <script src="/public/js/delete.js"></script>
 <script src="/public/js/event/eventCancel.js"></script>
-{{!-- <script src="/public/js/event/comment.js"></script> --}}
-<script src="/public/js/event/commentBtn.js"></script>
+<script src="/public/js/event/comment.js"></script>
+<script src="/public/js/commentBtn.js"></script>
+
 <script src="/public/js/event/sendEmail.js"></script>
 <script src="/public/js/event/attendees.js"></script>
 <script src="/public/js/event/event.js" type="module"></script>
 <script src="/public/js/event/eventRegister.js" type="module"></script>
-<link rel="stylesheet" href="/public/css/events.css">
-</body>
+{{!-- <link rel="stylesheet" href="/public/css/eventEdit.css"> --}}
+<link rel="stylesheet" href="/public/css/eventEdit.css">

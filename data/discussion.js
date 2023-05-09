@@ -67,34 +67,6 @@ let exportedMethods = {
         return discuss;
     },
 
-    async removeById(id) {
-        id = await validation.checkId(id);
-        const discussionCollection = await discussion();
-        const discuss = await discussionCollection.findOne({_id: new ObjectId(id)});
-        if (discuss === null) {
-            throw `No discussion was found with that Id ${id}`;
-        }
-        const userCollection = await users();
-        const user = await userCollection.findOne({_id: new ObjectId(discuss.userId)});
-        if (user.isAdmin === undefined || !user.isAdmin) {
-            if(!user.postIDs.includes(id)){
-                throw "Only administrators or the poster can delete the discussion.";
-            }
-        }
-
-        const removeDiscussion = await discussionCollection.deleteOne({_id: new ObjectId(id)});
-        if (removeDiscussion.deletedCount === 0) {
-            throw `Could not delete with id of ${id}`;
-        }
-        await userData.removePost(post.userId.toString(), id);
-        return {
-            eventId: id,
-            deleted: true
-        };
-
-
-    },
-
     async searchDiscussion(searchTerm) {
         const discussionCollection = await discussion();
         const searchRegex = new RegExp(searchTerm, 'i');
@@ -144,3 +116,4 @@ let exportedMethods = {
     }
 };
 export default exportedMethods;
+
