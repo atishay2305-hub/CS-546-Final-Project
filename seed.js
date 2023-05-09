@@ -1,5 +1,5 @@
 import {dbConnection, closeConnection} from './config/mongoConnection.js';
-import {eventsData, userData} from './data/index.js';
+import {eventsData, userData, commentData, discussData, postData} from './data/index.js';
 
 
 const main = async () => {
@@ -88,6 +88,10 @@ const main = async () => {
    
 
     var userId1,userId2,userId3,userId4,userId5,userId6,userId7;
+    var eventId1,eventId2,eventId3,eventId4,eventId5,eventId6,eventId7;
+    var postId1,postId2;
+    var commentId1,commentId2;
+    
     try {
         const user1 = await userData.createUser(userOne.firstName, userOne.lastName,
             userOne.userName, userOne.email, userOne.password, userOne.DOB, userOne.role,userOne.department, userOne.authentication);
@@ -215,204 +219,91 @@ const main = async () => {
                 eventSix.buildingName,eventSix.roomNumber, eventSix.organizer, eventSix.seatingCapacity,userId6,eventSix.image);
                 const event7 = await eventsData.createEvent( eventSeven.eventName, eventSeven.description,eventSeven.date,
                     eventSeven.buildingName,eventSeven.roomNumber, eventSeven.organizer, eventSeven.seatingCapacity,userId7,eventSeven.image);
+
+        
+        eventId1 = event1._id.toString();
+        eventId2 = event2._id.toString();
+        eventId3 = event3._id.toString();
+        eventId4 = event4._id.toString();
+        eventId5 = event5._id.toString();
+        eventId6 = event6._id.toString();
+        eventId7 = event7._id.toString();
     }catch (e){
         console.log(e);
     }
-    // try{
-    //     const user1 = await userData.putPost()
-    //
-    // }catch (e){
-    //     console.log(e);
-    // }
+    try{
+        const postOne={
+            category:"education",
+             image:'background.jpg',
+            postedContent:"eductaion is divine",
+             userName:"MysticMeadow98"
+            
+        };
+        const postTwo={
+            category:"sports",
+             image:'background.jpg',
+            postedContent:"soccer vs football",
+             userName:"RainbowRider77"
+            
+        };
+
+        const post1 = await postData.createPost(postOne.category,postOne.image,postOne.postedContent,postOne.userName);
+        const post2 = await postData.createPost(postTwo.category,postTwo.image,postTwo.postedContent,postTwo.userName);
+        postId1 = post1._id;
+        postId2 = post2._id;
+        
+    }catch(e){
+        console.log(e);
+    }
+    try{
+        const commentOne ={
+            userId: userId1,
+            eventId:eventId1,
+            postId:postId1,
+            contents:"true its correct",
+            commentType:"post"
+        };
+        const commentTwo ={
+            userId: userId7,
+            eventId:eventId6,
+            postId: postId2,
+            contents:"wow",
+            commentType:"event"
+        };
+        const comment1 = await commentData.createComment(commentOne.userId,commentOne.eventId,commentOne.postId,commentOne.contents,commentOne.commentType);
+        const comment2 = await commentData.createComment(commentTwo.userId,commentTwo.eventId,commentTwo.postId,commentTwo.contents,commentTwo.commentType);
+        
+        commentId1 = comment1.commentId;
+        commentId2 = comment2.commentId;
+        }
+        catch (e){
+            console.log(e);
+        }
+        try{
+            const discussOne={
+                category:"sports",
+                description:"best performance by ms dhoni",
+                userId: userId3
+            };
+            const discussTwo={
+                category:"sports",
+                description:"best football match",
+                userId: userId2
+            };
+            const discussion1 = await discussData.createDiscussion(discussOne.category,discussOne.description,discussOne.userId);
+            const discussion2 = await discussData.createDiscussion(discussTwo.category,discussTwo.description,discussTwo.userId);
+            
+           
+        }catch (e){
+            console.log(e);
+        }
+   
+   
 
     console.log("Done");
     await closeConnection();
 }
 
-import {dbConnection, closeConnection} from './config/mongoConnection.js';
-import {eventsData, userData,commentData} from './data/index.js';
-
-const db= await dbConnection();
-
-//const userFive = {
-    //     firstName: "Ethan",
-    //     lastName: "Wilson",
-    //     userName: "CosmicCactus13",
-    //     email: "ethan.wilson@stevens.edu",
-    //     password: "Lk6&z$F#d9s",
-    //     DOB: "04-01-2002",
-    // };
-
-// try{
-// const user = await userData.removeUserById('643f041e0639d003d498816b');
-// console.log(user);
-// }catch(e){
-//     console.log(e);
-// }
-
-// try{
-// const comment = await commentData.createComment('643f3edec2137a9db93c1d5b',"6446f36afda8b12b0452adf7", "6442269732b1e3c891419771", "PixelPenguin22", "Hello how are you?");
-// console.log(comment);
-// }catch(e){
-//     console.log(e);
-// }
-
-// try {
-//     const getAllComments = await commentData.getAllComments();
-//     console.log(getAllComments)
-// } catch (error){
-//     console.log(error)
-// }
-
-try {
-    const getAllComments = await commentData.getEventCommentById("6446f48cef0f7537b23018d9");
-    console.log(getAllComments)
-} catch (error){
-    console.log(error)
-}
-
-/*try{
-    const comment = await commentData.removeComment('643f07dee2ef68b3316eed1e');
-    console.log(comment);
-    }catch(e){
-        console.log(e);
-    }
-    /*try{
-        const comment = await commentData.removeComment('643f06ffcf44f9e76f9945d3');
-        console.log(comment);
-        }catch(e){
-            console.log(e);
-        }*/
-    
-// try{
-//     const comment = await commentData.removeCommentById('6448a76c745f1f47ad126786');
-//     console.log(comment);
-// }catch(e){
-//         console.log(e);
-// }
-
-import eventsData from "./data/events.js";
-
-// try {
-//     let something = await eventsData.createEvent("6441e06cf0917340bd02623c", "something", "lieb building", "lieb building", "Atishay Jain", 5)
-//     console.log(something);
-
-// } catch(error){
-//     console.log(error)
-// }
-
-try {
-    let something = await eventsData.searchEvent("Updated")
-    console.log(something);
-
-} catch(error){
-    console.log(error)
-}
-
-// try {
-//     let something = await eventsData.getEventByID("6442e7e7b9f2f13914c32dc3")
-//     console.log(something);
-
-// } catch(error){
-//     console.log(error)
-// }
-
-// try {
-//     let something = await eventsData.removeEventById("6442e7e7b9f2f13914c32dc3")
-//     console.log(something);
-
-// } catch(error){
-//     console.log(error)
-// }
-
-
-
-// try {
-//     let something = await eventsData.updateEvent("64420396072af37a3c258e2f", "Updated event", "SOmething has been updated", "Building name has been updated", "Atishay", 10)
-//     console.log(something);
-
-// } catch(error){
-//     console.log(error)
-// }
-
-import postsData from "./data/posts.js"
-
-try {
-    let postDataCreation = await postsData.createPost("sports", "")
-    console.log(postDataCreation)
-} catch(error){
-    console.log(error);
-}
-
-// try {
-//     let postDataCreation = await postsData.getAllPost();
-//     console.log(postDataCreation)
-// } catch(error){
-//     console.log(error);
-// }
-
-// try {
-//     let postDataCreation = await postsData.getPostById("644220a379e865daab28c4f4");
-//     console.log(postDataCreation)
-// } catch(error){
-//     console.log(error);
-// }
-
-// try {
-//     let postDataCreation = await postsData.removePostById("644220a379e865daab28c4f4");
-//     console.log(postDataCreation)
-// } catch(error){
-//     console.log(error);
-// }
-
-// try {
-//     let postDataCreation = await postsData.updatePost("6442269732b1e3c891419771", "dancing", "Zumba", "Random");
-//     console.log(postDataCreation)
-// } catch(error){
-//     console.log(error);
-// }
-
-
-
-
-import usersData from "./data/users.js";
-
-// try {
-//     let creatingUser = await usersData.updateUser("Atishay", "Jain", "atishay23", "ajainz20@stevens.edu", "Test@1234#", "1999-05-23", "user", "computer science")
-//     console.log(creatingUser)
-    
-// } catch(error){
-//     console.log(error)
-// }
-
-// try {
-//     let creatingUser = await usersData.createUser("Atishay", "Jain", "atishay234", "ajain706@stevens.edu", "Test@1234#", "1999-05-23", "user", "computer science")
-//     console.log(creatingUser)
-    
-// } catch(error){
-//     console.log(error)
-// }
-
-
-
-// // try {
-// //     let creatingUser = await usersData.getUserByEmail("ajain70@stevens.edu")
-// //     console.log(creatingUser)
-    
-// // } catch(error){
-// //     console.log(error)
-// // }
-
-// try {
-//     let creatingUser = await usersData.checkUser("atishay23", "ajain70@stevens.edu")
-//     console.log(creatingUser)
-    
-// } catch(error){
-//     console.log(error)
-// }
-
 
 
 main();
-
-await closeConnection();
