@@ -55,7 +55,15 @@
                 <input type="hidden" name="postId" value="{{this._id}}">
                 <label for="comment-text-{{this._id}}">Add a Comment:</label>
                 <input type="text" name="commentText" id="comment-text-{{this._id}}">
-                <input type="submit" value="Submit">
+                <div>
+                    <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
+                </div>
+                     {{!-- <div>
+                        <span id="cmt-err" class="text-danger" style="display: none;"></span>
+                    </div> --}}
+                    {{!-- <input type="submit" value="Submit"> --}}
+                <button type="button" onclick="addComment(event, '{{_id}}', this)">Submit</button>
+                {{!-- <input type="submit" value="Submit"> --}}
             </form>
             {{#each comments}}
                 <div class="comment">

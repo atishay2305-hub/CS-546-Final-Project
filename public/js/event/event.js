@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             document.getElementById("buildingName").value = data.buildingName;
                             document.getElementById("roomNumber").value = data.roomNumber;
                             document.getElementById("organizer").value = data.organizer;
-                            document.getElementById("seatingCapacity").value = data.seatingCapacity; // FIX: element id was wrong
+                            document.getElementById("seatingCapacity").value = data.seatingCapacity; 
                             return handleError(data.message || "Something went wrong.");
                         }
                     }

@@ -85,6 +85,7 @@ let exportedMethods = {
         const id = await validation.checkId(userId);
         const postCollection = await posts();
         const postList = await postCollection.find({userId:new ObjectId(userId)}).sort({created_Date: -1}).limit(5).toArray();
+
         return postList;
 
     },

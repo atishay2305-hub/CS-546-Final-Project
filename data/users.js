@@ -53,6 +53,7 @@ let exportedMethods = {
             DOB: DOB,
             commentIDs: [],
             eventAttend: [],
+            discussion:[],
             role: role,
             department: department,
             authentication: false
@@ -285,6 +286,22 @@ let exportedMethods = {
             {$set: {eventIDs: eventIdList}}
         );
         if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put event with that ID ${eventId}`;
+        return true;
+    },
+
+    async putDiscuss(userId, discussId) {
+        userId = validation.checkId(userId);
+        discussId = validation.checkId(discussId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        let discussIdList = user.discussion;
+        discussIdList.push(discussId);
+        const updatedInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {discussion: discussIdList}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put event with that ID ${discussId}`;
         return true;
     },
 

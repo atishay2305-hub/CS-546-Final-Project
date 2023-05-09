@@ -143,12 +143,62 @@ router
 
     router.route('/homepage').get(async (req, res) => {
         const userId = req.session.user.userId;
-        const userName = req.session.user.userName;
 
+        // console.log(userId);
+        // console.log(userId)
+        //const email = req.session.email;
+        //useremail from session and will just keep it
+        //const user = await userData.getUserByID(userId);
+        //const postList = await userData.getPostList(user.email);
+        //user info from ID
+        //getpost list if true
+        // const userName = req.session.user.userName;
+        const userName = req.session.user.userName;
+        // console.log(userName)
+        // console.log(userName);
+        //console.log(postList);
         const postList = await postData.getPostByUserIdTop(userId);
         console.log(postList);
-
+        //
+        //console.log(postList);
         const commentCollection = await comments();
+        for (let x of postList) {
+            x.editable = true;
+            x.deletable = true;
+            // let resId = x?.userId;
+            // // console.log(resId);
+            // let resString = resId.toString();
+            // const user = await userData.getUserByID(resString);
+            // x.name = user.userName;
+            if (x.category === 'lost&found') {
+                x.addressCheck = true;
+            }
+            x.result = [];
+            for (let y of x.commentIds) {
+                const comment = await commentCollection.findOne({ _id: y });
+                if(!comment){
+                    throw "Comment ID not found."
+                }
+                console.log(comment);
+                x.result.push({
+                    commentUserName: comment.userName,
+                    commentContent: comment.contents
+                })
+                //console.log(comment);
+            }
+            //const commentList = await commentData.getPostHomeCommentById(resString);
+            //console.log(commentList);
+            // if (resString === userId) {
+            //     x.editable = true;
+            //     x.deletable = true;
+            // } else {
+            //     x.editable = false;
+            //     x.deletable = false;
+            // }
+        }
+        console.log(postList);
+        // const listOfPosts = [{category: "education", content: "Anime"}]
+        // posts: postList
 
         return res.render('homepage', {
             userId: userId,
@@ -373,7 +423,9 @@ router
 
             let checkExist = await userData.getUserByEmail(email);
             if(!checkExist) throw `No user with ${email} exist!!`;
-            await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
+            console.log(checkExist);
+            const xyz = await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
+            return xyz;
         } catch (e) {
             console.log(e);
             return res.status(400).json({
@@ -611,6 +663,9 @@ router.route('/discuss').post(async (req, res) => {
     const { category, description } = req.body;
 
     const discuss = await discussData.createDiscussion(category, xss(description), userId);
+    
+    console.log(discuss);
+    const user = await userData.putDiscuss(userId, discuss._id.toString());
     return res.redirect('/discuss');
 });
 
