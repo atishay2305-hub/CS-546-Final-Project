@@ -19,7 +19,9 @@ const passwordResetByEmail = async ({id, email}, res) => {
         }
 
         const result = await transporter.sendMail(mailOptions);
+        console.log(result)
         if(result) {
+            
              return res.redirect('/login');
         }else{
             return res.json({

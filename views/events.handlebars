@@ -112,7 +112,7 @@
                 Attendee List
             </button>
             <br>
-            {{#if registered}}
+            {{!-- {{#if registered}}
                 {{#if (not_past_date date)}}
                     <button class="cancel-btn" data-event_id="{{this._id}}">
                         <ion-icon name="close-outline"></ion-icon>
@@ -130,7 +130,7 @@
                 {{else}}
                     <p class="event-over">Registration for this event is closed.</p>
                 {{/if}}
-            {{/if}}
+            {{/if}} --}}
             <br>
             <p>{{this._id}}</p>
             <div id="comments-{{this._id}}" class="comments-container" style="display: none">
@@ -139,7 +139,15 @@
                     <input type="hidden" name="postId" value="{{this._id}}">
                     <label for="comment-text-{{this._id}}">Add a Comment:</label>
                     <input type="text" name="commentText" id="comment-text-{{this._id}}">
-                    <input type="submit" value="Submit">
+                    <div>
+                        <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
+                    </div>
+                     {{!-- <div>
+                        <span id="cmt-err" class="text-danger" style="display: none;"></span>
+                    </div> --}}
+                    {{!-- <input type="submit" value="Submit"> --}}
+                    <button type="button" onclick="addComment(event, '{{_id}}', this)">Submit</button>
+                    {{!-- <input type="submit" value="Submit"> --}}
                 </form>
                 {{#each ../ comments}}
                     {{#if (if_eq @key ../_id)}}
@@ -176,7 +184,7 @@
 <script src="/public/js/event/eventRedirect.js"></script>
 <script src="/public/js/event/eventCancel.js"></script>
 <script src="/public/js/commentBtn.js"></script>
-{{!-- <script src="/public/js/event/comment.js" type="module"></script> --}}
+<script src="/public/js/event/comment.js"></script>
 <script src="/public/js/event/attendees.js"></script>
 <script src="/public/js/event/sendEmail.js"></script>
 <script src="/public/js/event/event.js" type="module"></script>

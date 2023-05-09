@@ -144,8 +144,18 @@ router
     router.route('/homepage').get(async (req, res) => {
         const userId = req.session.user.userId;
         // console.log(userId);
+        // console.log(userId)
+        //const email = req.session.email;
+        //useremail from session and will just keep it
+        //const user = await userData.getUserByID(userId);
+        //const postList = await userData.getPostList(user.email);
+        //user info from ID
+        //getpost list if true
+        // const userName = req.session.user.userName;
         const userName = req.session.user.userName;
-
+        // console.log(userName)
+        // console.log(userName);
+        //console.log(postList);
         const postList = await postData.getPostByUserIdTop(userId);
         console.log(postList);
         //
@@ -155,7 +165,10 @@ router
             x.editable = true;
             x.deletable = true;
             // let resId = x?.userId;
-       
+            // // console.log(resId);
+            // let resString = resId.toString();
+            // const user = await userData.getUserByID(resString);
+            // x.name = user.userName;
             if (x.category === 'lost&found') {
                 x.addressCheck = true;
             }
@@ -182,29 +195,15 @@ router
             //     x.deletable = false;
             // }
         }
-
-
-        //const commentList = await commentData.getPostHomeCommentById(resString);
-        //console.log(commentList);
-
-
-        // if (resString === userId) {
-        //     x.editable = true;
-        //     x.deletable = true;
-        // } else {
-        //     x.editable = false;
-        //     x.deletable = false;
-        // }
-    //}
-    //console.log(postList);
-    // const listOfPosts = [{category: "education", content: "Anime"}]
-    // posts: postList
-    return res.render('homepage', {
-        userId: userId,
-        userName: userName,
-        posts: postList,
-        title: 'Stevens Community Portal'})
-
+        console.log(postList);
+        // const listOfPosts = [{category: "education", content: "Anime"}]
+        // posts: postList
+        return res.render('homepage', {
+            userId: userId,
+            userName: userName,
+            posts: postList,
+            title: 'Homepage'
+        });
     });
 
 
@@ -431,7 +430,9 @@ router
 
             let checkExist = await userData.getUserByEmail(email);
             if(!checkExist) throw `No user with ${email} exist!!`;
-            await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
+            console.log(checkExist);
+            const xyz = await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
+            return xyz;
         } catch (e) {
             console.log(e);
             return res.status(400).json({
@@ -686,6 +687,9 @@ router.route('/discuss').post(async (req, res) => {
     const { category, description } = req.body;
 
     const discuss = await discussData.createDiscussion(category, xss(description), userId);
+    
+    console.log(discuss);
+    const user = await userData.putDiscuss(userId, discuss._id.toString());
     return res.redirect('/discuss');
 });
 
