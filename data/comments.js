@@ -1,4 +1,4 @@
-import {events, posts, users, comments} from "../config/mongoCollections.js";
+import {comments, events, posts, users} from "../config/mongoCollections.js";
 import {userData} from "./index.js";
 import validation from '../validationchecker.js';
 import {ObjectId} from "mongodb";
@@ -176,14 +176,14 @@ let exportedMethods = {
 
         postId = await validation.checkId(postId);
 
-    const commentCollection = await comments();
-    const commentList = await commentCollection.find({ postId: new ObjectId(postId)}).toArray();
-    const userCollection = await users();
-    for (let x of commentList) {
-      const user = await userCollection.findOne({ _id: x.userId });
-      x.userName = user.userName;
-    }
-  },
+        const commentCollection = await comments();
+        const commentList = await commentCollection.find({postId: new ObjectId(postId)}).toArray();
+        const userCollection = await users();
+        for (let x of commentList) {
+            const user = await userCollection.findOne({_id: x.userId});
+            x.userName = user.userName;
+        }
+    },
 
     // },
 
@@ -191,12 +191,16 @@ let exportedMethods = {
         eventId = await validation.checkId(eventId);
         const commentCollection = await comments();
         try {
-            const commentList = await commentCollection.deleteMany({
-                eventId: new ObjectId(eventId),
-            });
-            console.log(commentList);
-            if (commentList.deletedCount === 0) {
-                throw "cannot delete comments for this event";
+            const checkExist = await commentCollection.find({eventId: new ObjectId(eventId)});
+            if(checkExist){
+                const commentList = await commentCollection.deleteMany({
+                    eventId: new ObjectId(eventId),
+                });
+                if (commentList.deletedCount === 0) {
+                    throw "cannot delete comments for this event";
+                }
+            }else{
+                return {empty: true};
             }
             return {deleted: true};
         } catch (e) {

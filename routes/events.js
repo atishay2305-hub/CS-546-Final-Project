@@ -42,11 +42,13 @@ router
             events = events.map(event => {
                 const attendeeList = Object.values(event.attendees).map(attendee => ({userId: attendee.id.toString(), name: attendee.name}));
                 const registered = attendeeList.some(attendee => attendee.userId === req.session.user.userId.toString());
+                const fullBooked = attendeeList.length === event.seatingCapacity;
                 return {
                     ...event,
                     _id: event._id.toString(),
                     attendees: attendeeList,
-                    registered: registered
+                    registered: registered,
+                    fullBooked: fullBooked
                 };
             });
 
@@ -182,13 +184,13 @@ router
                 await registrationConfirmByEmail({id: eventId, email: email}, res);
             } else {
                 // user already registered
-                return res.status(400).json({
-                    success: false,
+                return res.status(200).json({
+                    success: true,
                     message: "You have already registered for this event."
                 });
             }
         } catch (e) {
-            return res.status(400).json({
+            return res.status(500).json({
                 success: false,
                 message: "Something went wrong. Please try again later."
             });
@@ -278,7 +280,7 @@ router
 
             const removeComments = await commentData.removeCommentByEvent(req.params.id)
             const responseEvent = await eventsData.removeEventById(req.params.id);
-            if (!responseEvent.deleted || !removeComments.deleted) {
+            if (!responseEvent.deleted || !removeComments.deleted || !removeComments.empty) {
                 return res.status(400).json("Unable to delete")
             }
             return res.sendStatus(200);

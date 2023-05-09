@@ -92,7 +92,7 @@ async function likeFunc(postId, type) {
 
     if (response.ok) {
         type === 'home' ? window.location.href = '/homepage' : window.location.href = '/posts'
-
+        if (type === 'post_id') window.location.href = `/posts/${postId}`
     }
     else {
         alert('error');
@@ -105,6 +105,7 @@ async function dislikeFunc(postId, type) {
     if (response.ok) {
         //location.reload();
         type === 'home' ? window.location.href = '/homepage' : window.location.href = '/posts'
+        if (type === 'post_id') window.location.href = `/posts/${postId}`
     }
     else {
         alert('error');

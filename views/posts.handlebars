@@ -1,7 +1,8 @@
 {{#if (if_eq role "user")}}
-         <div class="my-3 text-right">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createPostModal"> + New Post</button>
-        </div>
+    <div class="my-3 text-right">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createPostModal"> + New Post
+        </button>
+    </div>
 {{/if}}
 
 
@@ -9,13 +10,14 @@
 <div id="posts-container">
     <h1>POSTS</h1>
     {{#each posts}}
-        <div class="post-container">
+        <div class="post-container" id="post-container-{{this._id}}" data-href="/posts/{{this._id}}"
+             style="cursor: pointer;">
             <h1>{{content}}</h1>
             <img id="img-{{this._id}}" src="{{image}}" alt="Post image">
             <p>Category: {{category}}</p>
             <p>Created by: {{userName}}</p>
             {{#if (if_eq category "lost&found")}}
-            <p>Address: {{address}}</p>
+                <p>Address: {{address}}</p>
             {{/if}}
             <p class="create_date" data-created_Date="{{created_Date}}">Created at: {{created_Date}}</p>
 
@@ -28,7 +30,7 @@
 
             <form class="dislike-form" id="dislike-form-{{this._id}}">
                 <button class="dislike-btn-home" data-post-id="{{this._id}}"
-                    onclick="dislikeFunc('{{this._id}}','post')"><i class="fa fa-thumbs-down">Dislike</i></button>
+                        onclick="dislikeFunc('{{this._id}}','post')"><i class="fa fa-thumbs-down">Dislike</i></button>
                 <span class="dislike-count" id="dislike-count-{{this._id}}">{{this.dislikes}}</span>
             </form>
 
@@ -36,17 +38,13 @@
             <hr>
             <div id="comments-{{this._id}}" class="comments-container" style="display: none;">
                 <form class="comment-form" id="comment-form-{{this._id}}" action="/posts/{{this._id}}/comment"
-                    method="POST">
+                      method="POST">
                     <input type="hidden" name="postId" value="{{this._id}}">
                     <label for="comment-text-{{this._id}}">Add a Comment:</label>
                     <input type="text" name="commentText" id="comment-text-{{this._id}}">
                     <div>
                         <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
                     </div>
-                     {{!-- <div>
-                        <span id="cmt-err" class="text-danger" style="display: none;"></span>
-                    </div> --}}
-                    {{!-- <input type="submit" value="Submit"> --}}
                     <button type="button" onclick="addComment(event, '{{_id}}', this)">Submit</button>
                 </form>
                 {{#each ../ comments}}
@@ -69,21 +67,9 @@
                 {{/each}}
             </div>
 
-            {{!-- <button class="comment-btn" id="commentBtn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
-    <ion-icon name="chatbox-ellipses"></ion-icon>
-</button> --}}
-<button class="comment-btn" id="comment-btn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')">
-    {{!-- <ion-icon name="chatbox-ellipses"></ion-icon> --}}
-    <span>Show Comments</span>
-</button>
-{{!-- <label for="commentBtn-{{this._id}}">Comments</label> --}}
-
-
-            {{#if deletable}}
-            <button class="delete-btn" onclick="deletePost('{{_id}}')">
-                <i class="fas fa-trash"></i> Delete
+            <button class="comment-btn" id="comment-btn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')">
+                <span>Show Comments</span>
             </button>
-            {{/if}}
 
         </div>
     {{/each}}
@@ -91,7 +77,8 @@
 </div>
 
 
-<div class="modal fade" id="createPostModal" tabindex="-1" role="dialog" aria-labelledby="createPostModalLabel" aria-hidden="true">
+<div class="modal fade" id="createPostModal" tabindex="-1" role="dialog" aria-labelledby="createPostModalLabel"
+     aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -101,7 +88,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="/posts" id = "post-form" method="post" enctype="multipart/form-data">
+                <form action="/posts" id="post-form" method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="postCategory" class="col-form-label">Post Category:</label>
                         <select id="postCategory" class="form-control category m-0" name="category">
@@ -112,10 +99,11 @@
                         <textarea class="form-control" id="postContent" name="postContent" rows="5"></textarea>
                     </div>
                     <div class="form-group" id="address-input">
-                       <label for="address" class="col-form-label">Location:</label>
-                       <input type="text" class="form-control" name="address" id="address" placeholder="Address, City, State, Zip" value="{{address}}">
-                       <button type="submit" id="showOnMapBtn" class="btn btn-primary">Show on Map</button>
-                      <div id="map"></div>
+                        <label for="address" class="col-form-label">Location:</label>
+                        <input type="text" class="form-control" name="address" id="address"
+                               placeholder="Address, City, State, Zip" value="{{address}}">
+                        <button type="submit" id="showOnMapBtn" class="btn btn-primary">Show on Map</button>
+                        <div id="map"></div>
                     </div>
                     <div class="form-group">
                         <label for="postImage" class="col-form-label">Upload Image:</label>
@@ -132,13 +120,12 @@
 </div>
 
 
-
-    <script src="/public/js/post/sort.js"></script>
-    <script src="/public/js/post/map.js"></script>
-    <script src="/public/js/post/postRedirect.js"></script>
-    <script src="/public/js/commentBtn.js"></script>
-    <script src="/public/js/post/comments.js"></script>
-    <script src="/public/js/homepage/homepage.js"></script>
-    <script src="/public/js/post/posts.js" type="module"></script>
-    <link rel="stylesheet" href="/public/css/posts.css">
+<script src="/public/js/post/sort.js"></script>
+<script src="/public/js/post/map.js"></script>
+<script src="/public/js/post/postRedirect.js"></script>
+<script src="/public/js/commentBtn.js"></script>
+<script src="/public/js/post/comments.js"></script>
+<script src="/public/js/homepage/homepage.js"></script>
+<script src="/public/js/post/posts.js" type="module"></script>
+<link rel="stylesheet" href="/public/css/posts.css">
  

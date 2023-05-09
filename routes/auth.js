@@ -143,6 +143,7 @@ router
 
     router.route('/homepage').get(async (req, res) => {
         const userId = req.session.user.userId;
+
         // console.log(userId);
         // console.log(userId)
         //const email = req.session.email;
@@ -198,6 +199,7 @@ router
         console.log(postList);
         // const listOfPosts = [{category: "education", content: "Anime"}]
         // posts: postList
+
         return res.render('homepage', {
             userId: userId,
             userName: userName,
@@ -207,11 +209,6 @@ router
     });
 
 
-router.route('/profile').get(async (req, res) => {
-    const id = req.session.user.userId;
-    const user = await userData.getUserByID(id);
-    return res.render('profile', { user: user, title: 'Profile Page' });
-});
 
 
 router.route('/posts')
@@ -287,10 +284,6 @@ router.route('/profile').get(async (req, res) => {
     const user = await userData.getUserByID(id);
     return res.render('profile', {user: user});
 });
-
-
-
-
 
 
 router.route('/posts/:id').delete(async (req, res) => {
@@ -568,18 +561,6 @@ router.route('/increaseLikes')
         return res.json(updatedPost);
     });
 
-// router
-//     .route('/search')
-//     .get(async (req, res) => {
-//         try {
-//             const searchTerm = req.query.query;
-//             console.log("searchTerm:",searchTerm);
-//             const searchResults = await eventsData.searchEvent(searchTerm);
-//             res.render('searchResults', {results: searchResults, title: 'Search Results'});
-//         } catch (e) {
-//             res.status(500).json({error: 'Internal server error'});
-//         }
-//     });
 router.get('/search', async (req, res) => {
     try {
       const searchTerm = req.query.query;
@@ -635,11 +616,6 @@ router
         const comment = await commentData.getPostCommentById(postId)
         return res.render('allComments', { comment: comment, title: 'All Comments' });
     });
-
-
-// const discuss = await discussData.createDiscussion(category, description, userId);
-// return res.redirect('/discuss');
-// //return res.status(200).render('discuss', { newDiscussion: discuss });
 
 
 router.route('/search').get(async (req, res) => {
@@ -701,9 +677,6 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
         const { message } = req.body;
         let Message = xss(message);
         Message = validation.checkComments(Message);
-        //   if (Message.length > 300) {
-        //     return res.status(400).send('Reply exceeds the maximum character limit of 300.');
-        //   }
 
         const discuss = await discussData.updateDiscussion(id, userId, Message);
         console.log(discuss)
@@ -761,12 +734,9 @@ router
             const userId = req.session.user.userId;
             const postId = req.params.id.toString();
             const {commentText} = req.body;
-            // console.log(postId);
-            // console.log(commentText);
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
             console.log(comment);
             const post = await postData.putComment(postId, comment.commentId);
-            // console.log(post);
             console.log('The comment is added');
             return res.sendStatus(200);
         } catch (e) {
