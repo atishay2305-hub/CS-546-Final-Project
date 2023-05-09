@@ -35,7 +35,7 @@ const eventUploadImage = eventUpload.single("eventImage");
 router
     .route('/')
     .get(async (req, res) => {
-        let events = []; // Declare and initialize events variable
+        let events = []; 
 
         if (req.session.user) {
             events = await eventsData.getAllEvents();
@@ -220,7 +220,7 @@ router
             return res.status(200).json({
                 success: true,
                 message: "You have already registered for this event."
-            }, {title: "Event Registration"});
+            });
         }
     } catch (e) {
         return res.status(500).json({
@@ -239,6 +239,7 @@ router
             const eventId = req.params.eventId;
             const commentId = req.params.id;
             const comments = await commentData.removeCommentById(commentId);
+            console.log(comments);
             if (!comments.deleteInfo) {
                 return res.status(404).json({
                     success: false,
@@ -251,7 +252,7 @@ router
             });
         } catch (e) {
             // console.log(e);
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 message: "Something went wrong."
             });
@@ -267,7 +268,7 @@ router
         if (!event) {
             return res.status(404).render("error", {message: "Event not found"});
         }
-        res.render("eventRegister", {eventId: eventId}, {title: 'Event Register'});
+        res.render("eventRegister", {eventId: eventId,title: 'Event Register'});
     })
     .post(async (req, res) => {
         try {
@@ -315,10 +316,11 @@ router
 
             const removeComments = await commentData.removeCommentByEvent(req.params.id)
             const responseEvent = await eventsData.removeEventById(req.params.id);
-            if (!responseEvent.deleted || !removeComments.deleted || !removeComments.empty) {
+            console.log(responseEvent);
+            if (!responseEvent.deleted || (!removeComments.deleted && !removeComments.empty)) {
                 return res.status(400).json("Unable to delete")
             }
-            return res.sendStatus(200);
+            return res.status(200).json(responseEvent);
         } catch (e) {
             console.log(e);
         }

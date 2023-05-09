@@ -262,7 +262,7 @@ nav li a {
 .center {
   margin: auto;
   width: 50%;
-  border: 3px solid green;
+  border: 3px solid darkgreen;
   padding: 10px;
   text-align: left;
   margin-top: 10%;
@@ -396,7 +396,7 @@ footer {
 }
 
 .registerbtn {
-  background-color: #04AA6D;
+  background-color: darkgreen;
   color: white;
   padding: 16px 20px;
   margin: 8px 0;
@@ -411,7 +411,7 @@ footer {
 }
 
 a {
-  color: dodgerblue;
+  color: blue;
 }
 
 .hlink {

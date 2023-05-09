@@ -52,9 +52,12 @@ const registrationConfirmByEmail = async ({id, email}, res) => {
             html: `<p>Please login to the system to verify the user status first, then click <a href="${url}">here</a> to confirm event registration. </p>`
         };
         const result = await transporter.sendMail(mailOptions);
+        // console.log(result)
         if (result) {
+            // console.log("here")
             return res.json({ success: true, message: "Confirmation email sent successfully" });
         } else {
+            console.log("here")
             return res.json({
                 success: true,
                 message: "Link was sent to your email"
