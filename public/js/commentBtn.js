@@ -1,6 +1,6 @@
-function showCommentsPopup(eventId) {
-    const commentsButton = document.getElementById(`comment-btn-${eventId}`);
-    const commentsPopup = document.getElementById(`comments-${eventId}`);
+function showCommentsPopup(postId) {
+    const commentsButton = document.getElementById(`comment-btn-${postId}`);
+    const commentsPopup = document.getElementById(`comments-${postId}`);
 
     if (commentsPopup.style.display === '' || commentsPopup.style.display === 'none') {
         commentsPopup.style.display = 'block';

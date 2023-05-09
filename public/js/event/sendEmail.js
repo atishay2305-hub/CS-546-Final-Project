@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return response.json();
             }).then((data) => {
                 alert(data.message);
-                location.href = "/events";
+                location.reload()
             })
         });
     });

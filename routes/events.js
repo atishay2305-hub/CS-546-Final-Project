@@ -122,21 +122,21 @@ router
 router
     .route('/:id/comment')
     .post(async (req, res) => {
-    try {
-        const userId = req.session.user.userId;
-        const eventId = req.params.id;
-        const {commentText} = req.body;
+        try {
+            const userId = req.session.user.userId;
+            const eventId = req.params.id;
+            const {commentText} = req.body;
 
-        const comment = await commentData.createComment(userId, eventId, null, commentText, "event");
-        const post = await eventsData.putComment(eventId, comment.commentId);
+            const comment = await commentData.createComment(userId, eventId, null, commentText, "event");
+            const post = await eventsData.putComment(eventId, comment.commentId);
 
-        console.log('The comment is added');
-        return res.redirect(`/events/${eventId}`)
-    } catch (e) {
-        console.log(e);
-        return res.json({success: false, message: e.message});
-    }
-});
+            console.log('The comment is added');
+            return res.redirect(`/events/${eventId}`)
+        } catch (e) {
+            console.log(e);
+            return res.json({success: false, message: e.message});
+        }
+    });
 
 router
     .route('/:eventId/attendees/:id')
@@ -275,7 +275,6 @@ router
     .delete(async (req, res) => {
         //console.log(req.params.id);
         try {
-
             const removeComments = await commentData.removeCommentByEvent(req.params.id)
             const responseEvent = await eventsData.removeEventById(req.params.id);
             if (!responseEvent.deleted || !removeComments.deleted) {

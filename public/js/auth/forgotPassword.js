@@ -4,7 +4,6 @@ import authCheck from "../validtionChecker.js";
         const forgotPassForm = document.getElementById("forgotPassword-form");
         const errorHandle = document.getElementById("forgetPasswordError");
         if (forgotPassForm) {
-
             forgotPassForm.addEventListener("submit", (event) => {
                 event.stopPropagation();
                 event.stopImmediatePropagation();
@@ -12,11 +11,9 @@ import authCheck from "../validtionChecker.js";
                 const elements = event.target.elements;
                 errorHandle.hidden = true;
                 let email = document.getElementById("email").value;
-
                 try {
                     email = authCheck.checkEmail(email);
-
-                } catch (e) {
+                }catch(e) {
                     document.getElementById("email").setAttribute("value", email);
                     return handleError(e || "Something went wrong");
                 }
@@ -26,21 +23,24 @@ import authCheck from "../validtionChecker.js";
                         Accept: "application/json, text/plain, */*", "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        email: email,
+                        email: email
                     }),
                 }).then((res) => {
-                    if(!res.ok){
+                    if (!res.ok) {
                         return res.json();
                     }
                 }).then((data) => {
-                    if (data) {
-                        if (!data.success) {
-                            document.getElementById("email").value = data.email;
-                            document.getElementById("password").value = data.password;
-                            return handleError(data.message || "Something went wrong.");
-                        }
+                    //console.log(data);
+                    if (data && !data.success) {
+
+                        document.getElementById("email").value = data.email;
+                        //document.getElementById("password").value = data.password;
+                        return handleError(data.message || "Something went wrong.");
                     }
-                    location.href = "/login";
+                    else {
+                        location.href = "/login";
+                    }
+
                 }).catch((e) => {
                     alert(e || "Something went wrong.");
                 });
@@ -52,3 +52,4 @@ import authCheck from "../validtionChecker.js";
         };
     });
 })();
+

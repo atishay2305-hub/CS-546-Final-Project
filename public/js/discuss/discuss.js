@@ -64,6 +64,9 @@ function postReply(event, discussionId, button) {
     const discussionElement = button.parentNode;
 
     const replyText = discussionElement.querySelector('#reply-textarea').value;
+
+    
+
     
     const errorElement = discussionElement.querySelector('.error-message');
     // Check if reply text is empty
@@ -121,8 +124,6 @@ form.addEventListener('submit', (event) => {
     cmtErrEle.style.display ='block';
     return;
   }
-
-
 
   fetch('/discuss', {
     method: 'POST',

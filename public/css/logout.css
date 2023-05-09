@@ -10,11 +10,11 @@ body {
   text-align: center;
   padding: 20px;
   border-radius: 10px;
-  font-size: 20px; /* Increase text size to 20px */
+  font-size: 20px; 
 }
 
 #btn {
-  background-color: #4CAF50; /* Green */
+  background-color:green;
   border: none;
   color: white;
   padding: 15px 32px;

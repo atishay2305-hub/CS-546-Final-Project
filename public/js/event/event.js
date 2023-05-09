@@ -1,4 +1,4 @@
-import authCheck from "../validtionChecker.js";
+import authCheck from "./validtionChecker.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     const eventForm = document.getElementById("event-form");

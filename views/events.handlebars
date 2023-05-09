@@ -1,5 +1,3 @@
-
-<body>
 {{#if (if_eq role "admin")}}
     <form method="POST" action="/events" id="event-form" enctype="multipart/form-data">
         <div class="container center" data-userId="{{userId}}" data-email="{{email}}">
@@ -26,7 +24,6 @@
                     <label for="date">Date: </label>
                 </div>
                 <div class="sec-2">
-                    {{!-- <ion-icon name="calendar-outline"></ion-icon> --}}
                     <input type="date" name="date" id="date" value="{{date}}" required>
 
                 </div>
@@ -37,7 +34,7 @@
                     <label for="buildingName">Select Building :</label>
                     <div class="sec-2">
                         <select id="buildingName" name="buildingName">
-                            <option value=""></option>
+                            <option value="" label="Select"></option>
                         </select>
 
                         <script>
@@ -154,7 +151,10 @@
                     <input type="hidden" name="postId" value="{{this._id}}">
                     <label for="comment-text-{{this._id}}">Add a Comment:</label>
                     <input type="text" name="commentText" id="comment-text-{{this._id}}">
-                    <input type="submit" value="Submit">
+                    <button type="button" onclick="addComment(event, '{{_id}}', this)">Submit</button>
+                     <div>
+                        <span id="comment-error-{{this._id}}" class="text-danger" style="display: none;"></span>
+                    </div>
                 </form>
                 {{#each ../ comments}}
                     {{#if (if_eq @key ../_id)}}
@@ -184,20 +184,21 @@
 <div class="sort-container">
     <label for="sort-criteria">Sort By:</label>
     <select id="sort-criteria" onchange="sortEvents(this.value)">
-        <option value=""></option>
+        <option value="" label="Select an Option"></option>
         <option value="a-z">A-Z</option>
         <option value="created_date_asc">Created Date in ascending order</option>
         <option value="created_date_desc">Created Date in descending order</option>
     </select>
 </div>
+
 <script src="/public/js/event/sort.js"></script>
 <script src="/public/js/event/eventRedirect.js"></script>
 <script src="/public/js/event/eventCancel.js"></script>
-<script src="/public/js/event/commentBtn.js"></script>
+<script src="/public/js/commentBtn.js"></script>
 <script src="/public/js/event/comment.js" type="module"></script>
 <script src="/public/js/event/attendees.js"></script>
 <script src="/public/js/event/sendEmail.js"></script>
 <script src="/public/js/event/event.js" type="module"></script>
 <script src="/public/js/event/eventRegister.js" type="module"></script>
-<link rel="stylesheet" href="/public/css/events.css">
-</body>
+<link rel="stylesheet" href="/public/css/event.css">
+

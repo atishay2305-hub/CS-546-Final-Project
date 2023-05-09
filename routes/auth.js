@@ -1,4 +1,4 @@
-import {Router} from 'express';
+import { Router } from 'express';
 import commentData from '../data/comments.js';
 import userData from '../data/users.js';
 import postData from '../data/posts.js';
@@ -8,16 +8,15 @@ import validation from '../validationchecker.js';
 import multer from "multer";
 import path from "path";
 import bcrypt from 'bcrypt';
-import {passwordResetByEmail} from "../email.js";
+import { passwordResetByEmail } from "../email.js";
 import xss from 'xss';
-import {comments, users, posts} from '../config/mongoCollections.js';
-import {ObjectId} from 'mongodb';
-import {title} from 'process';
-import {error} from 'console';
-
+import { comments, users, posts } from '../config/mongoCollections.js';
+import { ObjectId } from 'mongodb';
+import { title } from 'process';
+import { error } from 'console';
+import fs from 'fs';
 
 const router = Router();
-
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -32,7 +31,7 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({storage: storage});
+const upload = multer({ storage: storage });
 const uploadImage = upload.single("postImage");
 
 
@@ -41,7 +40,7 @@ router.route('/').get(async (req, res) => {
     if (req.session.user) {
         return res.status(200).redirect('/homepage');
     } else {
-        return res.status(200).render('login', {title: 'Login'});
+        return res.status(200).render('login', { title: 'Login' });
     }
 });
 
@@ -49,7 +48,7 @@ router
     .route('/login')
     .get(async (req, res) => {
         try {
-            return res.render("login", {title: 'Login'});
+            return res.render("login", { title: 'Login' });
         } catch (e) {
             return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
         }
@@ -69,28 +68,26 @@ router
             };
             return res.redirect('/homepage');
         } catch (e) {
-            return res.status(401).json({
-                success: false,
-                email: req.body.email,
-                password: req.body.password,
-                error: e
-            });
-        }
-    })
+                return res.status(401).json({
+                    success: false,
+                    email: req.body.email,
+                    password: req.body.password,
+                    error: e
+                });
+            }
+        })
 
 
 router
     .route('/register')
     .get(async (req, res) => {
 
-        return res.status(200).render('register', {title: "Register Page"});
+        return res.status(200).render('register', { title: "Register Page" });
     })
     .post(async (req, res) => {
 
 
         try {
-            // removed dept
-
             let firstName = xss(req.body.firstName);
             let lastName = xss(req.body.lastName);
             let userName = xss(req.body.userName);
@@ -102,7 +99,7 @@ router
             let department = xss(req.body.department);
             let user;
             const userCollection = await users();
-            const existingUser = await userCollection.findOne({email: email});
+            const existingUser = await userCollection.findOne({ email: email });
             if (existingUser) {
                 return res.status(401).json({
                     success: false,
@@ -141,27 +138,9 @@ router
 
 router.route('/homepage').get(async (req, res) => {
     const userId = req.session.user.userId;
-
-    console.log(userId);
-
-    // console.log(userId)
-    //const email = req.session.email;
-    //useremail from session and will just keep it
-
-    //const user = await userData.getUserByID(userId);
-    //const postList = await userData.getPostList(user.email);
-
-    //user info from ID
-    //getpost list if true
-    // const userName = req.session.user.userName;
     const userName = req.session.user.userName;
-    // console.log(userName)
-    // console.log(userName);
-    //console.log(postList);
     const postList = await postData.getPostByUserIdTop(userId);
-    // console.log(postList);
-    //
-    //console.log(postList);
+
     const commentCollection = await comments();
     for (let x of postList) {
 
@@ -169,43 +148,18 @@ router.route('/homepage').get(async (req, res) => {
         x.editable = true;
         x.deletable = true;
 
-        // let resId = x?.userId;
-
-        // // console.log(resId);
-
-        // let resString = resId.toString();
-
-        // const user = await userData.getUserByID(resString);
-        // x.name = user.userName;
         if (x.category === 'lost&found') {
             x.addressCheck = true;
         }
         x.result = [];
         for (let y of x.commentIds) {
-            const comment = await commentCollection.findOne({_id: y});
+            const comment = await commentCollection.findOne({ _id: y });
             x.result.push({
                 commentUserName: comment.userName,
                 commentContent: comment.contents
             })
-            //console.log(comment);
         }
-
-
-        //const commentList = await commentData.getPostHomeCommentById(resString);
-        //console.log(commentList);
-
-
-        // if (resString === userId) {
-        //     x.editable = true;
-        //     x.deletable = true;
-        // } else {
-        //     x.editable = false;
-        //     x.deletable = false;
-        // }
     }
-    console.log(postList);
-    // const listOfPosts = [{category: "education", content: "Anime"}]
-    // posts: postList
     return res.render('homepage', {
         userId: userId,
         userName: userName,
@@ -215,24 +169,14 @@ router.route('/homepage').get(async (req, res) => {
 
 });
 
-router.route('/profile').get(async (req, res) => {
-    const id = req.session.user.userId;
-    const user = await userData.getUserByID(id);
-    return res.render('profile', {user: user, title: 'Profile Page'});
-});
-
-
 router.route('/posts')
     .get(async (req, res) => {
-        // Retrieve posts and comments
         let posts = await postData.getAllPosts();
         posts = posts.map(post => {
-            return {...post, _id: post._id.toString()};
+            return { ...post, _id: post._id.toString() };
         });
         const getComments = posts.map(post => commentData.getPostCommentById(post._id.toString()));
         const allComment = await Promise.all(getComments);
-
-        // Separate comments by postId
         const comments = allComment.reduce((acc, comment, index) => {
             const postId = posts[index]._id.toString();
             if (acc[postId]) {
@@ -247,9 +191,7 @@ router.route('/posts')
         Object.values(comments).forEach(commentArr => {
             commentArr.sort((a, b) => b.created_Date - a.created_Date);
         });
-
-        // Render the 'posts' template with posts and commentsByPostId
-        return res.render('posts', {role: req.session.user.role, posts: posts, comments: comments});
+        return res.render('posts', {role: req.session.user.role, posts: posts, comments: comments, title: 'Posts'});
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
@@ -294,106 +236,11 @@ router.route('/posts')
         }
     });
 
-router.route('/profile').get(async (req, res) => {
-    const id = req.session.user.userId;
-    // console.log(id);
-    const user = await userData.getUserByID(id);
-    return res.render('profile', {user: user});
-});
-
-router
-    .route('/events/registration/:id')
-    .get(async (req, res) => {
-        try {
-            return res.render("eventRegister", {id: req.params.id});
-        } catch (e) {
-            return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
-        }
-    })
-    .post(async (req, res) => {
-
-    })
-
-router.route('/events/capacity/:id').post(async (req, res) => {
-    let id = req.params.id; // fix the id variable assignment
-    const {seatingCapacity, attendance} = req.body;
-    try {
-        let newSeatingCapacity = seatingCapacity;
-        if (typeof newSeatingCapacity === 'string') {
-            newSeatingCapacity = Number(newSeatingCapacity);
-        }
-        if (attendance === 'attend') {
-            newSeatingCapacity = newSeatingCapacity - 1;
-        } else if (attendance === 'cancel') {
-            newSeatingCapacity = newSeatingCapacity + 1;
-        }
-
-        const result = await eventsData.updateCapacity(
-            id, // pass the correct id variable
-            newSeatingCapacity
-        );
-        return res.render('events', {newEvent: result});
-    } catch (e) {
-        console.log(e);
-        return res.status(400).json({error: e});
-    }
-
-    const user = await userData.getUserByID(id);
-    return res.render('profile', {user: user, title: 'Profile'});
-});
-
-
-router.route('/posts/:id').delete(async (req, res) => {
-    // console.log(req.params.id);
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
-        if (!user) {
-            throw 'cannot find user';
-        }
-        //console.log(user);
-        const commentCollection = await comments();
-        const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
-        // console.log(post);
-        if (post.length !== 0) {
-            const responsePost = await commentData.removeCommentByPost(req.params.id);
-        }
-        const response = await postData.removeById(req.params.id);
-        // console.log("hi", response.deleted);
-        //const user = await userData.removePost()
-        //const postList = await postData.getAllPosts();
-        //res.status(200).send(response);
-        //res.send(response);
-        return res.sendStatus(200);
-    } catch (e
-        ) {
-        console.log(e);
-    }
-});
-
-router.route('/posts/:id/comment').post(async (req, res) => {
-    try {
-        const userId = req.session.user.userId;
-        const postId = req.params.id;
-        const {commentText} = req.body;
-        // console.log(postId);
-        // console.log(commentText);
-        const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-        console.log(comment);
-        const post = await postData.putComment(postId, comment.commentId);
-        // console.log(post);
-        console.log('The comment is added');
-        return res.redirect('/posts');
-    } catch (e) {
-        console.log(e);
-    }
-
-});
-
 router
     .route('/reset-password/:id')
     .get(async (req, res) => {
         try {
-            return res.render('resetPassword', {id: req.params.id})
+            return res.render('resetPassword', { id: req.params.id, title: 'Reset Password' })
         } catch (e) {
             return res.status(404).sendFile(path.resolve("public/static/404.html"));
 
@@ -421,10 +268,12 @@ router
         }
     });
 
-router.route('/change-password/:id')
+
+router
+    .route('/change-password/:id')
     .get(async (req, res) => {
         try {
-            return res.render('changePassword', {id: req.params.id, title: 'Change Password'})
+            return res.render('changePassword', { id: req.params.id, title: 'Change Password' })
         } catch (e) {
             return res.status(404).sendFile(path.resolve("public/static/404.html"));
 
@@ -448,12 +297,9 @@ router.route('/change-password/:id')
 
                 const passwordUpdate = await userData.updatePassword(id, newPassword);
             } else {
-                res.status(400).render("changePassword", {error: "Password did not match"});
+                res.status(400).render("changePassword", { error: "Password did not match" });
             }
-            // let result = validation.checkIdentify(newPassword, confirmNewPassword);
-            // if (result) {
-            //     const passwordUpdate = await userData.updatePassword(id, newPassword);
-            // }
+
             res.redirect('/logout');
         } catch (e) {
             console.log(e);
@@ -469,7 +315,7 @@ router
     .route('/forgot-password')
     .get(async (req, res) => {
         try {
-            return res.render("forgotPassword");
+            return res.render("forgotPassword", { title: 'Forgot Password' });
         } catch (e) {
             return res.status(404).sendFile(path.resolve("/public/static/notfound.html"));
         }
@@ -478,9 +324,12 @@ router
         try {
             let email = xss(req.body.email);
             email = validation.checkEmail(email);
+
             let checkExist = await userData.getUserByEmail(email);
-            await passwordResetByEmail({id: checkExist._id, email: checkExist.email}, res);
+            if(!checkExist) throw `No user with ${email} exist!!`;
+            await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
         } catch (e) {
+            console.log(e);
             return res.status(400).json({
                 success: false,
                 message: e,
@@ -494,110 +343,17 @@ router.use('/logout', (req, res) => {
         return res.render('login', {title: 'Login'});
     }
     req.session.destroy();
-    return res.render('logout', {title: 'logout'});
+    return res.render('logout', { title: 'logout' });
+});
+
+router.route('/profile').get(async (req, res) => {
+    const id = req.session.user.userId;
+    const user = await userData.getUserByID(id);
+    return res.render('profile', { user: user });
 });
 
 
-router.route('/posts/:id').delete(async (req, res) => {
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
-        if (!user) {
-            throw 'cannot find user';
-        }
-        const commentCollection = await comments();
-        const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
-        if (post.length !== 0) {
-            const responsePost = await commentData.removeCommentByPost(req.params.id);
-            console.log("hi", responsePost.deleted);
-        }
-        const response = await postData.removeById(req.params.id);
-        //const user = await userData.removePost()
-        //const postList = await postData.getAllPosts();
-        //res.status(200).send(response);
-        //res.send(response);
-        return res.sendStatus(200);
-    } catch (e) {
-        return res.status(404).json({error: 'Resource not found'});
-    }
-});
 
-router.route('/posts/:id/comment').post(async (req, res) => {
-    try {
-        const userId = req.session.user.userId;
-        const postId = req.params.id;
-        const {commentText} = req.body;
-        // console.log(postId);
-        // console.log(commentText);
-        const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-        console.log(comment);
-        const post = await postData.putComment(postId, comment.commentId);
-        // console.log(post);
-        console.log('The comment is added');
-        return res.redirect('/posts');
-    } catch (e) {
-        console.log(e);
-    }
-
-});
-
-router
-    .route('/posts/:postId/like')
-    .post(async (req, res) => {
-        try {
-            const {postId} = req.params;
-            console.log("hereee", postId);
-            const userId = req.session.user.userId;
-            const userName = req.session.user.userName;
-            const liked = true;
-            const disliked = false;
-            //const { liked, disliked } = req.body;
-            const postCollection = await posts();
-
-
-            const result = await postData.updateLikes(postId, userId, liked, disliked);
-            //console.log(result);
-            return res.json(result);
-            // if (typeof localStorage !== 'undefined') {
-            //     const storageKey = `post-${postId}-state`;
-            //     const localStorageValue = localStorage.getItem(storageKey);
-            //     const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : { liked: false, disliked: false };
-            //     parsedValue.liked = liked;
-            //     parsedValue.disliked = false;
-            //     localStorage.setItem(storageKey, JSON.stringify(parsedValue));
-            // }
-
-            // const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
-            // const user = await userData.putPost(id, post._id);
-            // return res.redirect('/homepage');
-        } catch (e) {
-            console.log(e)
-            res.status(500).send(e.message);
-            ;
-        }
-    });
-
-router
-    .route('/posts/:postId/dislike')
-    .post(async (req, res) => {
-        try {
-            const {postId} = req.params;
-            const userId = req.session.user.userId;
-            const userName = req.session.user.userName;
-            const liked = false;
-            const disliked = true;
-            //const { liked, disliked } = req.body;
-            const postCollection = await posts();
-
-
-            const result = await postData.updateLikes(postId, userId, liked, disliked);
-            return res.json(result);
-
-            //return res.json({ likes: result.likes, dislikes: result.dislikes });
-        } catch (error) {
-            console.error(error);
-            res.status(500).send(error.message);
-        }
-    });
 
 router.route('/increaseLikes')
     .post(async (req, res) => {
@@ -606,61 +362,60 @@ router.route('/increaseLikes')
         return res.json(updatedPost);
     });
 
-router
-    .route('/search')
-    .get(async (req, res) => {
-        try {
-            const searchTerm = req.query.query;
-            const searchResults = await eventsData.searchEvent(searchTerm);
-            res.render('searchResults', {results: searchResults, title: 'Search Results'});
-        } catch (e) {
-            res.status(500).json({error: 'Internal server error'});
-        }
-    });
+router.get('/search', async (req, res) => {
+    try {
+      const searchTerm = req.query.query;
+      console.log("searchTerm:", searchTerm);
+      const searchResults = await eventsData.searchEvent(searchTerm);
+      res.render('searchResults', { results: searchResults, title: 'Search Results' });
+    } catch (e) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
 
 router.route('/discuss').get(async (req, res) => {
     const userCollection = await users();
 
-    const discuss = await discussData.getAllDiscussions()
+    var discuss = await discussData.getAllDiscussions()
     for (let x of discuss) {
-        const user = await userCollection.findOne({_id: x.userId});
+        const user = await userCollection.findOne({ _id: x.userId });
         x.userName = user.userName;
         x.result = [];
         for (let y of x.replyId) {
-            const user = await userCollection.findOne({_id: y.userId});
+            const user = await userCollection.findOne({ _id: y.userId });
             x.result.push({
                 userName: user.userName,
                 message: y.message
             });
         }
     }
+    
+    if(Object.keys(req.query).length!=0){
+        let category=req.query.category;
+        let search=req.query.search;
+        category=category.toLowerCase();
+        search=search.toLowerCase().trim();
 
-    return res.render('discuss', {newDiscussion: discuss, title: 'Discussion'});
+        if (category && category == "all") {
+            discuss = discuss.filter(d => d.description.toLowerCase().includes(search));
+        } else {
+            discuss = discuss.filter(d => d.category.toLowerCase() == category && d.description.toLowerCase().includes(search));
+        }
+
+    }
+
+    return res.render('discuss', { newDiscussion: discuss, title: 'Discussion' });
 
 });
-
-
-router
-    .route('/posts/:postId/allComments')
-    .get(async (req, res) => {
-        const postId = req.params.postId;
-        const comment = await commentData.getPostCommentById(postId)
-        return res.render('allComments', {comment: comment, title: 'All Comments'});
-    });
-
-
-// const discuss = await discussData.createDiscussion(category, description, userId);
-// return res.redirect('/discuss');
-// //return res.status(200).render('discuss', { newDiscussion: discuss });
-
 
 router.route('/search').get(async (req, res) => {
     try {
         const searchTerm = xss(req.query.query);
         const searchResults = await eventsData.searchEvent(searchTerm);
-        res.render('searchResults', {results: searchResults, title: 'Search Results'});
+        res.render('searchResults', { results: searchResults, title: 'Search Results' });
     } catch (e) {
-        res.status(500).json({error: 'Internal server error'});
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
@@ -672,32 +427,28 @@ router.route('/discuss').get(async (req, res) => {
     }
 
     if (req.query?.search) {
-        dbQuery.description = {$regex: xss(req.query.search), $options: 'i'};
+        dbQuery.description = { $regex: xss(req.query.search), $options: 'i' };
     }
 
     const discuss = await discussData.getAllDiscussions(dbQuery);
     for (let x of discuss) {
-        const user = await userCollection.findOne({_id: x.userId});
+        const user = await userCollection.findOne({ _id: x.userId });
         x.userName = user.userName;
         x.result = [];
         for (let y of x.replyId) {
-            const user = await userCollection.findOne({_id: y.userId});
+            const user = await userCollection.findOne({ _id: y.userId });
             x.result.push({
                 userName: user.userName,
                 message: y.message,
             });
         }
     }
-
-    return res.render('discuss', {newDiscussion: discuss, title: 'Discussion'});
+    return res.render('discuss', { newDiscussion: discuss, title: 'Discussion' });
 });
 
 router.route('/discuss').post(async (req, res) => {
     const userId = req.session.user.userId;
-//   description = validation.checkPhrases(description);
-// category = validation.checkCategory()
-    const {category, description} = req.body;
-
+    const { category, description } = req.body;
     const discuss = await discussData.createDiscussion(category, xss(description), userId);
     return res.redirect('/discuss');
 });
@@ -722,7 +473,6 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
         return res.status(500).send('An error occurred while processing the reply.');
     }
 });
-
 
 router.get('/searchDiscussions', async (req, res) => {
     try {
@@ -770,12 +520,9 @@ router
             const userId = req.session.user.userId;
             const postId = req.params.id.toString();
             const {commentText} = req.body;
-            // console.log(postId);
-            // console.log(commentText);
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
             console.log(comment);
             const post = await postData.putComment(postId, comment.commentId);
-            // console.log(post);
             console.log('The comment is added');
             return res.sendStatus(200);
         } catch (e) {
@@ -806,6 +553,44 @@ router
                 success: false,
                 message: "Something went wrong."
             });
+        }
+    });
+
+router
+    .route('/posts/:postId/like')
+    .post(async (req, res) => {
+        try {
+            const {postId} = req.params;
+            console.log("hereee", postId);
+            const userId = req.session.user.userId;
+            const userName = req.session.user.userName;
+            const liked = true;
+            const disliked = false;
+            const postCollection = await posts();
+            const result = await postData.updateLikes(postId, userId, liked,disliked);
+            return res.json(result);
+        } catch (e) {
+            console.log(e)
+            res.status(500).send(e.message);
+        }
+    });
+
+router
+    .route('/posts/:postId/dislike')
+    .post(async (req, res) => {
+        try {
+            const {postId} = req.params;
+            const userId = req.session.user.userId;
+            const userName = req.session.user.userName;
+            const liked = false;
+            const disliked = true;
+            const postCollection = await posts();
+            const result = await postData.updateLikes(postId, userId, liked, disliked);
+            return res.json(result);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).send(error.message);
         }
     });
 
