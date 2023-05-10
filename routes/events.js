@@ -279,7 +279,7 @@ router
 
     })
     .delete(async (req, res) => {
-        //console.log(req.params.id);
+       
         try {
 
             const removeComments = await commentData.removeCommentByEvent(req.params.id)
