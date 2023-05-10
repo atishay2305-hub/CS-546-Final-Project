@@ -213,7 +213,7 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
-        // console.log(id);
+       
         const userName = req.session.user.userName;
         const role = req.session.user.role;
         if (role === 'admin') {
@@ -242,7 +242,6 @@ router.route('/posts')
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
 
-            // console.log("The post is posted");
             return res.redirect('/posts');
         } catch (e) {
             return res.status(400).json({
@@ -261,33 +260,6 @@ router.route('/profile').get(async (req, res) => {
 });
 
 
-// router.route('/posts/:id').delete(async (req, res) => {
-//     try {
-//         const user = await userData.getUserByID(req.session.user.userId);
-//         if (!user) {
-//             throw 'cannot find user';
-//         }
-//         const deletepost = await postData.getPostById(req.params.id);
-//         if (deletepost.image !== 'images/default.jpg') {
-//             fs.unlink(`./public${deletepost.image}`, err => {
-//                 if (err) {
-//                     throw `Error deleting image file: ${err}`;
-//                 }
-//             });
-//         }
-//         const commentCollection = await comments();
-//         const post = await commentCollection.find({ postId: new ObjectId(req.params.id) }).toArray();
-//         if (post.length !== 0) {
-//             const responsePost = await commentData.removeCommentByPost(req.params.id);
-//         }
-//         const response = await postData.removePostById(req.params.id);
-//         //res.status(200).send(response);
-//         //res.send(response);
-//         return res.sendStatus(200);
-//     } catch (e) {
-//         return res.status(500).send({ error: e });
-//     }
-// });
 
 router.route('/posts/:id/comment').post(async (req, res) => {
     try {
@@ -299,7 +271,7 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         return res.sendStatus(200);
         return res.redirect('/posts');
     } catch (e) {
-        // console.log(e);
+     
         
     }
 
@@ -341,7 +313,7 @@ router
     .route('/change-password/:id')
     .get(async (req, res) => {
         try {
-            console.log(req.query);
+          
             return res.render('changePassword', { id: req.params.id, title: 'Change Password' })
         } catch (e) {
             return res.status(404).sendFile(path.resolve("public/static/404.html"));
@@ -466,7 +438,7 @@ router.route('/posts/:id/comment').post(async (req, res) => {
     } catch (e) {
         return res.send(400).json({success: false,
             message: e})
-            // email: req.body.email})
+           
     }
 
 });
@@ -476,18 +448,18 @@ router
     .post(async (req, res) => {
         try {
             const { postId } = req.params;
-            // console.log("hereee", postId);
+         
             const userId = req.session.user.userId;
             const userName = req.session.user.userName;
             const liked = true;
             const disliked = false;
-            //const { liked, disliked } = req.body;
+          
             const postCollection = await posts();
 
             const result = await postData.updateLikes(postId, userId, liked,disliked);
             return res.json(result);
         } catch (e) {
-            // console.log(e)
+          
             res.status(500).send(e.message);
         }
     });
@@ -501,14 +473,13 @@ router
             const userName = req.session.user.userName;
             const liked = false;
             const disliked = true;
-            //const { liked, disliked } = req.body;
+        
             const postCollection = await posts();
 
 
             const result = await postData.updateLikes(postId, userId, liked, disliked);
             return res.json(result);
 
-            //return res.json({ likes: result.likes, dislikes: result.dislikes });
         } catch (error) {
             console.error(error);
             res.status(500).send(error.message);
@@ -520,7 +491,7 @@ router
     router.get('/search', async (req, res) => {
         try {
             const searchTerm = req.query.query;
-            // console.log("searchTerm:", searchTerm);
+        
             const searchResults = await eventsData.searchEvent(searchTerm);
             res.render('searchResults', { results: searchResults, title: 'Search Results' });
         } catch (e) {
@@ -529,28 +500,7 @@ router
     });
 
 
-    // app.get('/searchevents', async (req, res) => {
-    //     try {
-    //       const searchTerm = req.query.search; // Get the search term from the query parameters
-      
-    //       // Connect to the MongoDB database
-    //       const client = await MongoClient.connect(mongoURL);
-    //       const db = client.db(dbName);
-      
-    //       // Call the searchEvent function to retrieve events based on the search term
-    //       const allEvents = await searchEvent(db, searchTerm);
-      
-    //       // Render the events on the page or send them as JSON response
-    //       res.json(allEvents);
-      
-    //       // Close the MongoDB connection
-    //       client.close();
-    //     } catch (error) {
-    //       // Handle any errors that occurred during the search or database connection
-    //       console.error(error);
-    //       res.status(500).json({ error: 'An error occurred' });
-    //     }
-    //   });
+  
   
 
 router.route('/discuss').get(async (req, res) => {
@@ -611,13 +561,12 @@ router.route('/search').get(async (req, res) => {
 
 router.route('/discuss').post(async (req, res) => {
     const userId = req.session.user.userId;
-    //   description = validation.checkPhrases(description);
-    // category = validation.checkCategory()
+   
     const { category, description } = req.body;
 
     const discuss = await discussData.createDiscussion(category, xss(description), userId);
     
-    // console.log(discuss);
+  
     const user = await userData.putDiscuss(userId, discuss._id.toString());
     return res.redirect('/discuss');
 });
@@ -687,12 +636,14 @@ router
             const postId = req.params.id.toString();
             const {commentText} = req.body;
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-            // console.log(comment);
+          
+            
             const post = await postData.putComment(postId, comment.commentId);
-            // console.log('The comment is added');
+        
+            
             return res.sendStatus(200);
         } catch (e) {
-            // console.log(e);
+      
             return res.status(404);
         }
     });

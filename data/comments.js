@@ -40,47 +40,14 @@ let exportedMethods = {
             }
             comment.eventId = event._id;
         }
-        // const comment = {
-        //     _id: new ObjectId(),
-        //     contents,
-        //     userId:new ObjectId(userId),
-        //     postId:post._id,
-        //     created_Date: validation.getDate()
-        // }
-        // if(eventId){
-        //     eventId = validation.checkId(eventId);
-        //     comment.evenId = eventId;
-        //     const eventCollection = await events();
-        //     const updateEvent = await eventCollection.updateOne(
-        //         {_id: eventId},
-        //         {$push: {commentIds: comment._id.toString()}}
-        //     );
-        //     console.log(updateEvent);
-        //     // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-        //     //     throw "Could not update event with commentId";
-        //     // }
-        // }
-        // if(postId){
-        //     postId = validation.checkId(postId);
-        //     comment.postId = postId;
-        //     const postCollection = await posts();
-        //     const updateEvent = await postCollection.updateOne(
-        //         {_id: postId},
-        //         {$push: {commentIds: comment._id.toString()}}
-        //     );
-        //     // if(!updateEvent.matchedCount || !updateEvent.modifiedCount){
-        //     //     throw "Could not update post with commentId";
-        //     // }
-        // }
+   
+      
         const commentCollection = await comments();
         const commentInfo = await commentCollection.insertOne(comment);
         if (!commentInfo.acknowledged || !commentInfo.insertedId) {
             throw "Could not add this comment";
         }
-        // const insertToUser = await userData.putComment(userId, comment._id.toString());
-        // if(!insertToUser){
-        //     throw "Cannot insert commentID to user";
-        // }
+     
         return {commentId: commentInfo.insertedId.toString()};
     },
 

@@ -134,10 +134,10 @@ router
         const comment = await commentData.createComment(userId, eventId, null, commentText, "event");
         const post = await eventsData.putComment(eventId, comment.commentId);
 
-        // console.log('The comment is added');
+       
         return res.redirect(`/events/${eventId}`)
     } catch (e) {
-        // console.log(e);
+   
         return res.json({success: false, message: e.message});
     }
 });
@@ -166,38 +166,6 @@ router
         }
     });
 
-
-// router
-//     .route('/event-register')
-//     .post(async (req, res) => {
-//         try {
-//             let email = xss(req.body.email);
-//             email = validation.checkEmail(email);
-//             let userId = xss(req.body.userId);
-//             userId = validation.checkId(userId);
-//             const user = await userData.getUserByID(userId);
-//             let eventId = xss(req.body.eventId)
-//             eventId = validation.checkId(eventId);
-//             const event = await eventsData.getEventByID(eventId);
-//             const attendeesList = event.attendees;
-//             const checkExist = attendeesList.length > 0 && Object.values(attendeesList).some(attendee => attendee.id === userId);
-//             if (!checkExist) {
-//                 // user not already registered
-//                 await registrationConfirmByEmail({id: eventId, email: email}, res);
-//             } else {
-//                 // user already registered
-//                 return res.status(200).json({
-//                     success: true,
-//                     message: "You have already registered for this event."
-//                 });
-//             }
-//         } catch (e) {
-//             return res.status(500).json({
-//                 success: false,
-//                 message: "Something went wrong. Please try again later."
-//             });
-//         }
-//     });
 router
 .route('/event-register')
 .post(async (req, res) => {
@@ -213,10 +181,10 @@ router
         const attendeesList = event.attendees;
         const checkExist = attendeesList.length > 0 && Object.values(attendeesList).some(attendee => attendee.id === userId);
         if (!checkExist) {
-            // user not already registered
+           
             await registrationConfirmByEmail({id: eventId, email: email}, res);
         } else {
-            // user already registered
+         
             return res.status(200).json({
                 success: true,
                 message: "You have already registered for this event."
@@ -239,7 +207,7 @@ router
             const eventId = req.params.eventId;
             const commentId = req.params.id;
             const comments = await commentData.removeCommentById(commentId);
-            console.log(comments);
+           
             if (!comments.deleteInfo) {
                 return res.status(404).json({
                     success: false,
@@ -251,7 +219,7 @@ router
                 message: "Comment deleted successfully"
             });
         } catch (e) {
-            // console.log(e);
+       
             return res.status(500).json({
                 success: false,
                 message: "Something went wrong."
@@ -316,7 +284,7 @@ router
 
             const removeComments = await commentData.removeCommentByEvent(req.params.id)
             const responseEvent = await eventsData.removeEventById(req.params.id);
-            console.log(responseEvent);
+            
             if (!responseEvent.deleted || (!removeComments.deleted && !removeComments.empty)) {
                 return res.status(400).json("Unable to delete")
             }

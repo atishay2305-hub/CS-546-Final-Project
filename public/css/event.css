@@ -108,3 +108,6 @@ button.delete-btn {
   max-width: 100%;
   margin-bottom: 10px;
 }
+.error {
+  color:red;
+}
