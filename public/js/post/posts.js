@@ -37,7 +37,7 @@ Array.from(categoryElements).forEach((categoryElement) => {
         const categorySelect = document.getElementById("postCategory");
         const addressInput = document.getElementById("address-input");
 
-        // Function to handle the category change event
+       
         const handleCategoryChange = () => {
             const selectedValue = categorySelect.value;
             if (selectedValue === "lost&found") {
@@ -119,7 +119,7 @@ Array.from(categoryElements).forEach((categoryElement) => {
 
         categorySelect.addEventListener("change", handleCategoryChange);
 
-        // Handle initial category selection on page load
+        
         handleCategoryChange();
 
         const handleError = (errorMsg) => {

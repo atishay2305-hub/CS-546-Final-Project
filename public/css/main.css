@@ -174,5 +174,8 @@
     width: 100%;
     text-align: center;
   }
+  .error {
+    color:red;
+  }
 
   #map { height: 180px; }

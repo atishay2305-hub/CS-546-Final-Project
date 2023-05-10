@@ -1,12 +1,12 @@
 const registerButtons = document.querySelectorAll(".register-btn");
-let isRegistering = false; // Flag to indicate if registration process is in progress
+let isRegistering = false; 
 
 registerButtons.forEach(function (registerButton) {
     registerButton.addEventListener("click", async function (event) {
-        event.preventDefault(); // prevent form from submitting
+        event.preventDefault(); 
 
         if (isRegistering) {
-            return; // Ignore button click if already registering
+            return; 
         }
         isRegistering = true;
 
@@ -27,7 +27,7 @@ registerButtons.forEach(function (registerButton) {
             },
             body: JSON.stringify(confirmationEmail)
         }).then((response) => {
-            isRegistering = false; // Reset flag when registration process is complete
+            isRegistering = false; 
 
             if (!response.ok) {
                 throw new Error(response.statusText);

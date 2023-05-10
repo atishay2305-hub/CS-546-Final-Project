@@ -78,7 +78,7 @@ app.use('/protected', isLoggedIn);
 app.use('/login', (req, res, next) => {
     if (req.method === 'GET') {
         if (req.session.user) {
-            console.log("here")
+            
             return res.redirect('/something')
         } else {
             return res.render('login');
@@ -94,7 +94,7 @@ app.use('/register', (req, res, next) => {
     next();
 });
 
-// Route for logging out
+
 app.use('/logout', (req, res) => {
     if (!req.session.user) {
         return res.render('login', {title: 'Login'});

@@ -29,3 +29,6 @@
 .comment-box h2 {
     margin-top: 0;
 }
+.error {
+    color:red;
+  }

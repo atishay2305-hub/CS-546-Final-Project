@@ -152,3 +152,6 @@ input[type="submit"] {
 .replies {
   margin-top: 10px;
 }
+.error {
+  color:red;
+}
