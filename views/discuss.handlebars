@@ -1,15 +1,19 @@
 <div>
     <div class="dicussion-panel row justify-content-center mt-5">
         <div class="col-12 col-md-6">
-            <div class="my-3 text-right">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDiscussionModal"> + New Discussion</button>
-            </div>
+
+<div class="my-3 text-right text-right">
+    <button type="button" class="btn btn-primary my-blue-btn" data-toggle="modal" data-target="#createDiscussionModal">
+        + New Discussion
+    </button>
+</div>
+
             <div id="filters">
 <form action="/discuss" method="GET">
     <div class="row">
         <div class="col form-group">
             <select class="form-control category m-0" name="category">
-                <option value="All" selected="true">All</option>
+                <option value="All" selected>All</option> In discuss.handlebars
             </select>
         </div>
         <div class="col form-group">
@@ -25,12 +29,12 @@
             </div>
             {{#each newDiscussion}}
                 <div class="discussion p-4 mb-3">
-                    <span class="text-primary">Category: {{category}}</span>
+                    <span class="text-primary" style="color: maroon !important;">Category: {{category}}</span>
                     <span> | </span>
                     <span class="text-secondary">Username: {{userName}}</span>
                     <p style="font-size: 30px;">{{description}}</p>
                     <div class="my-1 text-right">
-                        <button class="btn btn-info btn-sm" onclick="replyForm('{{this._id}}', this)">Show replies</button>
+<button class="btn btn-info btn-sm" onclick="replyForm('{{this._id}}', this)" style="background-color: darkgreen; border-color: darkgreen;">Show replies</button>
                         <div class="replies text-left" style="display: none;">
                             {{#each result}}
                                 <div class="reply p-2 my-2 bg-light">

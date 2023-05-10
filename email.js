@@ -19,9 +19,9 @@ const passwordResetByEmail = async ({id, email}, res) => {
         }
 
         const result = await transporter.sendMail(mailOptions);
+        console.log(result)
         if(result) {
-             return res.redirect('/login');
-        }else{
+
             return res.json({
                 success: true,
                 message: "Link was sent to your email"
@@ -45,8 +45,9 @@ const registrationConfirmByEmail = async ({id, email}, res) => {
             html: `<p>Please login to the system to verify the user status first, then click <a href="${url}">here</a> to confirm event registration. </p>`
         };
         const result = await transporter.sendMail(mailOptions);
+        console.log(result);
         if (result) {
-            return res.json({ success: true, message: "Confirmation email sent successfully" });
+            return res.status(200).json({ success: true, message: "Confirmation email sent successfully" });
         } else {
             return res.json({
                 success: true,
@@ -60,6 +61,5 @@ const registrationConfirmByEmail = async ({id, email}, res) => {
         })
     }
 };
-
 
 export {passwordResetByEmail, registrationConfirmByEmail}

@@ -53,6 +53,7 @@ let exportedMethods = {
             DOB: DOB,
             commentIDs: [],
             eventAttend: [],
+            discussion:[],
             role: role,
             department: department,
             authentication: false
@@ -86,8 +87,7 @@ let exportedMethods = {
     async checkUser(email, password) {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
-        // const userId = checkExist._id.toString();
-        // req.session.userId = userId;
+
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (!checkExist) throw "You may have entered the wrong email address or password.";
@@ -124,7 +124,6 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         DOB = validation.checkDOB(DOB);
-        // department = validation.checkDepartment(department);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
         if (!user) throw "You may have entered the wrong email address or password.";
@@ -288,6 +287,22 @@ let exportedMethods = {
         return true;
     },
 
+    async putDiscuss(userId, discussId) {
+        userId = validation.checkId(userId);
+        discussId = validation.checkId(discussId);
+        const userCollection = await users();
+        const user = await userCollection.findOne({_id: new ObjectId(userId)});
+        if (!user) throw `Error: ${user} not found`; //check password as well
+        let discussIdList = user.discussion;
+        discussIdList.push(discussId);
+        const updatedInfo = await userCollection.updateOne(
+            {_id: new ObjectId(userId)},
+            {$set: {discussion: discussIdList}}
+        );
+        if (!updatedInfo.acknowledged || updatedInfo.matchedCount !== 1) throw `Could not put event with that ID ${discussId}`;
+        return true;
+    },
+
     async removeEvent(userId, eventId) {
         userId = validation.checkId(userId);
         eventId = validation.checkId(eventId);
@@ -335,11 +350,11 @@ let exportedMethods = {
         if (!updateInfo.matchedCount || !updateInfo.modifiedCount) {
             throw `Could not update event with attendee`;
         }
-        const eventAttended = user.eventAttend;
-        eventAttended.push(eventId);
+        const eventAttend = user.eventAttend;
+        eventAttend.push(eventId);
         const updatedInfo = await userCollection.updateOne(
             {_id: new ObjectId(userId)},
-            {$set: {eventAttended}}
+            {$set: {eventAttend: eventAttend}}
         )
         if (!updatedInfo.matchedCount || !updatedInfo.modifiedCount) {
             throw `Could not update attendee with event`;
@@ -360,7 +375,7 @@ let exportedMethods = {
         const updatedAttendees = {};
         let attendeeRemoved = false;
         for (const [attendeeId, attendeeData] of Object.entries(event.attendees)) {
-            if (attendeeData.id !== userId) {
+            if (attendeeData.id !== userId ) {
                 updatedAttendees[attendeeId] = attendeeData;
             } else {
                 attendeeRemoved = true;
@@ -378,6 +393,7 @@ let exportedMethods = {
         }
         return {deleteInfo: true, eventId: eventId};
     },
+
 
     async putComment(userId, commentId) {
         userId = validation.checkId(userId);
@@ -449,8 +465,8 @@ let exportedMethods = {
         eventId  = validation.checkId(eventId);
         const user = await userData.getUserByID(userId);
         if (!user) throw `Error: ${userId} not found`; //check password as well
-        const eventIndex = user.eventAttended.findIndex(event => event.eventId === eventId);
-        let eventAttended = user.eventAttended;
+        let eventAttended = user.eventAttended || []; // initialize to empty array
+        const eventIndex = eventAttended.findIndex(event => event.eventId === eventId);
         if (eventIndex === -1) {
             // event not found in eventAttended array, add it
             eventAttended.push({eventId: eventId});

@@ -4,6 +4,11 @@
   border-color: blue;
 }
 
+.my-blue-btn {
+  background-color: blue;
+  border-color: blue;
+}
+
 #filters .btn-dark {
   color: #fff;
   background-color: #343a40;
@@ -13,19 +18,16 @@
 .discussion {
   color: #333;
 }
+
 .discussion-panel .discussion .text-primary {
   color: blue !important;
 }
 
-.discussion-panel .discussion .replies .btn-success {
-  background-color: green !important;
-  border-color: green !important;
+.discussion-panel .discussion .replies .btn-info {
+  background-color: darkgreen !important;
+  border-color: darkgreen !important;
 }
 
-.discussion-panel .discussion .replies .btn-info {
-  background-color: green !important;
-  border-color: green !important;
-}
 
 .replies .btn-info {
   color: #fff;
@@ -35,8 +37,8 @@
 
 .reply-form .btn-success {
   color: #fff;
-  background-color: #28a745;
-  border-color: #28a745;
+  background-color: darkgreen;
+  border-color: darkgreen;
 }
 
 .modal-content .btn-primary {
@@ -65,7 +67,8 @@
   padding: 10px;
 }
 
-select, textarea {
+select,
+textarea {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
@@ -105,7 +108,8 @@ input[type="submit"] {
   transition: border-color 0.2s;
 }
 
-#category:focus, #description:focus {
+#category:focus,
+#description:focus {
   border-color: blu;
 }
 
@@ -122,7 +126,7 @@ input[type="submit"] {
 }
 
 .discussion h1 {
-  color: blue; 
+  color: blue;
   text-align: left;
 }
 

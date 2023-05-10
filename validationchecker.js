@@ -105,14 +105,24 @@ const exportedMethods = {
         const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         if (!dateRegex.test(DOB)) throw "Invalid date format, should be 'yyyy-mm-dd'";
         const [_, year, month, day] = DOB.match(dateRegex);
-
+    
         const currentDate = new Date().toISOString().slice(0, 10);
-
+    
         if (DOB > currentDate) {
             throw "Date of birth must be in the past";
         }
+    
+        const minAgeDate = new Date();
+        minAgeDate.setFullYear(minAgeDate.getFullYear() - 13); // Subtract 13 years from the current date
+    
+        const inputDate = new Date(DOB);
+        if (inputDate > minAgeDate) {
+            throw "You must be at least 13 years old";
+        }
+    
         return DOB;
     },
+    
 
 
     checkDate(date) {
@@ -183,6 +193,9 @@ const exportedMethods = {
     checkCapacity(seatCapacity) {
         if (!seatCapacity) throw "seatCapacity not provided.";
         seatCapacity = parseInt(seatCapacity);
+        if(seatCapacity < 1){
+            throw "Seating capacity cannot be less than 1."
+        }
         return seatCapacity;
     },
 

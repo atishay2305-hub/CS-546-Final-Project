@@ -12,8 +12,6 @@ import { passwordResetByEmail } from "../email.js";
 import xss from 'xss';
 import { comments, users, posts } from '../config/mongoCollections.js';
 import { ObjectId } from 'mongodb';
-import { title } from 'process';
-import { error } from 'console';
 import fs from 'fs';
 
 const router = Router();
@@ -91,7 +89,6 @@ router
 
 
         try {
-            // removed dept
 
             let firstName = xss(req.body.firstName);
             let lastName = xss(req.body.lastName);
@@ -108,6 +105,15 @@ router
             if (existingUser) {
                 return res.status(401).json({
                     success: false,
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    userName: req.body.userName,
+                    email: req.body.email,
+                    DOB: req.body.DOB,
+                    password: req.body.password,
+                    role: req.body.role,
+                    department: req.body.department,
+                    authentication :req.body.authentication || "",
                     message: "either username or email already exists."
                 });
             }
@@ -117,7 +123,8 @@ router
             } else {
                 user = await userData.createUser(firstName, lastName, userName, email, password, DOB, role, department);
             }
-            const date = validation.getDate();
+
+
 
             if (user.insertedUser) {
                 return res.redirect('/login');
@@ -132,10 +139,11 @@ router
                 success: false,
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
+                userName: req.body.userName,
                 email: req.body.email,
-                phoneNumber: req.body.phoneNumber,
+                DOB: req.body.DOB,
                 password: req.body.password,
-                dateOfBirth: req.body.dateOfBirth,
+                role: req.body.role,
                 error: e,
             })
         }
@@ -144,16 +152,44 @@ router
     router.route('/homepage').get(async (req, res) => {
         const userId = req.session.user.userId;
         const userName = req.session.user.userName;
-
-        const postList = await postData.getPostByUserIdTop(userId);
-        console.log(postList);
-
         const commentCollection = await comments();
+        const postList = await postData.getPostByUserIdTop(userId);
+        if(postList.length !== 0){
+            for (let x of postList) {
+                x.editable = true;
+                x.deletable = true;
+                if (x.category === 'lost&found') {
+                    x.addressCheck = true;
+                }
+                x.result = [];
+                if(x.commentIds.length !== 0){
+                    for (let y of x.commentIds) {
+                        const comment = await commentCollection.findOne({ _id: y });
+                        x.result.push({
+                            commentUserName: comment.userName,
+                            commentContent: comment.contents
+                        })
+                    }
+                }
+            }
+        }
+        let resu=[];
+        const eventList = await eventsData.getAllEvents();
+        if(eventList.length !== 0){
+             resu = eventList.filter((event) => {
+                const attendees = event.attendees;
+                const attendeeIds = Object.values(attendees).map((attendee) => attendee.id);
+                return attendeeIds.includes(userId);
+            })
+            .sort((a, b) => new Date(a.date) - new Date(b.date)) 
+            .slice(0, 5);
+        }
 
         return res.render('homepage', {
             userId: userId,
             userName: userName,
             posts: postList,
+            events:resu,
             title: 'Homepage'
         });
     });
@@ -188,7 +224,6 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
-        console.log(id);
         const userName = req.session.user.userName;
         const role = req.session.user.role;
         if (role === 'admin') {
@@ -207,7 +242,7 @@ router.route('/posts')
             if (req.file) {
                 imagePath = req.file.path.replace('public', '');
             } else {
-                imagePath = 'images/default.jpg';
+                imagePath = '/images/default.jpg';
             }
 
             if (category === 'lost&found') {
@@ -217,7 +252,6 @@ router.route('/posts')
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
 
-            console.log("The post is posted");
             return res.redirect('/posts');
         } catch (e) {
             return res.status(400).json({
@@ -232,37 +266,9 @@ router.route('/posts')
 router.route('/profile').get(async (req, res) => {
     const id = req.session.user.userId;
     const user = await userData.getUserByID(id);
-    return res.render('profile', {user: user});
+    return res.render('profile', {user: user, title: 'User Profile'});
 });
 
-
-router.route('/posts/:id').delete(async (req, res) => {
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
-        if (!user) {
-            throw 'cannot find user';
-        }
-        const deletepost = await postData.getPostById(req.params.id);
-        if (deletepost.image !== 'images/default.jpg') {
-            fs.unlink(`./public${deletepost.image}`, err => {
-                if (err) {
-                    throw `Error deleting image file: ${err}`;
-                }
-            });
-        }
-        const commentCollection = await comments();
-        const post = await commentCollection.find({ postId: new ObjectId(req.params.id) }).toArray();
-        if (post.length !== 0) {
-            const responsePost = await commentData.removeCommentByPost(req.params.id);
-        }
-        const response = await postData.removePostById(req.params.id);
-        //res.status(200).send(response);
-        //res.send(response);
-        return res.sendStatus(200);
-    } catch (e) {
-        
-    }
-});
 
 router.route('/posts/:id/comment').post(async (req, res) => {
     try {
@@ -274,7 +280,6 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         return res.sendStatus(200);
         return res.redirect('/posts');
     } catch (e) {
-        // console.log(e);
         
     }
 
@@ -304,7 +309,7 @@ router
             }
             res.redirect('/login');
         } catch (e) {
-            return res.status(400).render("/resetPassword", {
+            return res.status(400).render("resetPassword", {
                 success: false,
                 id: req.body.id,
                 error: e
@@ -316,6 +321,7 @@ router
     .route('/change-password/:id')
     .get(async (req, res) => {
         try {
+            console.log(req.query);
             return res.render('changePassword', { id: req.params.id, title: 'Change Password' })
         } catch (e) {
             return res.status(404).sendFile(path.resolve("public/static/404.html"));
@@ -328,7 +334,7 @@ router
             let id = xss(req.params.id);
             let newPassword = xss(req.body.newPassword);
             let oldPassword = xss(req.body.oldPassword);
-            console.log(id);
+
             id = validation.checkId(id);
 
             newPassword = validation.checkPassword(newPassword);
@@ -340,15 +346,18 @@ router
 
                 const passwordUpdate = await userData.updatePassword(id, newPassword);
             } else {
-                res.status(400).render("changePassword", { error: "Password did not match" });
+                // res.status(400).render("changePassword", { error: "Password did not match",id:id });
+                // let error=true;
+                // res.redirect(`/change-password/${id}?error=${error}`);
+                return res.status(400).render("changePassword", {
+                    success: false,
+                    id: req.body.id,
+                    error: "the old password you entered is incorrect"
+                })
             }
-            // let result = validation.checkIdentify(newPassword, confirmNewPassword);
-            // if (result) {
-            //     const passwordUpdate = await userData.updatePassword(id, newPassword);
-            // }
+
             res.redirect('/logout');
         } catch (e) {
-            console.log(e);
             return res.status(400).render("changePassword", {
                 success: false,
                 id: req.body.id,
@@ -373,15 +382,14 @@ router
 
             let checkExist = await userData.getUserByEmail(email);
             if(!checkExist) throw `No user with ${email} exist!!`;
-            await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
+            const xyz = await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
+            return xyz;
         } catch (e) {
-            console.log(e);
             return res.status(400).json({
                 success: false,
                 message: e,
                 email: req.body.email
             });
-            //res.send({message:e.Error,status:false,email:req.body.email});
 
         }
     });
@@ -395,47 +403,21 @@ router.use('/logout', (req, res) => {
 });
 
 
-router.route('/posts/:id').delete(async (req, res) => {
-    try {
-        const user = await userData.getUserByID(req.session.user.userId);
-        if (!user) {
-            throw 'cannot find user';
-        }
-        const commentCollection = await comments();
-        const post = await commentCollection.find({postId: new ObjectId(req.params.id)}).toArray();
-        if (post.length !== 0) {
-            const responsePost = await commentData.removeCommentByPost(req.params.id);
-            console.log("hi", responsePost.deleted);
-        }
-        const response = await postData.removeById(req.params.id);
-        //const user = await userData.removePost()
-        //const postList = await postData.getAllPosts();
-        //res.status(200).send(response);
-        //res.send(response);
-        return res.sendStatus(200);
-    } catch (e) {
-        return res.status(404).json({error: 'Resource not found'});
-    }
-});
-
 router.route('/posts/:id/comment').post(async (req, res) => {
     try {
         const userId = req.session.user.userId;
         const postId = req.params.id;
-        const {commentText} = req.body;
+        let {commentText} = req.body;
         commentText = validation.checkComments(commentText);
 
         if (commentText === '' || commentText.trim().length === 0) {
-            console.log(commentText, commentText.length);
             alert('cannot submit an empty comment');
             return res.redirect('/posts');
         }
         else {
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
             const post = await postData.putComment(postId, comment.commentId);
-            // console.log(post);
             return res.sendStatus(200);
-            //return res.redirect(`/posts/${postId}`);
         }
 
     } catch (e) {
@@ -451,30 +433,16 @@ router
     .post(async (req, res) => {
         try {
             const { postId } = req.params;
-            console.log("hereee", postId);
             const userId = req.session.user.userId;
             const userName = req.session.user.userName;
             const liked = true;
             const disliked = false;
-            //const { liked, disliked } = req.body;
             const postCollection = await posts();
 
             const result = await postData.updateLikes(postId, userId, liked,disliked);
             return res.json(result);
-            // if (typeof localStorage !== 'undefined') {
-            //     const storageKey = `post-${postId}-state`;
-            //     const localStorageValue = localStorage.getItem(storageKey);
-            //     const parsedValue = localStorageValue ? JSON.parse(localStorageValue) : { liked: false, disliked: false };
-            //     parsedValue.liked = liked;
-            //     parsedValue.disliked = false;
-            //     localStorage.setItem(storageKey, JSON.stringify(parsedValue));
-            // }
-
-            // const post = await postData.createPost(postCategory, imagePath, postContent, id, req);
-            // const user = await userData.putPost(id, post._id);
-            // return res.redirect('/homepage');
         } catch (e) {
-            // console.log(e)
+
             res.status(500).send(e.message);
         }
     });
@@ -502,24 +470,18 @@ router
         }
     });
 
-router.route('/increaseLikes')
-    .post(async (req, res) => {
-        const postId = req.body.postId;
-        const updatedPost = await postData.increaseLikes(postId);
-        return res.json(updatedPost);
+
+
+    router.get('/search', async (req, res) => {
+        try {
+            const searchTerm = req.query.query;
+            const searchResults = await eventsData.searchEvent(searchTerm);
+            res.render('searchResults', { results: searchResults, title: 'Search Results' });
+        } catch (e) {
+            res.status(500).json({ error: 'Internal server error' });
+        }
     });
 
-router.get('/search', async (req, res) => {
-    try {
-      const searchTerm = req.query.query;
-      console.log("searchTerm:", searchTerm);
-      const searchResults = await eventsData.searchEvent(searchTerm);
-      res.render('searchResults', { results: searchResults, title: 'Search Results' });
-    } catch (e) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-  
 
 router.route('/discuss').get(async (req, res) => {
     const userCollection = await users();
@@ -538,16 +500,16 @@ router.route('/discuss').get(async (req, res) => {
         }
     }
     
-    if(Object.keys(req.query).length!=0){
+    if(Object.keys(req.query).length!==0){
         let category=req.query.category;
         let search=req.query.search;
         category=category.toLowerCase();
         search=search.toLowerCase().trim();
 
-        if (category && category == "all") {
+        if (category && category === "all") {
             discuss = discuss.filter(d => d.description.toLowerCase().includes(search));
         } else {
-            discuss = discuss.filter(d => d.category.toLowerCase() == category && d.description.toLowerCase().includes(search));
+            discuss = discuss.filter(d => d.category.toLowerCase() === category && d.description.toLowerCase().includes(search));
         }
 
     }
@@ -576,41 +538,14 @@ router.route('/search').get(async (req, res) => {
     }
 });
 
-router.route('/discuss').get(async (req, res) => {
-    const userCollection = await users();
-    const dbQuery = {};
-    if (req.query?.category && req.query.category !== 'All') {
-        dbQuery.category = req.query.category;
-    }
-
-    if (req.query?.search) {
-        dbQuery.description = { $regex: xss(req.query.search), $options: 'i' };
-    }
-
-    const discuss = await discussData.getAllDiscussions(dbQuery);
-    for (let x of discuss) {
-        const user = await userCollection.findOne({ _id: x.userId });
-        x.userName = user.userName;
-        x.result = [];
-        for (let y of x.replyId) {
-            const user = await userCollection.findOne({ _id: y.userId });
-            x.result.push({
-                userName: user.userName,
-                message: y.message,
-            });
-        }
-    }
-
-    return res.render('discuss', { newDiscussion: discuss, title: 'Discussion' });
-});
 
 router.route('/discuss').post(async (req, res) => {
     const userId = req.session.user.userId;
-    //   description = validation.checkPhrases(description);
-    // category = validation.checkCategory()
     const { category, description } = req.body;
 
     const discuss = await discussData.createDiscussion(category, xss(description), userId);
+
+    const user = await userData.putDiscuss(userId, discuss._id.toString());
     return res.redirect('/discuss');
 });
 
@@ -624,7 +559,6 @@ router.route('/discussions/:id/replies').post(async (req, res) => {
         Message = validation.checkComments(Message);
 
         const discuss = await discussData.updateDiscussion(id, userId, Message);
-        console.log(discuss)
         return res.sendStatus(200);
     } catch (error) {
 
@@ -647,7 +581,7 @@ router
     .route('/posts/:id')
     .get(async (req, res) => {
         const post = await postData.getPostById(req.params.id);
-        const deletable = (req.session.user.role === 'admin' || req.session.user.userId === post.userId);
+        const deletable = (req.session.user.role === 'admin' || req.session.user.userId === post.userId.toString());
         const comments = await commentData.getPostCommentById(req.params.id);
         res.render("postEdit", {
             userId: req.session.user.userId,
@@ -659,9 +593,17 @@ router
     })
     .delete(async (req, res) => {
         try{
+            const deleteEvent = await postData.getPostById(req.params.id);
+            if (deleteEvent.image && deleteEvent.image !== '/images/default.jpg') {
+                fs.unlink(`./public/${deleteEvent.image}`, err => {
+                    if (err) {
+                        throw `Error deleting image file: ${err}`;
+                    }
+                });
+            }
             const removeComments = await commentData.removeCommentByPost(req.params.id);
             const responsePost = await postData.removePostById(req.params.id);
-            if(!responsePost.deleted || !removeComments.deleted){
+            if(!responsePost?.deleted || (!removeComments?.deleted && !removeComments?.empty)){
                 return res.status(400).json("Unable to delete")
             }
             return res.sendStatus(200);
@@ -676,16 +618,22 @@ router
     .route('/posts/:id/comment')
     .post(async (req, res) => {
         try {
+            const deleteEvent = await postData.getPostById(req.params.id);
+            if (deleteEvent.image !== 'images/default.jpg') {
+                fs.unlink(`./public${deleteEvent.image}`, err => {
+                    if (err) {
+                        throw `Error deleting image file: ${err}`;
+                    }
+                });
+            }
             const userId = req.session.user.userId;
             const postId = req.params.id.toString();
             const {commentText} = req.body;
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-            console.log(comment);
             const post = await postData.putComment(postId, comment.commentId);
-            console.log('The comment is added');
             return res.sendStatus(200);
         } catch (e) {
-            console.log(e);
+            return res.status(404);
         }
     });
 

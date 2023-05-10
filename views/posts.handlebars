@@ -1,7 +1,10 @@
 {{#if (if_eq role "user")}}
     <div class="my-3 text-right">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createPostModal"> + New Post
-        </button>
+
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createPostModal" style="background-color: blue;">
+  + New Post
+</button>
+
     </div>
 {{/if}}
 
@@ -23,16 +26,17 @@
 
 
             <form class="like-form" id="like-form-{{this._id}}">
-                <button class="like-btn-home" data-post-id="{{this._id}}" onclick="likeFunc('{{this._id}}','post')"><i
-                        class="fa fa-thumbs-up">Like</i></button>
-                <span class="like-count" id="like-count-{{this._id}}">{{this.likes}}</span>
+                <button class="like-btn-home" data-post-id="{{this._id}}" onclick="likeFunc('{{this._id}}','post')">
+                    <i class="fa fa-thumbs-up"></i> Like <span class="like-count">{{this.likes}}</span>
+                </button>
             </form>
 
             <form class="dislike-form" id="dislike-form-{{this._id}}">
-                <button class="dislike-btn-home" data-post-id="{{this._id}}"
-                        onclick="dislikeFunc('{{this._id}}','post')"><i class="fa fa-thumbs-down">Dislike</i></button>
-                <span class="dislike-count" id="dislike-count-{{this._id}}">{{this.dislikes}}</span>
+                <button class="dislike-btn-home" data-post-id="{{this._id}}" onclick="dislikeFunc('{{this._id}}','post')">
+                    <i class="fa fa-thumbs-down"></i> Dislike <span class="dislike-count">{{this.dislikes}}</span>
+                </button>
             </form>
+
 
 
             <hr>
@@ -60,16 +64,17 @@
                         {{/each}}
                     {{/if}}
                     {{#if deletable}}
-                        <button class="delete-btn" onclick="deletePost('{{_id}}')">
+                        <button class="delete-btn" onclick="deleteComment('{{_id}}')">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     {{/if}}
                 {{/each}}
             </div>
 
-            <button class="comment-btn" id="comment-btn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')">
-                <span>Show Comments</span>
-            </button>
+            <button class="comment-btn blue-btn" id="comment-btn-{{this._id}}" onclick="showCommentsPopup('{{this._id}}')">
+    <span>Show Comments</span>
+</button>
+
 
         </div>
     {{/each}}
@@ -98,12 +103,12 @@
                         <label for="postContent" class="col-form-label">Post Content:</label>
                         <textarea class="form-control" id="postContent" name="postContent" rows="5"></textarea>
                     </div>
+
                     <div class="form-group" id="address-input">
-                        <label for="address" class="col-form-label">Location:</label>
-                        <input type="text" class="form-control" name="address" id="address"
-                               placeholder="Address, City, State, Zip" value="{{address}}">
-                        <button type="submit" id="showOnMapBtn" class="btn btn-primary">Show on Map</button>
-                        <div id="map"></div>
+                    <label for="address" class="col-form-label">Location:</label>
+                    <input type="text" class="form-control" name="address" id="address" placeholder="Address, City, State, Zip" value="{{address}}">
+                    <button type="submit" id="showOnMapBtn" class="btn btn-primary blue-btn">Show on Map</button>
+                    <div id="map"></div>
                     </div>
                     <div class="form-group">
                         <label for="postImage" class="col-form-label">Upload Image:</label>
@@ -111,7 +116,7 @@
                     </div>
                     <ul class="error" id="postError" hidden></ul>
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Send</button>
+                        <button type="submit" class="btn btn-primary" style="background-color: blue;">Send</button>
                     </div>
                 </form>
             </div>

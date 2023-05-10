@@ -1,4 +1,5 @@
  function deletePost(id) {
+    // const postId = id.replace(/\"/g, "");
     fetch(`/posts/${id}`, {
         method: "delete",
         headers: {
@@ -8,7 +9,7 @@
     })
         .then(response => {
             if (response.ok) {
-                alert('Post deleted successfully');
+                //alert('Post deleted successfully');
                 window.location.href = '/posts';
             } else {
                 throw new Error('Network response was not ok');

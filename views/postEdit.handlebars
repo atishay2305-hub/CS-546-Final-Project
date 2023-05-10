@@ -1,4 +1,4 @@
-<div id="posts-container">
+ <div id="posts-container">
     <div class="post-container">
         {{#if deletable}}
             <button class="delete-btn" onclick="deletePost('{{post._id}}')" data-event_id="{{post._id}}">
@@ -14,15 +14,15 @@
         {{/if}}
         <p class="create_date" data-created_Date="{{created_Date}}">Created at: {{post.created_Date}}</p>
         <form class="like-form" id="like-form-{{post._id}}">
-            <button class="like-btn-home" data-post-id="{{post._id}}" onclick="likeFunc('{{post._id}}','post_id')"><i
-                    class="fa fa-thumbs-up">Like</i></button>
-            <span class="like-count" id="like-count-{{post._id}}">{{post.likes}}</span>
+            <button class="like-btn-home" data-post-id="{{post._id}}" onclick="likeFunc('{{post._id}}','post_id')">
+                <i class="fa fa-thumbs-up"></i> Like <span class="like-count">{{post.likes}}</span>
+            </button>
         </form>
 
         <form class="dislike-form" id="dislike-form-{{post._id}}">
-            <button class="dislike-btn-home" data-post-id="{{post._id}}"
-                    onclick="dislikeFunc('{{post._id}}','post_id')"><i class="fa fa-thumbs-down">Dislike</i></button>
-            <span class="dislike-count" id="dislike-count-{{post._id}}">{{post.dislikes}}</span>
+            <button class="dislike-btn-home" data-post-id="{{this._id}}" onclick="dislikeFunc('{{post._id}}','post_id')">
+                <i class="fa fa-thumbs-down"></i> Dislike <span class="dislike-count">{{post.dislikes}}</span>
+            </button>
         </form>
         <hr>
         <div id="comments-{{post._id}}" class="comments-container">
@@ -31,6 +31,9 @@
                 <input type="hidden" name="postId" value="{{post._id}}">
                 <label for="comment-text-{{post._id}}">Add a Comment:</label>
                 <input type="text" name="commentText" id="comment-text-{{post._id}}">
+                <div>
+                    <span id="comment-error-{{post._id}}" class="text-danger" style="display: none;"></span>
+                </div>
                 <button type="button" onclick="addComment(event, '{{post._id}}', this)">Submit</button>
             </form>
             {{#each comments}}
@@ -40,17 +43,14 @@
                 </div>
 
                 {{#if ../deletable}}
-                    <button class="delete-comment-btn" onclick="deleteComment('{{this._id}}', '{{../post._id}}')">
+                    <button class="delete-comment-btn" onclick="deleteComment('{{this._id}}')">
                         <i class="fas fa-trash"></i> Delete Comment
                     </button>
                 {{/if}}
                 <hr>
             {{/each}}
+            <a href="/posts">Back to posts</a>
         </div>
-        <button class="comment-btn" onclick="showCommentsPopup('{{this._id}}')" data-post_id="{{this._id}}">
-            <ion-icon name="chatbox-ellipses"></ion-icon>
-            Comments
-        </button>
     </div>
     <script src="/public/js/delete.js"></script>
     <script src="/public/js/post/map.js"></script>
