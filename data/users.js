@@ -87,8 +87,7 @@ let exportedMethods = {
     async checkUser(email, password) {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
-        // const userId = checkExist._id.toString();
-        // req.session.userId = userId;
+
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (!checkExist) throw "You may have entered the wrong email address or password.";
@@ -125,7 +124,6 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         DOB = validation.checkDOB(DOB);
-        // department = validation.checkDepartment(department);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
         if (!user) throw "You may have entered the wrong email address or password.";
@@ -396,36 +394,6 @@ let exportedMethods = {
         return {deleteInfo: true, eventId: eventId};
     },
 
-    // async removeAttendeeByAdmin(eventId, userId) {
-    //     userId = validation.checkId(userId);
-    //     eventId = validation.checkId(eventId);
-    //     const userCollection = await users();
-    //     const user = await userCollection.findOne({_id: new ObjectId(userId)});
-    //     if (!user) throw `User with ID ${userId} not found`;
-    //     const eventCollection = await events();
-    //     const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
-    //     if (!event) throw `Event with ID ${eventId} not found`;
-    //     const updatedAttendees = {};
-    //     let attendeeRemoved = false;
-    //     for (const [attendeeId, attendeeData] of Object.entries(event.attendees)) {
-    //         if (attendeeData.id !== userId ) {
-    //             updatedAttendees[attendeeId] = attendeeData;
-    //         } else {
-    //             attendeeRemoved = true;
-    //         }
-    //     }
-    //     if (!attendeeRemoved) {
-    //         throw `User with ID ${userId} is not attending event with ID ${eventId}`;
-    //     }
-    //     const updateInfo = await eventCollection.updateOne(
-    //         {_id: new ObjectId(eventId)},
-    //         {$set: {attendees: updatedAttendees}}
-    //     );
-    //     if (!updateInfo.matchedCount || !updateInfo.modifiedCount) {
-    //         throw `Could not update event with ID ${eventId}`;
-    //     }
-    //     return {deleteInfo: true, eventId: eventId};
-    // },
 
     async putComment(userId, commentId) {
         userId = validation.checkId(userId);

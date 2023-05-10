@@ -113,6 +113,7 @@ router
                     password: req.body.password,
                     role: req.body.role,
                     department: req.body.department,
+                    authentication :req.body.authentication || "",
                     message: "either username or email already exists."
                 });
             }
@@ -122,7 +123,8 @@ router
             } else {
                 user = await userData.createUser(firstName, lastName, userName, email, password, DOB, role, department);
             }
-        
+
+
 
             if (user.insertedUser) {
                 return res.redirect('/login');
@@ -222,7 +224,6 @@ router.route('/posts')
     })
     .post(uploadImage, async (req, res) => {
         const id = req.session.user.userId;
-        // console.log(id);
         const userName = req.session.user.userName;
         const role = req.session.user.role;
         if (role === 'admin') {
@@ -251,7 +252,6 @@ router.route('/posts')
             const post = await postData.createPost(category, imagePath, postContent, userName, address);
             const user = await userData.putPost(id, post._id);
 
-            // console.log("The post is posted");
             return res.redirect('/posts');
         } catch (e) {
             return res.status(400).json({
@@ -280,7 +280,6 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         return res.sendStatus(200);
         return res.redirect('/posts');
     } catch (e) {
-        // console.log(e);
         
     }
 
@@ -356,13 +355,9 @@ router
                     error: "the old password you entered is incorrect"
                 })
             }
-            // let result = validation.checkIdentify(newPassword, confirmNewPassword);
-            // if (result) {
-            //     const passwordUpdate = await userData.updatePassword(id, newPassword);
-            // }
+
             res.redirect('/logout');
         } catch (e) {
-            // console.log(e);
             return res.status(400).render("changePassword", {
                 success: false,
                 id: req.body.id,
@@ -387,17 +382,14 @@ router
 
             let checkExist = await userData.getUserByEmail(email);
             if(!checkExist) throw `No user with ${email} exist!!`;
-            // console.log(checkExist);
             const xyz = await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
             return xyz;
         } catch (e) {
-            // console.log(e);
             return res.status(400).json({
                 success: false,
                 message: e,
                 email: req.body.email
             });
-            //res.send({message:e.Error,status:false,email:req.body.email});
 
         }
     });
@@ -415,20 +407,17 @@ router.route('/posts/:id/comment').post(async (req, res) => {
     try {
         const userId = req.session.user.userId;
         const postId = req.params.id;
-        const {commentText} = req.body;
+        let {commentText} = req.body;
         commentText = validation.checkComments(commentText);
 
         if (commentText === '' || commentText.trim().length === 0) {
-            // console.log(commentText, commentText.length);
             alert('cannot submit an empty comment');
             return res.redirect('/posts');
         }
         else {
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
             const post = await postData.putComment(postId, comment.commentId);
-            // console.log(post);
             return res.sendStatus(200);
-            //return res.redirect(`/posts/${postId}`);
         }
 
     } catch (e) {
@@ -444,18 +433,16 @@ router
     .post(async (req, res) => {
         try {
             const { postId } = req.params;
-            // console.log("hereee", postId);
             const userId = req.session.user.userId;
             const userName = req.session.user.userName;
             const liked = true;
             const disliked = false;
-            //const { liked, disliked } = req.body;
             const postCollection = await posts();
 
             const result = await postData.updateLikes(postId, userId, liked,disliked);
             return res.json(result);
         } catch (e) {
-            // console.log(e)
+
             res.status(500).send(e.message);
         }
     });
@@ -488,7 +475,6 @@ router
     router.get('/search', async (req, res) => {
         try {
             const searchTerm = req.query.query;
-            // console.log("searchTerm:", searchTerm);
             const searchResults = await eventsData.searchEvent(searchTerm);
             res.render('searchResults', { results: searchResults, title: 'Search Results' });
         } catch (e) {
@@ -555,13 +541,10 @@ router.route('/search').get(async (req, res) => {
 
 router.route('/discuss').post(async (req, res) => {
     const userId = req.session.user.userId;
-    //   description = validation.checkPhrases(description);
-    // category = validation.checkCategory()
     const { category, description } = req.body;
 
     const discuss = await discussData.createDiscussion(category, xss(description), userId);
-    
-    // console.log(discuss);
+
     const user = await userData.putDiscuss(userId, discuss._id.toString());
     return res.redirect('/discuss');
 });
@@ -611,8 +594,8 @@ router
     .delete(async (req, res) => {
         try{
             const deleteEvent = await postData.getPostById(req.params.id);
-            if (deleteEvent.image !== 'images/default.jpg') {
-                fs.unlink(`./public${deleteEvent.image}`, err => {
+            if (deleteEvent.image && deleteEvent.image !== '/images/default.jpg') {
+                fs.unlink(`./public/${deleteEvent.image}`, err => {
                     if (err) {
                         throw `Error deleting image file: ${err}`;
                     }
@@ -647,12 +630,9 @@ router
             const postId = req.params.id.toString();
             const {commentText} = req.body;
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
-            // console.log(comment);
             const post = await postData.putComment(postId, comment.commentId);
-            // console.log('The comment is added');
             return res.sendStatus(200);
         } catch (e) {
-            // console.log(e);
             return res.status(404);
         }
     });

@@ -104,8 +104,6 @@ let exportedMethods = {
         if (removePost.deletedCount === 0) {
             throw `Could not delete post with id of ${id}`;
         }
-        // if(req)
-        // await userData.removePost(post.userId.toString(), id);
 
         return {
             eventId: id,
@@ -131,9 +129,6 @@ let exportedMethods = {
         const checkPostExist = userCollection.findOne({_id: new ObjectId(id)});
         if (!checkPostExist) throw `Post is not exist with that ${id}`;
         const user = await userCollection.findOne({_id: new ObjectId(userId)})
-        if (user.isAdmin === undefined || !user.isAdmin || !user.postIDs.includes(id)) {
-            throw "Only administrators or the poster can delete posts.";
-        }
         const updatedPost = {
             category: category,
             content: postedContent,

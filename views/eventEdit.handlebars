@@ -44,13 +44,17 @@
                 <p class="event-over">You cannot cancel registration for this event.</p>
             {{/if}}
         {{else}}
-            {{#if (not_past_date event.date)}}
-                <button class="register-btn" data-event_id="{{event._id}}">
-                    <ion-icon name="person-add-outline"></ion-icon>
-                    Register
-                </button>
-            {{else}}
+            {{#if fullyBooked}}
                 <p class="event-over">Registration for this event is closed.</p>
+            {{else}}
+                {{#if (not_past_date event.date)}}
+                    <button class="register-btn" data-event_id="{{event._id}}">
+                        <ion-icon name="person-add-outline"></ion-icon>
+                        Register
+                    </button>
+                {{else}}
+                    <p class="event-over">Registration for this event is closed.</p>
+                {{/if}}
             {{/if}}
         {{/if}}
         <br>
@@ -98,5 +102,4 @@
 <script src="/public/js/event/attendees.js"></script>
 <script src="/public/js/event/event.js" type="module"></script>
 <script src="/public/js/event/eventRegister.js" type="module"></script>
-{{!-- <link rel="stylesheet" href="/public/css/eventEdit.css"> --}}
 <link rel="stylesheet" href="/public/css/eventEdit.css">

@@ -262,12 +262,14 @@ router
         const event = await eventsData.getEventByID(req.params.id);
         const deletable = req.session.user.role === 'admin';
         const registered = Object.values(event.attendees).some(attendee => attendee.id === req.session.user.userId);
+        const fullyBooked = event.seatingCapacity <= Object.keys(event.attendees).length;
         const comments = await commentData.getEventCommentById(req.params.id);
         res.render("eventEdit", {
             userId: req.session.user.userId,
             email: req.session.user.email,
             deletable: deletable,
             registered: registered,
+            fullyBooked: fullyBooked,
             event: event,
             comments: comments
         });
@@ -276,7 +278,7 @@ router
     .delete(async (req, res) => {
         try {
             const deleteEvent = await eventsData.getEventByID(req.params.id);
-            if (deleteEvent.image !== 'images/default.jpg') {
+            if (deleteEvent.image && deleteEvent.image !== '/images/default.jpg') {
                 fs.unlink(`./public/${deleteEvent.image}`, err => {
                     if (err) {
                         throw `Error deleting image file: ${err}`;

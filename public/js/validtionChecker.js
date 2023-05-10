@@ -15,7 +15,7 @@ const authCheck = {
         const nameRegex = /^[ a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]+$/;
         if (!nameRegex.test(name)) throw `${valName} must only contain letters, numbers, and common special characters`;
         if (name.length < 2) throw `${valName} length must greater than 2 words`;
-        if (name.length > 20) throw `${valName} length must less than 20 words`;
+        if (name.length > 50) throw `${valName} length must less than 50 words`;
         return name;
     },
 

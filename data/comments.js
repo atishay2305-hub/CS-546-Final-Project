@@ -77,10 +77,6 @@ let exportedMethods = {
         if (!commentInfo.acknowledged || !commentInfo.insertedId) {
             throw "Could not add this comment";
         }
-        // const insertToUser = await userData.putComment(userId, comment._id.toString());
-        // if(!insertToUser){
-        //     throw "Cannot insert commentID to user";
-        // }
         return {commentId: commentInfo.insertedId.toString()};
     },
 
@@ -153,19 +149,11 @@ let exportedMethods = {
         const commentList = await commentCollection
             .find({eventId: new ObjectId(eventId)})
             .toArray();
-        // console.log(commentList);
-        // for (let x of commentList) {
-        //     const user = await userCollection.findOne({_id: x.userId});
-        //     // console.log(user);
-        //     x.userName = user.userName;
-        // }
         return commentList;
-        // return comments;
+
     },
     async getPostCommentById(postId) {
         postId = await validation.checkId(postId);
-        // const post = await postData.getPostById(postId);
-        // if(!post) throw `No  post with that id ${postId}`;
         const commentCollection = await comments();
         const userCollection = await users();
         return await commentCollection.find({postId: new ObjectId(postId)}).toArray();
