@@ -38,7 +38,7 @@ categories.forEach((category) => {
 function replyForm(postId, button) {
     const replies = button.nextElementSibling;
 
-    // Toggle the display of the replies
+  
     if (replies.style.display === 'block') {
         replies.style.display = 'none';
         button.innerText = 'Show replies';
@@ -69,7 +69,7 @@ function postReply(event, discussionId, button) {
 
     
     const errorElement = discussionElement.querySelector('.error-message');
-    // Check if reply text is empty
+   
     if (replyText.trim() === '') {
         errorElement.innerHTML = 'Please enter a reply.';
         return;

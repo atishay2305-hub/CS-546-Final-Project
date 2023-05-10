@@ -94,7 +94,7 @@ app.use('/register', (req, res, next) => {
     next();
 });
 
-// Route for logging out
+
 app.use('/logout', (req, res) => {
     if (!req.session.user) {
         return res.render('login', {title: 'Login'});

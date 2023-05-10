@@ -27,7 +27,7 @@ router
     }
   })
   .put(async (req, res) => {
-    // Not implemented
+   
     try{
         
         const {firstname,lastname,email,hashPassword,dob,department} = req.body;

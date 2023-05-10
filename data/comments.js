@@ -112,27 +112,20 @@ let exportedMethods = {
 
     async getEventCommentById(eventId) {
         eventId = await validation.checkId(eventId);
-        // const post = await postData.getPostById(postId);
-        // if(!post) throw `No  post with that id ${postId}`;
+       
         const commentCollection = await comments();
         const userCollection = await users();
         console.log(eventId);
         const commentList = await commentCollection
             .find({eventId: new ObjectId(eventId)})
             .toArray();
-        // console.log(commentList);
-        // for (let x of commentList) {
-        //     const user = await userCollection.findOne({_id: x.userId});
-        //     // console.log(user);
-        //     x.userName = user.userName;
-        // }
+       
         return commentList;
-        // return comments;
+       
     },
     async getPostCommentById(postId) {
         postId = await validation.checkId(postId);
-        // const post = await postData.getPostById(postId);
-        // if(!post) throw `No  post with that id ${postId}`;
+      
         const commentCollection = await comments();
         const userCollection = await users();
         return await commentCollection.find({postId: new ObjectId(postId)}).toArray();
@@ -152,7 +145,7 @@ let exportedMethods = {
         }
     },
 
-    // },
+   
 
     async removeCommentByEvent(eventId) {
         eventId = await validation.checkId(eventId);

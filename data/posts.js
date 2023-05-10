@@ -11,7 +11,7 @@ let exportedMethods = {
     async createPost(category, image, postedContent, userName, address) {
         category = validation.checkCategory(category, "category");
         postedContent = validation.checkPhrases(postedContent);
-        // postedContent = validation.checkPhrases(postedContent, "PostedContent");
+   
         userName = validation.checkName(userName);
         const userCollection = await users();
         const user = await userCollection.findOne({userName: userName});
@@ -104,8 +104,7 @@ let exportedMethods = {
         if (removePost.deletedCount === 0) {
             throw `Could not delete post with id of ${id}`;
         }
-        // if(req)
-        // await userData.removePost(post.userId.toString(), id);
+      
 
         return {
             eventId: id,
@@ -224,26 +223,26 @@ let exportedMethods = {
 
     async updateLikes(postId, userId,liked,disliked){
         postId = validation.checkId(postId);
-        //userId =validation
+        
         const postCollection = await posts();
         const post = await postCollection.findOne({_id: new ObjectId(postId)});
         if(!post) `Error: ${post} not found`;
 
         if (liked && !post.likedBy.includes(userId)) {
-            // If the user has not already liked the post
+        
             post.likedBy.push(userId);
             if (post.dislikedBy.includes(userId)) {
-                // If the user has already disliked the post, remove their dislike
+           
                 post.dislikedBy = post.dislikedBy.filter((id) => id !== userId);
             }
             post.likes = post.likedBy.length;
             post.dislikes = post.dislikedBy.length;
 
         } else if (disliked && !post.dislikedBy.includes(userId)) {
-            // If the user has not already disliked the post
+          
             post.dislikedBy.push(userId);
             if (post.likedBy.includes(userId)) {
-                // If the user has already liked the post, remove their like
+        
                 post.likedBy = post.likedBy.filter((id) => id !== userId);
             }
             post.likes = post.likedBy.length;

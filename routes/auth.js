@@ -338,22 +338,17 @@ router
 
                 const passwordUpdate = await userData.updatePassword(id, newPassword);
             } else {
-                // res.status(400).render("changePassword", { error: "Password did not match",id:id });
-                // let error=true;
-                // res.redirect(`/change-password/${id}?error=${error}`);
+               
                 return res.status(400).render("changePassword", {
                     success: false,
                     id: req.body.id,
                     error: "the old password you entered is incorrect"
                 })
             }
-            // let result = validation.checkIdentify(newPassword, confirmNewPassword);
-            // if (result) {
-            //     const passwordUpdate = await userData.updatePassword(id, newPassword);
-            // }
+          
             res.redirect('/logout');
         } catch (e) {
-            // console.log(e);
+           
             return res.status(400).render("changePassword", {
                 success: false,
                 id: req.body.id,
@@ -378,17 +373,17 @@ router
 
             let checkExist = await userData.getUserByEmail(email);
             if(!checkExist) throw `No user with ${email} exist!!`;
-            // console.log(checkExist);
+          
             const xyz = await passwordResetByEmail({ id: checkExist._id, email: checkExist.email }, res);
             return xyz;
         } catch (e) {
-            // console.log(e);
+         
             return res.status(400).json({
                 success: false,
                 message: e,
                 email: req.body.email
             });
-            //res.send({message:e.Error,status:false,email:req.body.email});
+        
 
         }
     });
@@ -402,18 +397,7 @@ router.use('/logout', (req, res) => {
 });
 
 
-// router.route('/posts/:id').delete(async (req, res) => {
-//         try{
-//             const removeComments = await commentData.removeCommentByPost(req.params.id);
-//             const responsePost = await postData.removePostById(req.params.id);
-//             if(!responsePost.deleted || !removeComments.deleted){
-//                 return res.status(400).json("Unable to delete")
-//             }
-//             return res.sendStatus(200);
-//         } catch (e) {
-//             console.log(e);
-//         }
-//     });
+
 
 router.route('/posts/:id/comment').post(async (req, res) => {
     try {
@@ -423,16 +407,16 @@ router.route('/posts/:id/comment').post(async (req, res) => {
         commentText = validation.checkComments(commentText);
 
         if (commentText === '' || commentText.trim().length === 0) {
-            // console.log(commentText, commentText.length);
+        
             alert('cannot submit an empty comment');
             return res.redirect('/posts');
         }
         else {
             const comment = await commentData.createComment(userId, null, postId, commentText, "post");
             const post = await postData.putComment(postId, comment.commentId);
-            // console.log(post);
+      
             return res.sendStatus(200);
-            //return res.redirect(`/posts/${postId}`);
+     
         }
 
     } catch (e) {

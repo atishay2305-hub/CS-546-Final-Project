@@ -8,7 +8,7 @@ let exportedMethods = {
     async createDiscussion(category, description,userId) {
         category = validation.checkLegitName(category, "category");
         description = validation.checkPhrases(description, "Description");
-        // const userId = validation.checkId(userId);
+      
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
         if (!user) {

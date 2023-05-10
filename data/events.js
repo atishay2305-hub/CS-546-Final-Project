@@ -3,7 +3,7 @@ import validation from "../validationchecker.js";
 import {ObjectId} from "mongodb";
 import {commentData, userData} from "./index.js";
 import multer from "multer";
-//import commentData  from "./commentBtn.js";
+
 
 let exportedMethods = {
     async createEvent(
@@ -67,7 +67,7 @@ let exportedMethods = {
     
     async getEventByID(id) {
         id = validation.checkId(id);
-        // console.log(events());
+     
         const eventCollection = await events();
         const event = eventCollection.findOne({_id: new ObjectId(id)});
         if (event === null) throw "No event with that id";
@@ -91,21 +91,12 @@ let exportedMethods = {
         const eventCollection = await events();
         const event =await eventCollection.findOne({_id: new ObjectId(id)});
         if (event === null) throw "No event with that id";
-        //const userCollection = await users();
-
-        // const user = await userCollectio});
-        // console.log(user);
-        // if(!user){
-        //     throw "user does not exists";
-        // }
-        // if (user.isAdmin === undefined || !user.isAdmin) throw "Only administrators can delete events.";
+       
         const removeEvent = await eventCollection.deleteOne({_id: new ObjectId(id)});
         if (removeEvent.deletedCount === 0) {
             throw `Could not delete event with id of ${id}`;
         }
-        //await commentData.removeCommentByEvent(id);
-        //await commentData.removeCommentByEvent(id);
-         //await commentData.removeCommentByEvent(id);
+     
         return {
             eventId: id,
             deleted: true

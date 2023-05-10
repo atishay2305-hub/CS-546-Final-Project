@@ -20,12 +20,12 @@ const authCheck = {
     },
 
     checkComment(comment) {
-        // Check if the comment is empty or only contains whitespace
+   
         if (!comment || /^\s*$/.test(comment)) {
             return false;
         }
 
-        // Check if the comment contains any inappropriate language
+
         const inappropriateWords = ['bad', 'hate', 'stupid', 'ugly', 'disgusting', 'offensive'];
         for (const word of inappropriateWords) {
             if (comment.toLowerCase().includes(word)) {
@@ -33,7 +33,7 @@ const authCheck = {
             }
         }
 
-        // Return the updated comment
+     
         return comment;
     },
     checkLoginPass(password) {
@@ -88,7 +88,7 @@ const authCheck = {
         }
     
         const minAgeDate = new Date();
-        minAgeDate.setFullYear(minAgeDate.getFullYear() - 13); // Subtract 13 years from the current date
+        minAgeDate.setFullYear(minAgeDate.getFullYear() - 13); 
     
         const inputDate = new Date(DOB);
         if (inputDate > minAgeDate) {
@@ -123,8 +123,7 @@ const authCheck = {
         if (!phrase) throw `${valName} not provided`;
         if (typeof phrase !== "string" || phrase.trim().length === 0) throw `Please provide a valid input of ${valName}`
         phrase = phrase.trim();
-        // if (phrase.length < 5)
-        //     throw `${valName} length must greater than 5 characters`;
+       
         if (phrase.length > 300){
             throw `${valName} length must less than 300 characters`;
         }

@@ -1,4 +1,4 @@
-let map = null; // Declare map variable outside the function
+let map = null; 
 
 document.getElementById("showOnMapBtn").addEventListener("click", function(event) {
     event.preventDefault();

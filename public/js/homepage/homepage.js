@@ -1,38 +1,4 @@
-// const categories = [
-//     "events", "education", "sports", "food", "random", "books", "anime", "games", "TV", "Programming"];
 
-// const categoryElement = document.getElementsByClassName("category");
-const searchElement = document.getElementById('search')
-
-// const urlSearchParams = new URLSearchParams(window.location.search);
-// const params = Object.fromEntries(urlSearchParams.entries());
-
-// // let categoryParam;
-// // if(params.category && categories.includes(params.category)){
-// //     categoryParam = params.category
-// // }
-
-// if(params.search){
-//     searchElement.value = params.search
-// }
-
-// for (let i = 0; i < categoryElement.length; i++) {
-//     categories.forEach((category) => {
-//         const option = document.createElement("option");
-//         option.text = category;
-//         option.value = category;
-//         if(category === categoryParam){
-//             option.selected = "true"
-//         }
-//         categoryElement[i].appendChild(option);
-//     });
-// }
-
-// categories.forEach((category) => {
-//     const option = document.createElement("option");
-//     option.text = category;
-//     option.value = category;
-// });
 
 
 function toggleComments(button) {
@@ -139,7 +105,7 @@ async function dislikeFunc(postId, type) {
 
     const response = await fetch(`/posts/${postId}/dislike`, { method: 'POST' });
     if (response.ok) {
-        //location.reload();
+   
         type === 'home' ? window.location.href = '/homepage' : window.location.href = '/posts'
         if (type === 'post_id') window.location.href = `/posts/${postId}`
     }

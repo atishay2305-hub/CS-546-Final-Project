@@ -87,8 +87,7 @@ let exportedMethods = {
     async checkUser(email, password) {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
-        // const userId = checkExist._id.toString();
-        // req.session.userId = userId;
+      
         const userCollection = await users();
         const checkExist = await userCollection.findOne({email: email});
         if (!checkExist) throw "You may have entered the wrong email address or password.";
@@ -125,7 +124,7 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         password = validation.checkPassword(password);
         DOB = validation.checkDOB(DOB);
-        // department = validation.checkDepartment(department);
+ 
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
         if (!user) throw "You may have entered the wrong email address or password.";
@@ -158,7 +157,7 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         return user.postIDs;
     },
 
@@ -196,7 +195,7 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         if (!user.role !== 'admin') throw `Error: ${email} is not an administrator`
         return user.eventIDs;
     },
@@ -205,7 +204,7 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         return user.commentIDs;
     },
 
@@ -213,7 +212,7 @@ let exportedMethods = {
         email = validation.checkEmail(email);
         const userCollection = await users();
         const user = await userCollection.findOne({email: email});
-        if (!user) throw `Error: ${email} not found`; //check password as well
+        if (!user) throw `Error: ${email} not found`; 
         user._id = user._id.toString();
         return user;
     },
@@ -222,7 +221,7 @@ let exportedMethods = {
         userId = validation.checkId(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         user._id = user._id.toString();
         return user;
     },
@@ -231,7 +230,7 @@ let exportedMethods = {
         userName = validation.checkName(userName);
         const userCollection = await users();
         const user = await userCollection.findOne({userName: userName});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         user._id = user._id.toString();
         return user;
     },
@@ -241,7 +240,7 @@ let exportedMethods = {
         postId = validation.checkId(postId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         let postIdList = user.postIDs;
         postIdList.push(postId);
         const updatedInfo = await userCollection.updateOne(
@@ -258,7 +257,7 @@ let exportedMethods = {
         postId = validation.checkId(postId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         let postIdList = user.postIDs;
         if (postIdList.includes(postId)) {
             postIdList = postIdList.filter(elem => elem !== postId);
@@ -278,7 +277,7 @@ let exportedMethods = {
         eventId = validation.checkId(eventId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         let eventIdList = user.eventIDs;
         eventIdList.push(eventId);
         const updatedInfo = await userCollection.updateOne(
@@ -294,7 +293,7 @@ let exportedMethods = {
         discussId = validation.checkId(discussId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         let discussIdList = user.discussion;
         discussIdList.push(discussId);
         const updatedInfo = await userCollection.updateOne(
@@ -310,7 +309,7 @@ let exportedMethods = {
         eventId = validation.checkId(eventId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `User with that ID${userId} not found`; //check password as well
+        if (!user) throw `User with that ID${userId} not found`; 
         let eventIdList = user.eventIDs;
         if (eventIdList.includes(eventId)) {
             eventIdList = eventId.filter(elem => elem !== eventId);
@@ -330,7 +329,7 @@ let exportedMethods = {
         eventId = validation.checkId(eventId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `User with that ID${userId} not found`; //check password as well
+        if (!user) throw `User with that ID${userId} not found`; 
         const eventCollection = await events()
         const event = await eventCollection.findOne({_id: new ObjectId(eventId)});
         if (!event) throw `Event with that ID${eventId} not found`;
@@ -401,7 +400,7 @@ let exportedMethods = {
         commentId = validation.checkId(commentId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         let commentIdList = user.commentIDs;
         commentIdList.push(commentId);
         const updatedInfo = await userCollection.updateOne(
@@ -417,7 +416,7 @@ let exportedMethods = {
         commentId = validation.checkId(commentId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: ${user} not found`; //check password as well
+        if (!user) throw `Error: ${user} not found`; 
         let commentIdList = user.commentIDs;
         if (commentIdList.includes(commentId)) {
             commentIdList = commentId.filter(elem => elem !== commentId);
@@ -453,7 +452,7 @@ let exportedMethods = {
         userId = validation.checkId(userId);
         const userCollection = await users();
         const user = await userCollection.findOne({_id: new ObjectId(userId)});
-        if (!user) throw `Error: ${userId} not found`; //check password as well
+        if (!user) throw `Error: ${userId} not found`; 
         const deletionInfo = await userCollection.deleteOne({_id: new ObjectId(userId)});
         if (deletionInfo.deletedCount === 0) {
             throw `Could not delete user with id of ${userId}`;
@@ -465,11 +464,11 @@ let exportedMethods = {
         userId = validation.checkId(userId);
         eventId  = validation.checkId(eventId);
         const user = await userData.getUserByID(userId);
-        if (!user) throw `Error: ${userId} not found`; //check password as well
+        if (!user) throw `Error: ${userId} not found`; 
         const eventIndex = user.eventAttended.findIndex(event => event.eventId === eventId);
         let eventAttended = user.eventAttended;
         if (eventIndex === -1) {
-            // event not found in eventAttended array, add it
+          
             eventAttended.push({eventId: eventId});
         }
         const userCollection = await users();
@@ -488,7 +487,7 @@ let exportedMethods = {
         userId = validation.checkId(userId);
         eventId  = validation.checkId(eventId);
         const user = await userData.getUserByID(userId);
-        if (!user) throw `Error: ${userId} not found`; //check password as well
+        if (!user) throw `Error: ${userId} not found`; 
         let eventAttended = user.eventAttended.filter(event => event.eventId !== eventId);eventAttended.push({eventId: eventId});
         const userCollection = await users();
         const updateInfo = await userCollection.updateOne(

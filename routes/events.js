@@ -158,7 +158,7 @@ router
             }
             return res.json({success: true, message: "Cancel successful"})
         } catch (e) {
-            // console.log(e);
+         
             res.sendStatus(500).json({
                 success: false,
                 message: "Something went wrong."
@@ -256,7 +256,6 @@ router
 
             return res.redirect('/homepage')
         } catch (e) {
-            // console.log(e);
             return res.status(500).json({success: false, message: "Server error"});
         }
     });

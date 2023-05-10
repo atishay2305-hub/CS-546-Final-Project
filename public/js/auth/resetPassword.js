@@ -13,9 +13,9 @@ import authCheck from "../validtionChecker.js";
                 event.preventDefault();
                 errorHandle.hidden = true;
                 let newPassword = document.getElementById("newPassword").value;
-                // console.log("13", newPassword)
+          
                 let confirmNewPassword = document.getElementById("confirmNewPassword").value;
-                // console.log("15", confirmNewPassword);
+            
 
                 try {
                     newPassword = authCheck.checkPassword(newPassword);
@@ -47,7 +47,7 @@ import authCheck from "../validtionChecker.js";
                 }).then((data) => {
                     if (data) {
                         if (!data.success) {
-                            // document.getElementById("email").value = data.email;
+                           
                             document.getElementById("newPassword").value = data.newPassword;
                             document.getElementById("confirmNewPassword").value = data.confirmNewPassword;
                             return handleError(data || "Something went wrong.");
